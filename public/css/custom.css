@@ -1,0 +1,68 @@
+.logo{
+    height: 60px;
+}
+
+.btn-danger {
+    background-color: #dc3545!important;
+}
+
+.btn-primary {
+    background-color: #007bff !important;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    padding: 2px 25px !important;
+}
+
+.tab-head {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.inst-body {
+    min-height: 92vh;
+}
+
+.application-footer {
+    min-height: 50px; 
+    padding: 25px 0;
+    width: 100%;
+}
+
+#online-form {
+    margin: 0 5%;
+}
+
+.captcha {
+    background-color: #FFA275;
+    padding: 10px 20px;
+    margin: 10px;
+}
+
+.edit-green {
+    font-size:25px; 
+    color:Green;
+}
+
+.displayNone {
+    display: none;
+}
+
+.actions-btn{
+    display: inline !important;
+}
+.actions-btn button{
+    background-color: #28a745 !important;
+}
+
+.application_header, .application_footer {
+    background: linear-gradient(90deg, #f58920 31%, #f04d09 72%, #e04421 91%);
+}
