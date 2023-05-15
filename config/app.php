@@ -1,5 +1,5 @@
 <?php
-$domainUrl = "http://localhost/new_ethsti";
+$domainUrl = "http://localhost/new_ethsti_tabs";
 return [
 
     /*

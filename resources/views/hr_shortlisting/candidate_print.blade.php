@@ -268,7 +268,9 @@
                 $grand_total_experience = $candidateApplyDetails[0]['total_experience'];
                 $payment_status = $candidateApplyDetails[0]['payment_status']; 
                 // candidate documents path
+                $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
                 $candidates_docs_path = config('app.candidates_docs_path');
+                $candidates_docs_path .= "/".$candidateJobApplyID;
                                     
                 ?>
                 <?php

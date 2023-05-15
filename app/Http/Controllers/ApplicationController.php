@@ -358,13 +358,16 @@ class ApplicationController extends Controller
     }
 
     // candidate edit applied job details
-    public function edit_candidate_applied_job_details(Request $request, $candidateJobApplyEncID){
+    public function edit_candidate_applied_job_details(Request $request, $candidateJobApplyEncID, $formTabIdEnc=""){
         
         $captcha_code = Helper::get_captcha_code();
         
         // set session of captcha for registration form
         $request->session()->put('registration_captcha', $captcha_code);
-
+        $formTabId = "";
+        if(isset($formTabIdEnc) && !empty($formTabIdEnc)){
+            $formTabId = Helper::decodeId($formTabIdEnc);
+        }
         $candidateJobApplyID = Helper::decodeId($candidateJobApplyEncID);
         $candidateJobApplyDetail = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
                                                         ->join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
@@ -473,7 +476,7 @@ class ApplicationController extends Controller
             //echo "<pre>";
             //print_r($jobValidations);
             //exit;
-            return view('application.edit_candidate_applied_job_details', compact('jobData','fieldsArray','domainAreas','codeNamesArr','jobId','candidateJobApplyDetail','minJobEduRequired','jobValidations','captcha_code','candidateJobApplyEncID','academicDetails','candidateExperienceDetails','total_experience','candidatesPublicationsDetails','existingRefreeDetails','candidatesPHDResearchDetails'));
+            return view('application.edit_candidate_applied_job_details', compact('jobData','fieldsArray','domainAreas','codeNamesArr','jobId','candidateJobApplyDetail','minJobEduRequired','jobValidations','captcha_code','candidateJobApplyEncID','academicDetails','candidateExperienceDetails','total_experience','candidatesPublicationsDetails','existingRefreeDetails','candidatesPHDResearchDetails','formTabId','formTabIdEnc'));
         }else{
             echo "Something went wrong.";
             exit;
@@ -481,20 +484,26 @@ class ApplicationController extends Controller
     }
 
     // update candidate applied job details
-    public function update_candidate_applied_job_details(Request $request, $encId){
+    public function update_candidate_applied_job_details(Request $request, $encId, $formTabIdEnc=""){
 
         $postData = $request->post();
         $candidateJobApplyID = Helper::decodeId($encId);
+        $formTabId = "";
+        if(isset($formTabIdEnc) && !empty($formTabIdEnc)){
+            $formTabId = Helper::decodeId($formTabIdEnc);
+        }
         //print_r($postData);exit;
         $security_code = $request->session()->get('registration_captcha');
-        $email_id = $postData['email_id'];
+        //$email_id = $postData['email_id'];
         $validator = $this->validate_candidate_details($request, $security_code);
         
         try{
+            /*
             if($validator->fails()) {
                 //withInput keep the users info
                 return redirect()->back()->withInput()->withErrors($validator->messages());
             } else {
+            */    
                 // transactions start
                 DB::beginTransaction();
                 $postNewArray = [];
@@ -508,12 +517,13 @@ class ApplicationController extends Controller
                     $candidate_id = $candidateJobApplyDetail[0]['candidate_id'];
                 }
 
-                // get register candidate details array
-                $postNewArray = $this->register_candidate_personal_details_arr($postData);
-                if(!empty($postNewArray) && $candidate_id != ""){
-                    // update registered candidate details
-                    RegisterCandidate::where('id', $candidate_id)->update($postNewArray);
-                    if(isset($candidate_id)){
+                if($formTabId == ""){
+                    //********************************** */ candidate basic details start ***************************/
+                    // get register candidate details array
+                    $postNewArray = $this->register_candidate_personal_details_arr($postData);
+                    if(!empty($postNewArray) && $candidate_id != ""){
+                        // update registered candidate details
+                        RegisterCandidate::where('id', $candidate_id)->update($postNewArray);
                         // set session of registered user
                         $request->session()->put('candidate_id', $candidate_id);
                         $jobApplyArr = [];
@@ -528,84 +538,95 @@ class ApplicationController extends Controller
                                                 ->where('status', 1)
                                                 ->update($jobApplyArr);
                         }
-
-                        // update candidate academic details start
-                        $retData = $this->update_candidate_academic_details($postData, $candidate_id, $candidateJobApplyID);
+                    }
+                    // candidate basic details end
+                }
+                else if($formTabId == 2){
+                    //******************************* */ academic, experience, refree, relationship details **********************/
+                    
+                    // update candidate academic details start
+                    $retData = $this->update_candidate_academic_details($postData, $candidate_id, $candidateJobApplyID);
+                    
+                    if($retData['status'] == 'error'){
+                        $errorMsg = $retData['msg'];
+                        DB::rollback();
+                        return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+                    }
+                    // update candidate academic details end
+                    
+                    // update candidate experience details start
+                    if(isset($postData['exp_check']) && $postData['exp_check'] == 1){
+                        $retData = $this->update_candidate_experience_details($postData, $candidate_id, $candidateJobApplyID);
                         if($retData['status'] == 'error'){
                             $errorMsg = $retData['msg'];
                             DB::rollback();
                             return redirect()->back()->withInput()->with('error_msg',$errorMsg);
                         }
-                        // update candidate academic details end
-                        
-                        // update candidate experience details start
-                        if(isset($postData['exp_check']) && $postData['exp_check'] == 1){
-                            $retData = $this->update_candidate_experience_details($postData, $candidate_id, $candidateJobApplyID);
-                            if($retData['status'] == 'error'){
-                                $errorMsg = $retData['msg'];
-                                DB::rollback();
-                                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                            }
-                        }else{
-                            // mark all items as deleted
-                            CandidatesExperienceDetails::where('candidate_id', $candidate_id)
-                                                        ->where('candidate_job_apply_id', $candidateJobApplyID)
-                                                        ->where('status', 1)
-                                                        ->update(['status' => 3]);
-                        }
-                        // update candidate experience details end
-
-                        // update candidate publications details start
-                        if(isset($postData['exp_check']) && $postData['exp_check'] == 1){
-                            $retData = $this->update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID);
-                            if($retData['status'] == 'error'){
-                                $errorMsg = $retData['msg'];
-                                DB::rollback();
-                                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                            }
-                        }else{
-                            // mark all publications items as deleted
-                            CandidatesPublicationsDetails::where('candidate_id', $candidate_id)
-                                                        ->where('candidate_job_apply_id', $candidateJobApplyID)
-                                                        ->where('status', 1)
-                                                        ->update(['status' => 3]);
-                        }
-                        // update candidate publications details end
-                        
-                        // update candidate refree details start
-                        if(isset($postData['ref_name']) && !empty($postData['ref_name'])){
-                            $retData = $this->update_candidate_refree_details($postData, $candidate_id, $candidateJobApplyID);
-                            if($retData['status'] == 'error'){
-                                $errorMsg = $retData['msg'];
-                                DB::rollback();
-                                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                            }
-                        }else{
-                            // mark all refree as deleted
-                            CandidatesRefreeDetails::where('candidate_id', $candidate_id)
-                                                        ->where('candidate_job_apply_id', $candidateJobApplyID)
-                                                        ->where('status', 1)
-                                                        ->update(['status' => 3]);
-                        }
-                        // update candidate refree details end
-
-                        // update candidate PHD Research details start
-                        if(isset($postData['ref_name']) && !empty($postData['ref_name'])){
-                            $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
-                            if($retData['status'] == 'error'){
-                                $errorMsg = $retData['msg'];
-                                DB::rollback();
-                                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                            }
-                        }
-                        // update candidate PHD Research details end
-
+                    }else{
+                        // mark all items as deleted
+                        CandidatesExperienceDetails::where('candidate_id', $candidate_id)
+                                                    ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                                    ->where('status', 1)
+                                                    ->update(['status' => 3]);
                     }
+                    // update candidate experience details end
+
+                    // update candidate refree details start
+                    if(isset($postData['ref_name']) && !empty($postData['ref_name'])){
+                        $retData = $this->update_candidate_refree_details($postData, $candidate_id, $candidateJobApplyID);
+                        if($retData['status'] == 'error'){
+                            $errorMsg = $retData['msg'];
+                            DB::rollback();
+                            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+                        }
+                    }else{
+                        // mark all refree as deleted
+                        CandidatesRefreeDetails::where('candidate_id', $candidate_id)
+                                                    ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                                    ->where('status', 1)
+                                                    ->update(['status' => 3]);
+                    }
+                    // update candidate refree details end
+
                 }
+                else if($formTabId == 3){
+                    //*********************************************  PHD Details ***************************/
+                    //update candidate publications details start
+                    if(isset($postData['exp_check']) && $postData['exp_check'] == 1){
+                        $retData = $this->update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID);
+                        if($retData['status'] == 'error'){
+                            $errorMsg = $retData['msg'];
+                            DB::rollback();
+                            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+                        }
+                    }else{
+                        // mark all publications items as deleted
+                        CandidatesPublicationsDetails::where('candidate_id', $candidate_id)
+                                                    ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                                    ->where('status', 1)
+                                                    ->update(['status' => 3]);
+                    }
+                    // update candidate publications details end
+                    
+                    
+                    // update candidate PHD Research details start
+                    if(isset($postData['ref_name']) && !empty($postData['ref_name'])){
+                        $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
+                        if($retData['status'] == 'error'){
+                            $errorMsg = $retData['msg'];
+                            DB::rollback();
+                            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+                        }
+                    }
+                    // update candidate PHD Research details end
+                }
+                
                 // transactions start
                 DB::commit();
-                return redirect()->route('dashboard')->with('success','Details updated successfully.');
-            }
+                $redirectUrl = route('edit_candidate_applied_job_details',$encId);
+                $redirectUrl .= "/".$formTabIdEnc;
+                return redirect($redirectUrl)->with('success','Details updated successfully.');
+            //}
         }catch(\Exception $e){
             $errorMsg = $e->getMessage();
             DB::rollback();
@@ -635,11 +656,11 @@ class ApplicationController extends Controller
                     'correspondes_address' => 'required',
                     'present_state' => 'required',
                     'present_city' => 'required',
-                    'present_pincode' => 'required',
-                    'security_code' => 'required|check_captcha:'.$security_code
+                    'present_pincode' => 'required'
+                    //'security_code' => 'required|check_captcha:'.$security_code
                 ],
                 [
-                    'check_captcha' => 'Invalid captcha code.',
+                    //'check_captcha' => 'Invalid captcha code.',
                     'check_unique_registration' => 'Email & Phone no. already exists.'
                 ]
             );
@@ -1441,11 +1462,15 @@ class ApplicationController extends Controller
     }
 
     // upload candidate documents 
-    public function upload_candidate_documents(Request $request, $candidateJobApplyEncID){
+    public function upload_candidate_documents(Request $request, $candidateJobApplyEncID, $formTabIdEnc=""){
 
         $captcha_code = Helper::get_captcha_code();
         // set session of captcha for registration form
         $request->session()->put('registration_captcha', $captcha_code);
+        $formTabId = "";
+        if(isset($formTabIdEnc) && !empty($formTabIdEnc)){
+            $formTabId = Helper::decodeId($formTabIdEnc);
+        }
         $candidateJobApplyID = Helper::decodeId($candidateJobApplyEncID);
         $candidateJobApplyDetail = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
                                                         ->join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
@@ -1494,7 +1519,7 @@ class ApplicationController extends Controller
         echo "<pre>";
         print_r($candidateJobApplyDetail);
         exit;*/
-        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments'));
+        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId'));
 
     }
 
@@ -1524,6 +1549,7 @@ class ApplicationController extends Controller
                 $postCommonDocsArr = [];
                 //$destinationParentFolderPath = "public/upload/candidates_documents";
                 $destinationParentFolderPath = config('app.candidates_docs_path');
+                $destinationParentFolderPath .= "/".$candidateJobApplyID;
                 $maxFileSize200KB = 200*1024;// 200 KB
                 $maxFileSize50KB = 50*1024;// 50 KB
                 $maxFileSize10KB = 10*1024;// 10 KB

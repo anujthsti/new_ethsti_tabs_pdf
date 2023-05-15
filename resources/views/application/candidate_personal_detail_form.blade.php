@@ -1,17 +1,5 @@
 <?php
-$rn_no_id = $jobData[0]['rn_no_id'];
-$job_title = $jobData[0]['code_meta_name'];
-$rn_no = $jobData[0]['rn_no'];
 $apply_end_date = $jobData[0]['apply_end_date'];
-$job_type_id = $jobData[0]['job_type_id'];
-
-$masterCode = 'job_types';
-$codeMetaCodeArr = ['train_program'];
-$jobTypeIDs = Helper::getCodeNamesIdsByCodes($masterCode, $codeMetaCodeArr);
-$jobTitleLabel = "Post Applied For";
-if(in_array($job_type_id, $jobTypeIDs)){
-    $jobTitleLabel = "Training Applied For";
-}
 
 $domain_area_id = old('domain_area');
 $method_of_appointment = old('method_of_appointment');
@@ -87,29 +75,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
 
 $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
 ?>
-      <!-- hidden fields-->      		       
-      <input name="rn_no_id" type="hidden" value="{{ $rn_no_id }}" readonly="readonly" id="rn_id" />
-      <input name="job_id" type="hidden" value="{{ $jobId }}" readonly="readonly" id="rn_id" />
-      <!-- Autofetched Details-->                       
-      <div class="row">       
-        <div class="col-xs-12 col-sm-12 col-md-4">
-          <div class="form-group">     
-            <label for="staticrn_no" class="form-label">RN No.</label>
-            <input type="text" readonly class="form-control" id="staticrn_no" value="{{ $rn_no }}" required="" />   
-          </div>
-        </div> 
-        <div class="col-xs-12 col-sm-12 col-md-4">
-          <div class="form-group">    
-            <label for="staticrn_job_title" class="form-label">{{ $jobTitleLabel }}</label> 
-            <input type="text" readonly class="form-control" id="staticrn_job_title" value="{{ $job_title }}" required=""  />
-          </div>
-        </div>   
-      </div>
-      @if(session('error_msg'))
-        <div class="alert alert-danger mb-1 mt-1">
-            {{ session('error_msg') }}
-        </div>
-        @endif
+      
       <div class="row">
         <!-- domain area start --> 
         @if(!empty($fieldsArray) && in_array('domain_area', $fieldsArray))
@@ -523,7 +489,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
         <div class="col-xs-12 col-sm-12 col-md-4 country_name" style="<?php echo $countryNameDisplay; ?>">
           <div class="form-group">
             <label for="nationality" class="form-label" >Country Name</label>
-            <input class="form-control" name="nationality" autocomplete="off" type="text" maxlength="30" required=""  value="<?php echo ($nationality)?$nationality:''; ?>"  />
+            <input class="form-control" name="nationality" autocomplete="off" type="text" maxlength="30" value="<?php echo ($nationality)?$nationality:''; ?>"  />
             @error('nationality')
               <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
             @enderror  

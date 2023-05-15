@@ -203,10 +203,10 @@ Route::group(['prefix'=>'application','middleware' => 'candidatesession'], funct
         Route::get('logout','logout')->name('dashboard_logout');
         */
         Route::get('dashboard','dashboard')->name('dashboard');
-        Route::get('edit_candidate_applied_job_details/{id}','edit_candidate_applied_job_details')->name('edit_candidate_applied_job_details');
-        Route::get('upload_candidate_documents/{id}','upload_candidate_documents')->name('upload_candidate_documents');
-        Route::post('update_candidate_upload_documents/{id}','update_candidate_upload_documents')->name('update_candidate_upload_documents');
-        Route::post('update_candidate_applied_job_details/{id}','update_candidate_applied_job_details')->name('update_candidate_applied_job_details');
+        Route::get('edit_candidate_applied_job_details/{id}/{tabid?}','edit_candidate_applied_job_details')->name('edit_candidate_applied_job_details');
+        Route::get('upload_candidate_documents/{id}/{tab_id?}','upload_candidate_documents')->name('upload_candidate_documents');
+        Route::post('update_candidate_upload_documents/{id}/{tab_id?}','update_candidate_upload_documents')->name('update_candidate_upload_documents');
+        Route::post('update_candidate_applied_job_details/{id}/{tab_id?}','update_candidate_applied_job_details')->name('update_candidate_applied_job_details');
         Route::get('checkout/{id}','checkout')->name('checkout');
         Route::post('add_fee_transaction/{id}','add_fee_transaction')->name('add_fee_transaction');
         

@@ -49,7 +49,10 @@ $educationMasterArr = Helper::getCodeNamesByMasterCode("education");
 //print_r($castCategoryGenIdArr);
 //echo "castCategoryId: ".$castCategoryId;
 // candidate documents path
+
+$candidateJobApplyID = Helper::decodeId($candidateJobApplyEncID);
 $candidateDocsParentFolderPath = config('app.candidates_docs_path');
+$candidateDocsParentFolderPath .= "/".$candidateJobApplyID;
 //$candidateDocsParentFolderPath = "upload/candidates_documents";
 ?>
 @include('application.application_head')

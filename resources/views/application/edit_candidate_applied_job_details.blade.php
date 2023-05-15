@@ -3,6 +3,28 @@
 <?php
 $page_title = "Dashboard";
 $form_action = route('update_candidate_applied_job_details',$candidateJobApplyEncID);
+if(isset($formTabIdEnc) && !empty($formTabIdEnc)){
+    $form_action .= "/".$formTabIdEnc;
+}
+
+$rn_no_id = $jobData[0]['rn_no_id'];
+$rn_no = $jobData[0]['rn_no'];
+$job_title = $jobData[0]['code_meta_name'];
+$job_type_id = $jobData[0]['job_type_id'];
+
+$masterCode = 'job_types';
+$codeMetaCodeArr = ['train_program'];
+$jobTypeIDs = Helper::getCodeNamesIdsByCodes($masterCode, $codeMetaCodeArr);
+$jobTitleLabel = "Post Applied For";
+if(in_array($job_type_id, $jobTypeIDs)){
+    $jobTitleLabel = "Training Applied For";
+}
+
+/*
+if (request()->routeIs('companies.*')) {
+    // will match routes which name starts with companies.
+  }
+  */
 ?>
 @include('application.application_head')
 
@@ -11,32 +33,75 @@ $form_action = route('update_candidate_applied_job_details',$candidateJobApplyEn
     <!-- old existing submit form file -> online-update.php -->
     <!-- include dashboard navigation -->
     @include('application.dashboard_nav')
-    <div class="container-fluid border-top pt-5">                          
+    <div class="container-fluid border-top pt-5">   
+        <!-- candidate form steps --> 
+        @include('application.candidate_form_steps')   
       <!-- form start -->  
         <form id="online-form" name="online-form" method="post" action="{{ $form_action }}" enctype="multipart/form-data">
             @csrf
-            <!-- include candidate registered personal details section -->
-            @include('application.candidate_personal_detail_form')
-            <!-- include candidate academic details section -->
-            @include('application.candidate_academic_details')
-            <!-- include candidate experience details section -->
-            @include('application.candidate_experience_details')
-            <!-- include candidate publications details section -->
-            @include('application.candidate_publication')
-            <!-- include candidate patents details section -->
-            @include('application.candidate_patents')
-            <!-- include candidate research statement details section -->
-            @include('application.candidate_research_statement')
-            <!-- include candidate relationship details section -->
-            @include('application.candidate_relationship')
-            <!-- include candidate refree details section -->
-            @include('application.candidate_refree')
-            <!-- include candidate fellowship details section -->
-            @include('application.candidate_fellowship')
- 
+            <!-- hidden fields-->      		       
+            <input name="rn_no_id" type="hidden" value="{{ $rn_no_id }}" readonly="readonly" id="rn_id" />
+            <input name="job_id" type="hidden" value="{{ $jobId }}" readonly="readonly" id="rn_id" />
+            <!-- Autofetched Details-->                       
+            <div class="row">       
+                <div class="col-xs-12 col-sm-12 col-md-4">
+                    <div class="form-group">     
+                        <label for="staticrn_no" class="form-label">RN No.</label>
+                        <input type="text" readonly class="form-control" id="staticrn_no" value="{{ $rn_no }}" required="" />   
+                    </div>
+                </div> 
+                <div class="col-xs-12 col-sm-12 col-md-4">
+                    <div class="form-group">    
+                        <label for="staticrn_job_title" class="form-label">{{ $jobTitleLabel }}</label> 
+                        <input type="text" readonly class="form-control" id="staticrn_job_title" value="{{ $job_title }}" required=""  />
+                    </div>
+                </div>   
+            </div>
+            @if(session('error_msg'))
+                <div class="alert alert-danger mb-1 mt-1">
+                    {{ session('error_msg') }}
+                </div>
+                @endif
+            <?php
+            if($formTabId == ""){
+                //include candidate registered personal details section -->
+                ?>
+                @include('application.candidate_personal_detail_form')
+                <!-- include candidate relationship details section -->
+                @include('application.candidate_relationship')
+                
+                <?php
+            }
+            else if($formTabId == 2){
+                ?>
+                <!-- include candidate academic details section -->
+                @include('application.candidate_academic_details')
+                <!-- include candidate experience details section -->
+                @include('application.candidate_experience_details')
+                <!-- include candidate refree details section -->
+                @include('application.candidate_refree')
+                <?php
+            }
+            else if($formTabId == 3){
+                ?>
+                <!-- include candidate publications details section -->
+                @include('application.candidate_publication')
+                <!-- include candidate patents details section -->
+                @include('application.candidate_patents')
+                <!-- include candidate research statement details section -->
+                @include('application.candidate_research_statement')
+                <!-- include candidate fellowship details section -->
+                @include('application.candidate_fellowship')
+                <?php
+            }
+            else{
+
+            }
+            ?>
             <hr />                 	
             <!-- captcha & submit button section start -->		             
-            <div class="form-group row" align="center">             
+            <div class="form-group row" align="center">  
+                <?php /* ?>           
                 <div class="col-12" align="center">		
                     <span width="85" id="captcha" height="40" class="mb-1 captcha">{{ $captcha_code }}</span>
                     <input name="security_code" type="text" autocomplete="off" maxlength="6" id="security_code" style="text-transform:none; margin-top: 10px;" class="form-control col-lg-2 col-md-2 col-sm-2" />
@@ -46,6 +111,7 @@ $form_action = route('update_candidate_applied_job_details',$candidateJobApplyEn
                       <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                     @enderror           
                 </div>
+                <?php */ ?>
                 <div class="form-group col-12" align="center">
                   <input class="btn btn-primary col-lg-2 col-md-2 col-sm-3" id="draft" type="button" value="Verify Form" />&nbsp;
                   <input class="btn btn-success col-1" style="display:none;" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();" />
