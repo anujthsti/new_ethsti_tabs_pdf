@@ -1,3 +1,7 @@
+<?php
+$page_title = "Candidate Details";
+?>
+@include('application.header')
 <!-- common sections variables start -->
 <?php
     // variables for section header title
@@ -5,26 +9,31 @@
     // variables for section buttons bar
     $createBtnTitle = "";
     $createBtnLink = "";
+    // for phd
+    $is_publication_tab = $jobValidations[0]['is_publication_tab'];
+   
 ?>
 <!-- common sections variables end -->
+@include('application.application_head')
+<div class="container-fluid">
+    @include('application.dashboard_nav')
+    <div class="container-fluid border-top pt-5">   
+    
+        <!-- candidate form steps --> 
+        @include('application.candidate_form_steps') 
 
-<x-app-layout>
-    <!-- section header title html -->
-    @include('layouts/header_title')
+        <style>
+            th {
+                text-align: center !important;
+            }
+            .btn-success {
+                color: #fff;
+                background-color: #28a745;
+                border-color: #28a745;
+            }
 
-    <style>
-        th {
-            text-align: center !important;
-        }
-        .btn-success {
-            color: #fff;
-            background-color: #28a745;
-            border-color: #28a745;
-        }
+        </style>
 
-    </style>
-
-    <div class="container mt-2">
         <!-- success message alert html start -->
         @if ($message = Session::get('success'))
             <!-- include success message common view -->
@@ -44,84 +53,34 @@
         $ageCategoriesIds = array_column($ageCategories, 'id');
         $ageCategoriesCodes = array_column($ageCategories, 'meta_code');
         ?>
-        <div class="col-lg-12">
-            <?php
-            /* 				
-                $val_index = array_search($id, $_SESSION['nextids']);	
-                $prev_index=$val_index-1;
-                $next_index=$val_index+1;
-                
-                $prev_id=$_SESSION['nextids'][$prev_index];
-                $next_id=$_SESSION['nextids'][$next_index];
-                
-                $size=sizeof($_SESSION['nextids']);
-            */    
-            ?>   
-        </div>
+        
         <!-- top bar start -->
         <div class="row p-3">	
             <div class="col-lg-5 col-md-5 text-left">
-                <?php 
-                if(isset($previousRec) && !empty($previousRec)){ 
-                    $previousId = $previousRec->id;
-                    $previousIdEnc = Helper::encodeId($previousId);
-                ?>
-                <a class="btn btn-success" href="<?php echo route('candidate_print', $previousIdEnc); ?>">Previous </a>
-                <?php } ?>
-                <?php 
-                if(isset($nextRec) && !empty($nextRec)){ 
-                    $nextId = $nextRec->id;
-                    $nextIdEnc = Helper::encodeId($nextId);
-                ?>
-                <a class="btn btn-success" href="<?php echo route('candidate_print', $nextIdEnc); ?>">Next </a>
-                <?php } ?>
+                
             </div>
 
-            <?php
-                $shortlisting_status = $candidateApplyDetails[0]['shortlisting_status']; 
-            ?>
-            <?php 
-            $remarksCodesIds = [];
-            $hrRemarksCodes = "";
-            if(isset($candidatesJobHRRemarks) && !empty($candidatesJobHRRemarks)){ 
-                $codes = array_column($candidatesJobHRRemarks,'code');
-                $remarksCodesIds = array_column($candidatesJobHRRemarks,'remarks_code_id');
-                $hrRemarksCodes = implode(", ",$codes);   
-            } 
-            ?>
             <div class="col-lg-2 col-md-2 text-center">
-                <?php if(!empty($shortlisting_status)){ ?>
-                <a class="text-danger h3" href="#">
-                    <?php 
-                    if($shortlisting_status==2){ 
-                        echo "Rejected <br>";
-                        echo $hrRemarksCodes; 
-                    }
-                    else if($shortlisting_status==1){ 
-                        echo 'Shortlisted'; 
-                    }
-                    else if($shortlisting_status==3){ 
-                        echo 'Provisionally Shortlisted'; 
-                    } 
-                    ?>
-                </a>
-                <?php } ?>
+                
             </div>
 
             <div class="col-lg-5 col-md-5 text-right">
-                <a class="btn btn-primary" id="back_id" href="<?php echo route('candidate_list')."/".$rnNoEncId."/".$jobEncId; ?>">List<a>
                 <input class="btn btn-primary" type="button" id="print_app" value="Print">
             </div>   
         </div>
         <!-- top bar end -->
         
         <?php
-        $formAction = route("save_candidate_shortlisting", $job_apply_id_enc);
+        $formAction = route("application_final_submission", $job_apply_id_enc);
+        if(isset($formTabIdEnc) && !empty($formTabIdEnc)){
+            $formAction .= "/".$formTabIdEnc;
+        }
         ?>
         <!-- form html start -->
         <form method="post" name="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
             @csrf
             <table border="0" align="center" cellpadding="0" cellspacing="0" id="print_form_id" class="table-sm">
+                <!--
                 <tr>
                     <td colspan="3" align="center" valign="top">
                         <img class="img img-thumbnail" src="{{ asset('thsti-logo-vertical.jpg') }}" width="100" height="100" />
@@ -139,6 +98,7 @@
                 <tr>
                     <td colspan="3" align="center" valign="top"><h3 class="h3">Online Registration Form</h3></td>
                 </tr>
+                -->
                 <tr>
                     <td width="29%" align="left" valign="top">
                         <strong>POST APPLIED FOR IN DOMAIN:</strong>
@@ -198,7 +158,6 @@
                 $is_pwd = 0;
                 $is_ex_serviceman = 0;
                 $nationality = "";
-                $nationality_type = "";
                 $correspondence_address = "";
                 $cors_city = "";
                 $cors_pincode = "";
@@ -213,6 +172,7 @@
                 $email_id = "";
                 $grand_total_experience = "";
                 $payment_status = "";
+                $nationality_type = "";
                 if(isset($candidateDetails) && !empty($candidateDetails)){
                     $mobile_no = $candidateDetails[0]['mobile_no'];
                     $email_id = $candidateDetails[0]['email_id']; 
@@ -273,74 +233,11 @@
                 $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
                 $candidates_docs_path = config('app.candidates_docs_path');
                 $candidates_docs_path .= "/".$candidateJobApplyID;
-                                    
-                ?>
-                <?php
+                
                 $dob = $candidateDetails[0]['dob'];
                 $age_limit_as_on_date = $candidateApplyDetails[0]['age_limit_as_on_date'];
                 $is_pwd = $candidateApplyDetails[0]['is_pwd'];
-                $age_limit = $candidateApplyDetails[0]['age_limit'];
-                // age relaxation validation start
-                $isCandidateOverAged = 0;
-                if(isset($age_limit_as_on_date) && !empty($age_limit_as_on_date) && !empty($age_limit)){
-                    $ageYear = Helper::age_validate($dob, $age_limit_as_on_date);
-                    $ageRelaxation = "";
-                    //$ageCategories
-                    //$ageCategoriesIds
-                    //$jobAgeRelaxation
-                    if($is_pwd == 1){
-                        $categoryCode = "pwd";
-                    }
-                    /*
-                    else if($categoryCode == "obc"){
-
-                    }
-                    else if($categoryCode == "ews"){
-
-                    }
-                    else if($categoryCode == "sc"){
-
-                    }
-                    else if($categoryCode == "st"){
-
-                    }
-                    */
-                    if(isset($categoryCode) && !empty($categoryCode)){
-                        $ageCategoryIdKey = array_search($categoryCode, $ageCategoriesCodes);
-                        if(isset($ageCategories[$ageCategoryIdKey]['id'])){
-                            $ageCategoryId = $ageCategories[$ageCategoryIdKey]['id'];
-                            $ageCatValidationIds = array_column($jobAgeRelaxation, 'category_id');
-                            if(in_array($ageCategoryId, $ageCatValidationIds)){
-                                $validationAgeKey = array_search($ageCategoryId, $ageCatValidationIds);
-                                $relaxationYear = $jobAgeRelaxation[$validationAgeKey]['years'];
-                                if(!empty($relaxationYear) && $relaxationYear > 0){
-                                    $newAgeYear = $age_limit+$relaxationYear;
-                                    if($ageYear >= $newAgeYear){
-                                        $isCandidateOverAged = 1;
-                                        ?>
-                                        <!--<tr>
-                                            <td colspan="3" align="left" valign="top">
-                                                <div class="col-lg-12 col-md-12 text-center">
-                                                    <a class="text-danger h3" href="#">Over Aged</a>
-                                                </div>
-                                            </td>
-                                        </tr>-->
-                                        
-                                        <?php
-                                    }
-                                    /*else{
-                                        echo "age_limit: ".$age_limit." -- newAgeYear: ".$newAgeYear;
-                                    }*/
-                                }
-                            }
-                        }
-                    }
-
-                }
-                // age relaxation validation end
-                // min experience validation start
-                //jobExperienceValidation
-                // min experience validation end
+                
                 ?>
                 <tr>
                     <td colspan="3" align="left" valign="top">
@@ -370,14 +267,7 @@
                                                     echo Helper::convertDateYMDtoDMY($dob);
                                                 ?>
                                                     &nbsp; (<?php echo $age; ?>)
-                                                <?php    
-                                                    if($isCandidateOverAged == 1){
-                                                        ?>
-                                                         <a class="text-danger h6" href="#">Over Aged</a>
-                                                        <?php
-                                                    }
-                                                }
-                                                ?>
+                                                <?php } ?>    
                                             </td>
                                         </tr>      
                                         <tr>
@@ -562,26 +452,6 @@
                 <tr style="background-color:#CCC;">
                     <td colspan="3" align="left" valign="top">
                         <strong>ACADEMIC/ PROFESSIONAL QUALIFICATION</strong>
-                        <?php
-                        $educationValid = 1;
-                        if(isset($jobEducationValidation) && !empty($jobEducationValidation)){
-                            $requiredEducationIds = array_column($jobEducationValidation, 'education_id');
-                            if(isset($candidateAcademicsDetails) && !empty($candidateAcademicsDetails)){
-                                $candidateEducationIds = array_column($candidateAcademicsDetails, 'education_id');  
-                                $idsDiff = array_diff($requiredEducationIds, $candidateEducationIds);  
-                                if(!empty($idsDiff)){
-                                    $educationValid = 0;
-                                }  
-                            }else{
-                                $educationValid = 0;
-                            }
-                        }
-                        if($educationValid == 0){
-                            ?>
-                            <span class="text-danger">Required education missing</span>
-                            <?php
-                        }
-                        ?>
                     </td>
                 </tr>      
                 <tr>
@@ -679,53 +549,6 @@
                 <tr style="background-color:#CCC;">
                     <td colspan="3" align="left" valign="top">
                         <strong>EXPERIENCE Details</strong>
-                        <!-- experience validation start -->
-                        <?php
-                        $experienceValid = 1;
-                        if(isset($jobExperienceValidation) && !empty($jobExperienceValidation)){
-                            $requiredExperienceYear = $jobExperienceValidation[0]['years'];
-                            $reqExperienceEduId = $jobExperienceValidation[0]['education_id'];
-                            $allEduIds = array_column($candidateAcademicsDetails,'education_id');
-                            $reqEduIdKey = array_search($reqExperienceEduId, $allEduIds);
-                            if(isset($candidateAcademicsDetails[$reqEduIdKey]['year'])){
-                                $eduYear = $candidateAcademicsDetails[$reqEduIdKey]['year'];
-                                $validExp = 0;
-                                if(!empty($eduYear)){
-                                    $totalExp = [];
-                                    foreach($candidatesExperienceDetails as $experienceDetails_val){
-                                        $from_date_exp = $experienceDetails_val['from_date'];
-                                        $totalExperience = $experienceDetails_val['total_experience'];
-                                        $dateYear = date('Y', strtotime($from_date_exp));
-                                        if($dateYear >= $eduYear){
-                                            $totalExp[] = $totalExperience;
-                                        }
-                                    }
-                                    
-                                    if(!empty($totalExp)){
-                                        $totalExpYear = Helper::grand_total_exp_year($totalExp);
-                                        if($totalExpYear < $requiredExperienceYear){
-                                            $experienceValid = 0;
-                                        }
-                                    }else{
-                                        $experienceValid = 0;
-                                    }
-                                }else{
-                                    $experienceValid = 0;
-                                }
-                            }
-                            else{
-                                $experienceValid = 0;
-                            }
-                            
-                           
-                        }
-                        if($experienceValid == 0){
-                            ?>
-                            <span class="text-danger">Required post qualification experience missing</span>
-                            <?php
-                        }
-                        ?>
-                        <!-- experience validation end -->
                     </td>
                 </tr>
                 <tr>
@@ -1069,42 +892,7 @@
                 <?php } ?>  
                 <!-- fellowship details end -->
                        
-                <!-- payment transaction details start -->
-                <tr style="background-color:#CCC;">
-                    <td colspan="3" align="left" valign="top"><strong>Transaction Details</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="3" align="left" valign="top">
-                        <table class="table table-bordered table-hover"  width="100%" border="1" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td align="center"><strong>Transaction No</strong></td>
-                                <td align="center"><strong>Transaction Date</strong></td>
-                                <td align="center"><strong>Payment Status</strong></td>
-                            </tr>
-                            <?php if(isset($feeTransactions) && !empty($feeTransactions)){ ?>
-                            <tr>
-                                <td align="center"><?php echo $feeTransactions[0]['txn_reference_no']; ?></td>
-                                <td align="center"><?php echo $feeTransactions[0]['txn_date']; ?></td>
-                                <td align="center">
-                                    <?php
-                                    if($payment_status == 1){
-                                        echo '<span class="text-success">Success</span>';
-                                    }
-                                    else if($payment_status == 1){
-                                        echo '<span class="text-warning">Pending</span>';
-                                    }
-                                    else{
-                                        echo '<span class="text-danger">Failed</span>';
-                                    }
-                                    ?>
-                                </td>
-                            </tr>   
-                            <?php } ?>         
-                        </table>
-                    </td>
-                </tr>
-                <!-- payment transaction details end -->
-
+                
                 <!-- common documents start -->
                 <?php
                 if(isset($candidatesCommonDocuments) && !empty($candidatesCommonDocuments)){
@@ -1251,138 +1039,19 @@
                 <tr>
                     <td colspan="3" align="left" valign="top">
                         <div align="justify" style="text-transform:upper">
+                        <input type="checkbox" id="declaration" name="declaration" value="1" required>
                         I declare that I fulfil the eligibility conditions as per the advertisement and that all the statements made in this application are true, complete and correct to the best of my  knowledge and belief. I understand that in the event of any information being found false or incorrect at any stage or not satisfying the eligibility conditions according to the requirements mentioned in the advertisement, my candidature/ appointment is liable to be cancelled/ terminated.
                         </div>
                     </td>
                 </tr>
                 <!-- declaration end -->
 
-                <!-- place & signature of candidate start -->
-                <tr><td height="1" colspan="3"></td></tr>
-                <tr>
-                    <td colspan="3" align="left" valign="top">
-                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                            <tr>
-                                <td width="50%" align="left"><p><strong>Place:</strong></p></td>
-                                <td width="50%">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td align="left">
-                                    <strong>Date: <?php echo date('d-m-Y'); ?></strong>
-                                </td>
-                                <td align="right">
-                                    <?php
-                                    if(!empty($candidatesCommonDocuments[0]['candidate_sign'])){
-                                        $candidate_sign = $candidatesCommonDocuments[0]['candidate_sign'];
-                                        $candidate_signPath = $candidates_docs_path."/".$candidate_sign;
-                                        $candidate_signPath = url($candidate_signPath);
-                                    ?>
-                                        <img src="<?php echo $candidate_signPath; ?>" width="150" height="50"/><br>
-                                    <?php } ?>
-                                    <strong>Signature  of the candidate</strong>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!-- place & signature of candidate end -->
-
-                <!-- admin/HR shortlisting section start -->
-                <tr><td colspan="3"><hr /></td></tr>
-                <tr style="background-color:#CCC;">
-                    <td colspan="3"><span class="h4">Admin/HR Shortlisting</span></td>
-                </tr>
-                <tr><td colspan="3" align="left" valign="top"></td></tr>
-                
-                <tr>
-                    <td colspan="3" align="left" valign="top">
-                        <div class="col-lg-12">
-                            <label>Status: </label>
-                            <select class="form-control col-lg-4" name="sl_status" id="sl_status">
-                                <option value="">SELECT</option>
-                                <option value="1" <?php if($shortlisting_status == 1){ echo "selected"; } ?>>SHORTLISTED</option>
-                                <option value="3" <?php if($shortlisting_status == 3){ echo "selected"; } ?>>PROVISIONAL SHORTLISTED</option>
-                                <option value="2" <?php if($shortlisting_status == 2){ echo "selected"; } ?>>REJECTED</option>
-                            </select>
-                        </div>
-                    </td>
-                </tr>            
-
-                <tr style="display:none" id="rejected">
-                    <td colspan="3" align="left">
-                        <div class="form-group">
-                            
-                            <label class="col-lg-12">
-                                HR Remarks : 
-                                <?php if(!empty($hrRemarksCodes)){ ?>
-                                    <span class="text-danger"><?php echo $hrRemarksCodes;?></span> 
-                                <?php } ?>
-                            </label>
-                            
-                            <select class="form-control col-lg-12" name="hr_remarks[]" id="hr_remarks" multiple  style="height:450px;"> 
-                                <!-- general remarks start -->    
-                                <option disabled="disabled" style="background-color: #CCC;">GENERAL REMARKS</option>
-                                <?php
-                                $generalRemarks = Helper::filterHRRemarksByValue($hRRemarks, "GENERAL");
-                                foreach($generalRemarks as $generalRem){ 
-                                    $selectedGen = "";
-                                    if(!empty($remarksCodesIds) && in_array($generalRem['id'],$remarksCodesIds)){ 
-                                        $selectedGen="selected"; 
-                                    }
-                                ?>
-                                    <option value="<?php echo $generalRem['id']?>" <?php echo $selectedGen; ?> ><?php echo $generalRem['code']; ?> - <?php echo $generalRem['remarks_desc']; ?></option>        
-                                <?php } ?>
-                                <!-- general remarks end -->
-                                <!-- PROVISIONAL remarks start -->
-                                <option disabled="disabled" style="background-color: #CCC;">PROVISIONAL REMARKS</option>
-                                <?php
-                                $provisionalRemarks = Helper::filterHRRemarksByValue($hRRemarks, "PROVISIONAL");
-                                foreach($provisionalRemarks as $provisionalRem){ 
-                                    $selectedPro = "";
-                                    if(!empty($remarksCodesIds) && in_array($provisionalRem['id'],$remarksCodesIds)){ 
-                                        $selectedPro="selected"; 
-                                    }
-                                ?>
-                                    <option value="<?php echo $provisionalRem['id']?>" <?php echo $selectedPro; ?> ><?php echo $provisionalRem['code']; ?> - <?php echo $provisionalRem['remarks_desc']; ?></option>        
-                                <?php } ?>
-                                <!-- PROVISIONAL remarks end -->
-                                <!-- specific remarks start -->
-                                <option disabled="disabled" style="background-color: #CCC;">SPECIFIC REMARKS</option>
-                                <?php
-                                $specificRemarks = Helper::filterHRRemarksByValue($hRRemarks, "SPECIFIC");
-                                foreach($specificRemarks as $specificRem){ 
-                                    $selectedSpec = "";
-                                    if(!empty($remarksCodesIds) && in_array($specificRem['id'],$remarksCodesIds)){ 
-                                        $selectedSpec="selected"; 
-                                    }
-                                ?>
-                                    <option value="<?php echo $specificRem['id']?>" <?php echo $selectedSpec; ?> ><?php echo $specificRem['code']; ?> - <?php echo $specificRem['remarks_desc']; ?></option>        
-                                <?php } ?>
-                                <!-- specific remarks end -->
-                            </select>        
-                            </label>
-                        </div>
-                    </td>
-                </tr>
-                <!-- hr additional remarks start -->            
-                <tr>
-                    <td colspan="3">
-                        <div class="col-lg-12">
-                            <label class="">Any additional Remarks/ Note for candidates</label>
-                            <textarea class="form-control" name="hr_add_remarks" id="hr_add_remarks"><?php echo $candidateApplyDetails[0]['hr_additional_remarks']; ?></textarea>
-                        </div>
-                    </td>
-                </tr> 
-                <!-- hr additional remarks end -->   
-                               
-                <!-- admin/HR shortlisting section end -->
-
                 <!-- submit button start -->
                 <tr>
                     <td colspan="3" align="center" >&nbsp;</td>
                 </tr>
                 
-                <tr><td colspan="3" align="center" ><input class="btn btn-success" type="submit" name="submit" value="Update"></td></tr>
+                <tr><td colspan="3" align="center" ><input class="btn btn-success" type="submit" name="submit" value="Final Submit"></td></tr>
                 <tr><td colspan="3">&nbsp;</td></tr>                    
                 <!-- submit button end -->
 
@@ -1395,7 +1064,7 @@
 
 
     </div>
-
+</div>
     <script>
         $(document).ready(function(){
 	
@@ -1489,5 +1158,3 @@
         });
  
     </script>
-   
-</x-app-layout>    

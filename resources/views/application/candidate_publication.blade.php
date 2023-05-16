@@ -99,7 +99,9 @@
         */
         let pubRowsHtml = "";
         @if(!empty($pub_no))
+            let publicationArr = [];
             // for experience alredy added educations
+            /*
             @foreach($pub_no as $key=>$number)
                 pubRowsHtml = "";
                 publicationArr = [];
@@ -110,9 +112,10 @@
                 publicationArr['pub_doi'] = "";
                 publicationArr['pub_mid'] = "";
                 publicationArr['pub_no'] = '<?php echo $number; ?>';
-            
+                 
                 @if(isset($pub_author[$key]) && !empty($pub_author[$key]))
                     publicationArr['pub_author'] = '<?php echo $pub_author[$key]; ?>'; 
+                    alert(publicationArr['pub_author']);
                 @endif
                 @if(isset($pub_article[$key]) && !empty($pub_article[$key]))
                     publicationArr['pub_article'] = '<?php echo $pub_article[$key]; ?>'; 
@@ -129,8 +132,50 @@
                 @if(isset($pub_mid[$key]) && !empty($pub_mid[$key]))
                     publicationArr['pub_mid'] = '<?php echo $pub_mid[$key]; ?>'; 
                 @endif
-                          
+                alert(publicationArr['pub_author']);  
+                alert(JSON.stringify(publicationArr));      
                 pubRowsHtml = publication_row_html(publicationArr);
+                console.log(JSON.stringify(publicationArr));
+                $('#publicationTBody').append(pubRowsHtml);
+            @endforeach
+            */
+            let pub_author = "";
+            let pub_article = "";
+            let pub_journal = "";
+            let pub_vol = "";
+            let pub_doi = "";
+            let pub_mid = "";
+            let pub_no = "";
+            @foreach($pub_no as $key=>$number)
+                pubRowsHtml = "";
+                pub_author = "";
+                pub_article = "";
+                pub_journal = "";
+                pub_vol = "";
+                pub_doi = "";
+                pub_mid = "";
+                pub_no = '<?php echo $number; ?>';
+                 
+                @if(isset($pub_author[$key]) && !empty($pub_author[$key]))
+                    pub_author = '<?php echo $pub_author[$key]; ?>'; 
+                @endif
+                @if(isset($pub_article[$key]) && !empty($pub_article[$key]))
+                    pub_article = '<?php echo $pub_article[$key]; ?>'; 
+                @endif
+                @if(isset($pub_journal[$key]) && !empty($pub_journal[$key]))
+                    pub_journal = '<?php echo $pub_journal[$key]; ?>'; 
+                @endif
+                @if(isset($pub_vol[$key]) && !empty($pub_vol[$key]))
+                    pub_vol = '<?php echo $pub_vol[$key]; ?>'; 
+                @endif
+                @if(isset($pub_doi[$key]) && !empty($pub_doi[$key]))
+                    pub_doi = '<?php echo $pub_doi[$key]; ?>'; 
+                @endif
+                @if(isset($pub_mid[$key]) && !empty($pub_mid[$key]))
+                    pub_mid = '<?php echo $pub_mid[$key]; ?>'; 
+                @endif
+                
+                pubRowsHtml = publication_row_html(pub_no, pub_author, pub_article, pub_journal, pub_vol, pub_doi, pub_mid);
                 $('#publicationTBody').append(pubRowsHtml);
             @endforeach
         @else
@@ -212,24 +257,12 @@
     });
         
 
-    function publication_row_html(publicationArr=[]){
+    function publication_row_html(pub_no="", pub_author="", pub_article="", pub_journal="", pub_vol="", pub_doi="", pub_mid=""){
 
-        let pub_no = "";
-        let publication_article = "";
-        let publication_author = "";
-        let publication_journal = "";
-        let pub_vol = "";
-        let pub_doi = "";
-        let pubmedpmid = "";
-        if(typeof publicationArr !== 'undefined' && publicationArr.length > 0){
-            pub_no = publicationArr['pub_no'];
-            publication_article = publicationArr['pub_article'];
-            publication_author = publicationArr['pub_author'];
-            publication_journal = publicationArr['pub_journal'];
-            pub_vol = publicationArr['pub_vol'];
-            pub_doi = publicationArr['pub_doi'];
-            pubmedpmid = publicationArr['pub_mid'];
-        }
+        let publication_article = pub_article;
+        let publication_author = pub_author;
+        let publication_journal = pub_journal;
+        let pubmedpmid = pub_mid;
         
         let html = "";
             // publication number dropdown column start

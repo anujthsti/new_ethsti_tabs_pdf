@@ -20,6 +20,10 @@ if(in_array($job_type_id, $jobTypeIDs)){
     $jobTitleLabel = "Training Applied For";
 }
 
+
+// for phd
+$is_publication_tab = $jobValidations[0]['is_publication_tab'];
+   
 /*
 if (request()->routeIs('companies.*')) {
     // will match routes which name starts with companies.
@@ -42,6 +46,9 @@ if (request()->routeIs('companies.*')) {
             <!-- hidden fields-->      		       
             <input name="rn_no_id" type="hidden" value="{{ $rn_no_id }}" readonly="readonly" id="rn_id" />
             <input name="job_id" type="hidden" value="{{ $jobId }}" readonly="readonly" id="rn_id" />
+            @if($is_publication_tab == 1)
+            <input name="is_phd_job" type="hidden" value="1" style="display:none;">
+            @endif    
             <!-- Autofetched Details-->                       
             <div class="row">       
                 <div class="col-xs-12 col-sm-12 col-md-4">

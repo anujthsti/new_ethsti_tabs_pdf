@@ -122,6 +122,16 @@ $documentUploadTabIdEnc = Helper::encodeId(4);
 $documentUploadRoute = route('upload_candidate_documents', $candidateJobApplyEncID);
 $documentUploadRouteUrl = $documentUploadRoute."/".$documentUploadTabIdEnc;
 // documents upload information url end
+// preview & final submit route start
+$finalSubmitTabIdEnc = Helper::encodeId(5);  
+$finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
+$finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
+// preview & final submit route end
+// checkout route start
+$checkoutPaymentTabIdEnc = Helper::encodeId(6);  
+$checkoutPaymentRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
+$checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
+// checkout route end
 ?>
 <ul id="wizardStatus"> 
     <li class="completed">
@@ -130,17 +140,19 @@ $documentUploadRouteUrl = $documentUploadRoute."/".$documentUploadTabIdEnc;
     <li class="current">
         <a href="<?php echo $qualificationExperienceRouteUrl; ?>">Qualification & Experience</a>
     </li>  
+    @if($is_publication_tab == 1)  
     <li class="notcompleted">
         <a href="<?php echo $phdDetailsRouteUrl; ?>">PHD Details</a>
     </li>
+    @endif
     <li class="notcompleted">
         <a href="<?php echo $documentUploadRouteUrl; ?>">Documents Upload</a>
     </li>  
     
     <li class="notcompleted">
-        <a href="#">Preview Application & Final Submit</a>
+        <a href="<?php echo $finalSubmitRouteUrl; ?>">Preview Application & Final Submit</a>
     </li>
     <li class="notcompleted">
-        <a href="vrs_fee.php">Payment</a>
+        <a href="<?php echo $checkoutPaymentRouteUrl; ?>">Payment</a>
     </li>
 </ul>

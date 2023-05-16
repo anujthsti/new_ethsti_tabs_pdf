@@ -207,11 +207,10 @@ Route::group(['prefix'=>'application','middleware' => 'candidatesession'], funct
         Route::get('upload_candidate_documents/{id}/{tab_id?}','upload_candidate_documents')->name('upload_candidate_documents');
         Route::post('update_candidate_upload_documents/{id}/{tab_id?}','update_candidate_upload_documents')->name('update_candidate_upload_documents');
         Route::post('update_candidate_applied_job_details/{id}/{tab_id?}','update_candidate_applied_job_details')->name('update_candidate_applied_job_details');
-        Route::get('checkout/{id}','checkout')->name('checkout');
+        Route::get('preview_application_final_submit/{id}/{tab_id?}','preview_application_final_submit')->name('preview_application_final_submit');
+        Route::post('application_final_submission/{id}/{tab_id?}','application_final_submission')->name('application_final_submission');
+        Route::get('checkout/{id}/{tab_id?}','checkout')->name('checkout');
         Route::post('add_fee_transaction/{id}','add_fee_transaction')->name('add_fee_transaction');
-        
-        
-        
     });
 
 });

@@ -380,7 +380,6 @@ class ApplicationController extends Controller
         if(!empty($candidateJobApplyDetail)){
             $jobId = $candidateJobApplyDetail[0]['job_id'];
             $postId = $candidateJobApplyDetail[0]['post_id'];
-            $postId = $candidateJobApplyDetail[0]['post_id'];
             $candidate_id = $candidateJobApplyDetail[0]['candidate_id'];
             $is_experience = $candidateJobApplyDetail[0]['is_experience'];
             $is_publication = $candidateJobApplyDetail[0]['is_experience'];
@@ -495,6 +494,10 @@ class ApplicationController extends Controller
         //print_r($postData);exit;
         $security_code = $request->session()->get('registration_captcha');
         //$email_id = $postData['email_id'];
+        $is_phd_job = 0;
+        if(isset($postData['is_phd_job']) && !empty($postData['is_phd_job'])){
+            $is_phd_job = 1;
+        }
         $validator = $this->validate_candidate_details($request, $security_code);
         
         try{
@@ -531,8 +534,8 @@ class ApplicationController extends Controller
                         // return array of job apply info
                         $jobApplyArr = $this->candidate_job_apply_info_arr($postData, $candidate_id);
                         if(!empty($jobApplyArr)){
-                            // update data status to 1 - completed
-                            $jobApplyArr['data_status'] = 1;
+                            // update is_basic_info_done to 1 - completed
+                            $jobApplyArr['is_basic_info_done'] = 1;
                             // update candidate job apply details
                             CandidatesJobsApply::where('id', $candidateJobApplyID)
                                                 ->where('status', 1)
@@ -587,12 +590,16 @@ class ApplicationController extends Controller
                                                     ->update(['status' => 3]);
                     }
                     // update candidate refree details end
-
+                    // update is_qualification_exp_done to 1 - completed
+                    $jobApplyArr['is_qualification_exp_done'] = 1;
+                    // update candidate job apply details
+                    CandidatesJobsApply::where('id', $candidateJobApplyID)
+                                        ->update($jobApplyArr);
                 }
                 else if($formTabId == 3){
                     //*********************************************  PHD Details ***************************/
                     //update candidate publications details start
-                    if(isset($postData['exp_check']) && $postData['exp_check'] == 1){
+                    if(isset($postData['pub_check']) && $postData['pub_check'] == 1){
                         $retData = $this->update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID);
                         if($retData['status'] == 'error'){
                             $errorMsg = $retData['msg'];
@@ -608,23 +615,40 @@ class ApplicationController extends Controller
                     }
                     // update candidate publications details end
                     
-                    
                     // update candidate PHD Research details start
-                    if(isset($postData['ref_name']) && !empty($postData['ref_name'])){
-                        $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
-                        if($retData['status'] == 'error'){
-                            $errorMsg = $retData['msg'];
-                            DB::rollback();
-                            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                        }
+                    $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
+                    if($retData['status'] == 'error'){
+                        $errorMsg = $retData['msg'];
+                        DB::rollback();
+                        return redirect()->back()->withInput()->with('error_msg',$errorMsg);
                     }
+                    // update is_phd_details_done to 1 - completed
+                    $jobApplyArr['is_phd_details_done'] = 1;
+                    // update candidate job apply details
+                    CandidatesJobsApply::where('id', $candidateJobApplyID)
+                                        ->update($jobApplyArr);
                     // update candidate PHD Research details end
                 }
                 
                 // transactions start
                 DB::commit();
+                $nextTabId = "";
                 $redirectUrl = route('edit_candidate_applied_job_details',$encId);
-                $redirectUrl .= "/".$formTabIdEnc;
+                if($formTabId == ""){
+                    $nextTabId = 2;
+                }
+                else if($formTabId == 2 && $is_phd_job == 1){
+                    $nextTabId = 3;
+                }
+                else if($formTabId == 3 || ($formTabId == 2 && $is_phd_job == 0)){
+                    $nextTabId = 4;
+                    $redirectUrl = route('upload_candidate_documents', $encId);
+                }
+
+                if(!empty($nextTabId)){
+                    $formTabIdEnc = Helper::encodeId($nextTabId);   
+                    $redirectUrl .= "/".$formTabIdEnc;
+                }
                 return redirect($redirectUrl)->with('success','Details updated successfully.');
             //}
         }catch(\Exception $e){
@@ -1099,7 +1123,7 @@ class ApplicationController extends Controller
 
     // add or update candidate publications details
     public function update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID){
-
+        
         try{
             $jobApplyArr = [];
             $rn_no_id = $postData['rn_no_id'];
@@ -1203,7 +1227,6 @@ class ApplicationController extends Controller
                     }
                 }
                 // batch insert
-                
                 if(!empty($batchInsertArr)){
                     CandidatesPublicationsDetails::insert($batchInsertArr);
                 }
@@ -1479,9 +1502,29 @@ class ApplicationController extends Controller
                                                         ->get(['register_candidates.*','candidates_jobs_apply.*','jobs.post_id'])
                                                         ->toArray();
         $retData = [];
+        $jobValidations = [];
         if(!empty($candidateJobApplyDetail)){          
-            $jobId = $candidateJobApplyDetail[0]['job_id'];                                      
+            $jobId = $candidateJobApplyDetail[0]['job_id'];  
+            $postId = $candidateJobApplyDetail[0]['post_id'];                                     
             $retData = $this->get_candidate_selected_job_details($jobId);
+            // get job validation minimum education
+            $jobData = $retData['jobData'];
+            if(!empty($jobData)){
+                $job_validation_id = $jobData[0]['job_validation_id'];
+                //echo $job_validation_id;exit;
+                $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
+                                                ->where('job_validation.id', $job_validation_id)
+                                                ->where('job_min_education_trans.status', 1)
+                                                ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab','job_min_education_trans.education_id','job_min_education_trans.job_validation_id'])
+                                                ->toArray();   
+            }else{
+                $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
+                                                ->where('job_validation.post_id', $postId)
+                                                ->where('job_validation.status', 1)
+                                                ->where('job_min_education_trans.status', 1)
+                                                ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab','job_min_education_trans.education_id','job_min_education_trans.job_validation_id'])
+                                                ->toArray();   
+            }
         }
         
         $candidateAcademicsDetails = CandidatesAcademicsDetails::where('candidate_job_apply_id', $candidateJobApplyID)
@@ -1519,12 +1562,12 @@ class ApplicationController extends Controller
         echo "<pre>";
         print_r($candidateJobApplyDetail);
         exit;*/
-        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId'));
+        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId','jobValidations'));
 
     }
 
     // update candidate uploaded documents
-    public function update_candidate_upload_documents(Request $request, $candidateJobApplyEncID){
+    public function update_candidate_upload_documents(Request $request, $candidateJobApplyEncID, $formTabIdEnc=""){
 
         $postData = $request->post();
         /*
@@ -1889,14 +1932,16 @@ class ApplicationController extends Controller
                 // Experience certificate upload end
             }
 
-            // update candidate file_status
-            $jobApplyArr['file_status'] = 1;
-            CandidatesJobsApply::where('id', $candidateJobApplyID)
-                                                ->where('status', 1)
-                                                ->update($jobApplyArr);
+            // update candidate is_document_upload_done
+            $jobApplyArr['is_document_upload_done'] = 1;
+            CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
             // transactions commit
             DB::commit();
-            return redirect()->route('dashboard')->with('success','Documents uploaded.');
+            //echo 11;exit;
+            $finalSubmitTabIdEnc = Helper::encodeId(5);  
+            $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
+            $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
+            return redirect($finalSubmitRouteUrl)->with('success','Documents uploaded.');
             
         }catch(\Exception $e){
             $errorMsg = $e->getMessage();
@@ -1908,15 +1953,17 @@ class ApplicationController extends Controller
 
     }
 
-    public function checkout(Request $request, $encJobApplyId){
+    public function checkout($encJobApplyId, $formTabIdEnc=""){
 
+        $candidateJobApplyEncID = $encJobApplyId;
         $candidateJobApplyID = Helper::decodeId($encJobApplyId);
         $candidateJobApplyDetail = CandidatesJobsApply::where('id',$candidateJobApplyID)
                                                         ->where('status', 1)
                                                         ->get(['candidates_jobs_apply.*'])
                                                         ->toArray();
         $candidateData = [];    
-        $amountToPay = "";                                            
+        $amountToPay = "";   
+        $jobValidations = [];                                         
         if(!empty($candidateJobApplyDetail)){
             $category_id = $candidateJobApplyDetail[0]['category_id'];
             $job_id = $candidateJobApplyDetail[0]['job_id'];
@@ -1928,11 +1975,25 @@ class ApplicationController extends Controller
             
             // call helper function to get candidate fee                
             $amountToPay = Helper::get_fee_for_candidate($candidateData, $candidateJobApplyDetail, $job_id);
+
+            $candidateJobApplyValidationDetail = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+                                                        ->where('candidates_jobs_apply.id',$candidateJobApplyID)
+                                                        ->where('jobs.status','!=',3)
+                                                        ->get(['candidates_jobs_apply.*','jobs.post_id'])
+                                                        ->toArray();
+            // job validation
+            if(!empty($candidateJobApplyValidationDetail)){
+                $postId = $candidateJobApplyValidationDetail[0]['post_id'];
+                $jobValidations = JobValidation::where('job_validation.post_id', $postId)
+                                                    ->where('job_validation.status', 1)
+                                                    ->get(['job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab'])
+                                                    ->toArray(); 
+            }
             
         }      
         
 
-        return view('application.checkout', compact('candidateJobApplyDetail','candidateData','candidateJobApplyID','amountToPay','encJobApplyId'));
+        return view('application.checkout', compact('candidateJobApplyDetail','candidateData','candidateJobApplyID','amountToPay','encJobApplyId','formTabIdEnc','jobValidations','candidateJobApplyEncID'));
 
     }
 
@@ -2372,6 +2433,107 @@ class ApplicationController extends Controller
             $feeTransRec = FeeTransactions::orderBy('id','desc')->where('job_apply_id', $job_apply_id)->limit(1)->get(['fee_transactions.*'])->toArray();
         }
         return view('application/pay_receipt', compact('pay_rec','feeTransRec'));
+    }
+
+    public function preview_application_final_submit($job_apply_id_enc, $formTabIdEnc=""){
+
+        $candidateJobApplyEncID = $job_apply_id_enc;
+        $job_apply_id = Helper::decodeId($job_apply_id_enc);
+        $nextId = "";
+        $previousId = "";
+        $jobDetails = [];
+        $candidateDetails = [];
+        $candidateAcademicsDetails = [];
+        $candidatesAcademicsDocuments = [];
+        $candidatesCommonDocuments = [];
+        $candidatesExperienceDetails = [];
+        $candidatesExperienceDocuments = [];
+        $candidatesPublicationsDetails = [];
+        $candidatesPHDResearchDetails = [];
+        $candidatesRefreeDetails = [];
+        $feeTransactions = [];
+        $candidatesJobHRRemarks = [];
+        $previousRec = [];
+        $nextRec = [];
+        $jobAgeRelaxation = [];
+        $jobExperienceValidation = [];
+        $jobEducationValidation = [];
+
+        $candidateApplyDetails = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+                                                    ->where('candidates_jobs_apply.id', $job_apply_id)
+                                                    ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id']);
+        $rnNoEncId = "";
+        $jobEncId = "";
+        if(isset($candidateApplyDetails) && !empty($candidateApplyDetails)){
+            $candidate_id = $candidateApplyDetails[0]['candidate_id'];
+            $jobId = $candidateApplyDetails[0]['job_id'];
+            $rn_no_id = $candidateApplyDetails[0]['rn_no_id'];
+            $job_validation_id = $candidateApplyDetails[0]['job_validation_id'];
+            $rnNoEncId = Helper::encodeId($rn_no_id);
+            $jobEncId = Helper::encodeId($jobId);
+            $jobDetails = Jobs::join('rn_nos','rn_nos.id','=','jobs.rn_no_id')
+                              ->where('jobs.id', $jobId)
+                              ->get(['jobs.*','rn_nos.rn_no']);
+
+            $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
+                              ->where('job_validation.id', $job_validation_id)
+                              ->where('job_min_education_trans.status', 1)
+                              ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab','job_min_education_trans.education_id','job_min_education_trans.job_validation_id'])
+                              ->toArray();                  
+            // candidate personal details                  
+            $candidateDetails = RegisterCandidate::where('id', $candidate_id)->get(['register_candidates.*']);    
+            // candidate academics details
+            $candidateAcademicsDetails = CandidatesAcademicsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_details.*'])->toArray();  
+            // candidate academics documents
+            $candidatesAcademicsDocuments = CandidatesAcademicsDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_documents.*'])->toArray();
+            // candidate common documents
+            $candidatesCommonDocuments = CandidatesCommonDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_common_documents.*'])->toArray();
+            // candidate experience details
+            $candidatesExperienceDetails = CandidatesExperienceDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_details.*'])->toArray();
+            // Candidates Experience Documents
+            $candidatesExperienceDocuments = CandidatesExperienceDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_documents.*'])->toArray();
+            // Candidates Publications Details
+            $candidatesPublicationsDetails = CandidatesPublicationsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_publications_details.*'])->toArray();
+            // Candidates PHDResearch Details
+            $candidatesPHDResearchDetails = CandidatesPHDResearchDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_phd_research_details.*'])->toArray();
+            // Candidates Refree Details
+            $candidatesRefreeDetails = CandidatesRefreeDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_refree_details.*'])->toArray();
+            
+        }
+        
+        // get all code_names join with code_master
+        $masterDataArr = Helper::getCodeNames();
+        return view("application/candidate_preview_final_submit",compact('candidateApplyDetails','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','job_apply_id_enc','rnNoEncId','jobEncId','jobValidations','candidateJobApplyEncID','formTabIdEnc'));
+    }
+
+    public function application_final_submission(Request $request, $job_apply_id_enc, $formTabIdEnc=""){
+
+        try{
+            $postData = $request->post();
+            $declaration = $postData['declaration'];
+            if($declaration == 1){
+                // update candidate is_final_submission_done
+                $jobApplyArr['is_final_submission_done'] = 1;
+                $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
+                CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
+                $redirectUrl = route('checkout',$job_apply_id_enc);
+                $formTabIdEnc = Helper::encodeId(6);   
+                $redirectUrl .= "/".$formTabIdEnc;
+                return redirect($redirectUrl);
+            }else{
+                $errorMsg = "Please select the declaration checkbox.";
+                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+            }
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            //$errorMsg = "Something went wrong. Please contact administrator.";
+            DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+        }
+        
+
     }
 
 }

@@ -113,8 +113,13 @@ $msg = Helper::get_checkout_msg($msgData);
 $msg_encode = Helper::msg_encrypt($msg);
 $_SESSION['checksum'] = $msg_encode;
 $msg_dtl = $msg."|".$msg_encode;
+
+// for phd
+$is_publication_tab = $jobValidations[0]['is_publication_tab'];
 ?>
 
+<!-- candidate form steps --> 
+@include('application.candidate_form_steps') 
 <div class="container border" style="max-width: 500px; margin-top: 40px;">
         <div class="text-center h2 text-danger">
           Confirm Details

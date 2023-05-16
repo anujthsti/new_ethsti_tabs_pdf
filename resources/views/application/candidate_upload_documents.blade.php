@@ -54,6 +54,10 @@ $candidateJobApplyID = Helper::decodeId($candidateJobApplyEncID);
 $candidateDocsParentFolderPath = config('app.candidates_docs_path');
 $candidateDocsParentFolderPath .= "/".$candidateJobApplyID;
 //$candidateDocsParentFolderPath = "upload/candidates_documents";
+$is_publication_tab = "";
+if(isset($jobValidations[0]['is_publication_tab'])){
+    $is_publication_tab = $jobValidations[0]['is_publication_tab'];
+}
 ?>
 @include('application.application_head')
 
@@ -62,7 +66,9 @@ $candidateDocsParentFolderPath .= "/".$candidateJobApplyID;
     <!-- old existing submit form file -> online-update-upload.php -->
     <!-- include dashboard navigation -->
     @include('application.dashboard_nav')
-    <div class="container-fluid border-top pt-5">                          
+    <div class="container-fluid border-top pt-5">    
+        <!-- candidate form steps --> 
+        @include('application.candidate_form_steps')                        
       <!-- form start -->  
         <form id="online-form" name="online-form" method="post" action="{{ $form_action }}" enctype="multipart/form-data">
             @csrf
