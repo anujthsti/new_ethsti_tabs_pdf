@@ -116,8 +116,8 @@ $page_title = "Candidate Details";
                             }        
                         }
                         // domain name
-                        if(isset($candidateApplyDetails[0]['domain_id']) && !empty($candidateApplyDetails[0]['domain_id'])){
-                            $domainIdKey = array_search($candidateApplyDetails[0]['domain_id'], $master_data_ids);
+                        if(isset($candidateJobApplyDetail[0]['domain_id']) && !empty($candidateJobApplyDetail[0]['domain_id'])){
+                            $domainIdKey = array_search($candidateJobApplyDetail[0]['domain_id'], $master_data_ids);
                             if(isset($masterDataArr[$domainIdKey]['code_meta_name'])){
                                 $domainName = $masterDataArr[$domainIdKey]['code_meta_name'];
                                 echo "(".$domainName.")";
@@ -130,8 +130,8 @@ $page_title = "Candidate Details";
                 </tr>
                 <?php 
                 // method of appointment start
-                if(isset($candidateApplyDetails[0]['appointment_method_id']) && !empty($candidateApplyDetails[0]['appointment_method_id'])){ 
-                    $appointment_method_id = $candidateApplyDetails[0]['appointment_method_id'];
+                if(isset($candidateJobApplyDetail[0]['appointment_method_id']) && !empty($candidateJobApplyDetail[0]['appointment_method_id'])){ 
+                    $appointment_method_id = $candidateJobApplyDetail[0]['appointment_method_id'];
                     $appointmentMethodIdKey = array_search($appointment_method_id, $master_data_ids);
                     if(isset($masterDataArr[$appointmentMethodIdKey]['code_meta_name'])){
                         $appointmentMethod = $masterDataArr[$appointmentMethodIdKey]['code_meta_name'];
@@ -206,13 +206,13 @@ $page_title = "Candidate Details";
                     }
                 }
                 $categoryCode = "";
-                if(isset($candidateApplyDetails) && !empty($candidateApplyDetails)){ 
-                    $is_pwd = $candidateApplyDetails[0]['is_pwd']; 
-                    $is_ex_serviceman = $candidateApplyDetails[0]['is_ex_serviceman'];
-                    $is_esm_reservation_avail = $candidateApplyDetails[0]['is_esm_reservation_avail'];
-                    $is_govt_servent = $candidateApplyDetails[0]['is_govt_servent'];
-                    $age = $candidateApplyDetails[0]['age_calculated'];
-                    $category_id = $candidateApplyDetails[0]['category_id'];
+                if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){ 
+                    $is_pwd = $candidateJobApplyDetail[0]['is_pwd']; 
+                    $is_ex_serviceman = $candidateJobApplyDetail[0]['is_ex_serviceman'];
+                    $is_esm_reservation_avail = $candidateJobApplyDetail[0]['is_esm_reservation_avail'];
+                    $is_govt_servent = $candidateJobApplyDetail[0]['is_govt_servent'];
+                    $age = $candidateJobApplyDetail[0]['age_calculated'];
+                    $category_id = $candidateJobApplyDetail[0]['category_id'];
                     if(isset($category_id) && !empty($category_id)){
                         $categoryIdKey = array_search($category_id, $master_data_ids);
                         if(isset($masterDataArr[$categoryIdKey]['code_meta_name'])){
@@ -227,16 +227,16 @@ $page_title = "Candidate Details";
                         $gender = $masterDataArr[$genderIdKey]['code_meta_name'];
                     }
                 }
-                $grand_total_experience = $candidateApplyDetails[0]['total_experience'];
-                $payment_status = $candidateApplyDetails[0]['payment_status']; 
+                $grand_total_experience = $candidateJobApplyDetail[0]['total_experience'];
+                $payment_status = $candidateJobApplyDetail[0]['payment_status']; 
                 // candidate documents path
                 $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
                 $candidates_docs_path = config('app.candidates_docs_path');
                 $candidates_docs_path .= "/".$candidateJobApplyID;
                 
                 $dob = $candidateDetails[0]['dob'];
-                $age_limit_as_on_date = $candidateApplyDetails[0]['age_limit_as_on_date'];
-                $is_pwd = $candidateApplyDetails[0]['is_pwd'];
+                $age_limit_as_on_date = $candidateJobApplyDetail[0]['age_limit_as_on_date'];
+                $is_pwd = $candidateJobApplyDetail[0]['is_pwd'];
                 
                 ?>
                 <tr>
@@ -362,8 +362,8 @@ $page_title = "Candidate Details";
                                         </tr>  
                                         <?php
                                         if($is_govt_servent == 1){
-                                            $type_of_employment = $candidateApplyDetails[0]['type_of_employment'];  
-                                            $type_of_employer = $candidateApplyDetails[0]['type_of_employer'];  
+                                            $type_of_employment = $candidateJobApplyDetail[0]['type_of_employment'];  
+                                            $type_of_employer = $candidateJobApplyDetail[0]['type_of_employer'];  
                                             ?>
                                             <tr>
                                                 <td align="left">Type of employment</td>
@@ -699,7 +699,7 @@ $page_title = "Candidate Details";
                 <!-- patent details end -->
 
                 <!-- relation tab start -->
-                <?php if(!empty($candidateApplyDetails)){?>
+                <?php if(!empty($candidateJobApplyDetail)){?>
                 <tr style="background-color:#CCC;">
                     <td colspan="3" align="left" valign="top"><strong>Do you have any near relative/friend working in THSTI. If so, please state ?</strong></td>
                 </tr>
@@ -714,22 +714,22 @@ $page_title = "Candidate Details";
                             <tr>
                                 <td align="center">
                                     <?php
-                                    if(isset($candidateApplyDetails[0]['relative_name']) && !empty($candidateApplyDetails[0]['relative_name'])){
-                                        echo $candidateApplyDetails[0]['relative_name'];
+                                    if(isset($candidateJobApplyDetail[0]['relative_name']) && !empty($candidateJobApplyDetail[0]['relative_name'])){
+                                        echo $candidateJobApplyDetail[0]['relative_name'];
                                     }
                                     ?>
                                 </td>
                                 <td align="center">
                                     <?php
-                                    if(isset($candidateApplyDetails[0]['relative_designation']) && !empty($candidateApplyDetails[0]['relative_designation'])){
-                                        echo $candidateApplyDetails[0]['relative_designation'];
+                                    if(isset($candidateJobApplyDetail[0]['relative_designation']) && !empty($candidateJobApplyDetail[0]['relative_designation'])){
+                                        echo $candidateJobApplyDetail[0]['relative_designation'];
                                     }
                                     ?>
                                 </td>
                                 <td align="center">
                                     <?php
-                                    if(isset($candidateApplyDetails[0]['relative_relationship']) && !empty($candidateApplyDetails[0]['relative_relationship'])){
-                                        echo $candidateApplyDetails[0]['relative_relationship'];
+                                    if(isset($candidateJobApplyDetail[0]['relative_relationship']) && !empty($candidateJobApplyDetail[0]['relative_relationship'])){
+                                        echo $candidateJobApplyDetail[0]['relative_relationship'];
                                     }
                                     ?>
                                 </td>

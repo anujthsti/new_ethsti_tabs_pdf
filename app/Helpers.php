@@ -6,6 +6,7 @@ use App\Models\Jobs;
 use App\Models\CodeMaster;
 use App\Models\CodeNames;
 use App\Models\FormConfiguration;
+use App\Models\JobValidation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -528,6 +529,13 @@ class Helper {
         }
         //$retData = $years." YEARS,".$months." MONTHS,".$days." DAYS";
         return $years;
+    }
+
+    public static function get_job_validation_for_phd($job_validation_id){
+        $jobValidations = JobValidation::where('job_validation.id', $job_validation_id)
+                                       ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab'])
+                                       ->toArray();
+        return $jobValidations;                               
     }
     
 }

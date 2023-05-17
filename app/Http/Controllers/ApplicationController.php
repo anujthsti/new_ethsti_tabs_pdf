@@ -334,22 +334,23 @@ class ApplicationController extends Controller
 
     // candidate dashboard
     public function dashboard(Request $request){
-
+        
         // set session of job id and RN No. id
         $candidate_id = $request->session()->get('candidate_id');
         if(isset($candidate_id) && !empty($candidate_id)){
             $candidate_details = RegisterCandidate::find($candidate_id);
-            $candidateJobsApplied = CandidatesJobsApply::join('rn_nos','rn_nos.id','=','candidates_jobs_apply.rn_no_id')
+            $candidateJobApplyDetail = CandidatesJobsApply::join('rn_nos','rn_nos.id','=','candidates_jobs_apply.rn_no_id')
                                                         ->join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
                                                         ->orderBy('candidates_jobs_apply.id','desc')
                                                         ->where('candidates_jobs_apply.candidate_id', $candidate_id)
                                                         ->where('candidates_jobs_apply.status', 1)
-                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.data_status','candidates_jobs_apply.file_status','candidates_jobs_apply.payment_status','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required']);
+                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.is_basic_info_done','candidates_jobs_apply.is_qualification_exp_done','candidates_jobs_apply.is_phd_details_done','candidates_jobs_apply.is_document_upload_done','candidates_jobs_apply.is_final_submission_done','candidates_jobs_apply.is_payment_done','candidates_jobs_apply.payment_status','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required','jobs.job_validation_id'])
+                                                        ->toArray();
             $mastersDataArr = Helper::getCodeNames();    
             $postsMasterArr = Helper::getCodeNamesByCode($mastersDataArr,'code','post_master');
             $domainAreaArr = Helper::getCodeNamesByCode($mastersDataArr,'code','domain_area');
             
-            return view('application.dashboard',compact('candidate_details','candidateJobsApplied','mastersDataArr','postsMasterArr','domainAreaArr'));
+            return view('application.dashboard',compact('candidate_details','candidateJobApplyDetail','mastersDataArr','postsMasterArr','domainAreaArr'));
         }else{
             // if user will access page directly then redirect to jobs list page
             return redirect()->route('candidate_dashboard_login');
@@ -1562,7 +1563,7 @@ class ApplicationController extends Controller
         echo "<pre>";
         print_r($candidateJobApplyDetail);
         exit;*/
-        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId','jobValidations'));
+        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId','formTabIdEnc','jobValidations'));
 
     }
 
@@ -2104,9 +2105,11 @@ class ApplicationController extends Controller
                             //print_r($can_rec);
                             $payment_status = 0;
                             $pay_status_code = $pay_st;
+                            $is_payment_done = 0;
                             if($pay_st == '0300')
                             { 
                                 $payment_status = 1;
+                                $is_payment_done = 1;
                                 $pay_st = 'SUCCESS';  
                                 //SMS CONTETN TO BE DEFINE ACCORDING TO THE TYPE OF FEE SUBMITED
                                 $sms_content = "Dear ".$can_rec[0]['name'].", You have successfully completed the submission of the THSTI application form with ref no. ".$can_rec[0]['rn_no'];																									
@@ -2190,6 +2193,7 @@ class ApplicationController extends Controller
                             {   
                                 //update record and status in apply_job master table
                                 $jobApplyData['payment_status'] = $payment_status;
+                                $jobApplyData['is_payment_done'] = $is_payment_done;
                                 $jobApplyData['is_completed'] = 1;
                                 CandidatesJobsApply::where('id',$job_apply_id)->update($jobApplyData);
                                 //$result_jobs=@mysqli_query($conn,"UPDATE `apply_job` SET `txn_id`='".$txn_id."', `pay_st`='".$pay_st."' WHERE `id`='".$id."'");	
@@ -2412,6 +2416,7 @@ class ApplicationController extends Controller
                     {   
                         //update record and status in apply_job master table
                         $jobApplyData['payment_status'] = $payment_status;
+                        $jobApplyData['is_payment_done'] = 1;
                         $jobApplyData['is_completed'] = 1;
                         $job_apply_id = $can_rec[0]['job_apply_id'];
                         CandidatesJobsApply::where('id',$job_apply_id)->update($jobApplyData);
@@ -2459,16 +2464,16 @@ class ApplicationController extends Controller
         $jobExperienceValidation = [];
         $jobEducationValidation = [];
 
-        $candidateApplyDetails = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+        $candidateJobApplyDetail = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
                                                     ->where('candidates_jobs_apply.id', $job_apply_id)
                                                     ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id']);
         $rnNoEncId = "";
         $jobEncId = "";
-        if(isset($candidateApplyDetails) && !empty($candidateApplyDetails)){
-            $candidate_id = $candidateApplyDetails[0]['candidate_id'];
-            $jobId = $candidateApplyDetails[0]['job_id'];
-            $rn_no_id = $candidateApplyDetails[0]['rn_no_id'];
-            $job_validation_id = $candidateApplyDetails[0]['job_validation_id'];
+        if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
+            $candidate_id = $candidateJobApplyDetail[0]['candidate_id'];
+            $jobId = $candidateJobApplyDetail[0]['job_id'];
+            $rn_no_id = $candidateJobApplyDetail[0]['rn_no_id'];
+            $job_validation_id = $candidateJobApplyDetail[0]['job_validation_id'];
             $rnNoEncId = Helper::encodeId($rn_no_id);
             $jobEncId = Helper::encodeId($jobId);
             $jobDetails = Jobs::join('rn_nos','rn_nos.id','=','jobs.rn_no_id')
@@ -2503,7 +2508,7 @@ class ApplicationController extends Controller
         
         // get all code_names join with code_master
         $masterDataArr = Helper::getCodeNames();
-        return view("application/candidate_preview_final_submit",compact('candidateApplyDetails','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','job_apply_id_enc','rnNoEncId','jobEncId','jobValidations','candidateJobApplyEncID','formTabIdEnc'));
+        return view("application/candidate_preview_final_submit",compact('candidateJobApplyDetail','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','job_apply_id_enc','rnNoEncId','jobEncId','jobValidations','candidateJobApplyEncID','formTabIdEnc'));
     }
 
     public function application_final_submission(Request $request, $job_apply_id_enc, $formTabIdEnc=""){

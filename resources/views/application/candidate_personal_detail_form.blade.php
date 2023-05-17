@@ -216,7 +216,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
           <div class="col-xs-12 col-sm-12 col-md-4">
             <div class="form-group">       
               <label for="father_name" class="form-label">Father's Name </label>
-              <input class="form-control" id="father_name" name="father_name" value="{{ $father_name }}" type="text" autocomplete="off" maxlength="30" required="" />
+              <input class="form-control" id="father_name" name="father_name" value="{{ $father_name }}" type="text" autocomplete="off" maxlength="100" required="" />
               @error('father_name')
                 <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
               @enderror
@@ -227,7 +227,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
           <div class="col-xs-12 col-sm-12 col-md-4">
             <div class="form-group">
               <label for="mother_name" class="form-label">Mother's Name </label>
-              <input class="form-control" id="mother_name" name="mother_name" value="{{ $mother_name }}" type="text" autocomplete="off" maxlength="30" required="" />
+              <input class="form-control" id="mother_name" name="mother_name" value="{{ $mother_name }}" type="text" autocomplete="off" maxlength="100" required="" />
               @error('mother_name')
                 <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
               @enderror
@@ -489,7 +489,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
         <div class="col-xs-12 col-sm-12 col-md-4 country_name" style="<?php echo $countryNameDisplay; ?>">
           <div class="form-group">
             <label for="nationality" class="form-label" >Country Name</label>
-            <input class="form-control" name="nationality" autocomplete="off" type="text" maxlength="30" value="<?php echo ($nationality)?$nationality:''; ?>"  />
+            <input class="form-control" name="nationality" autocomplete="off" type="text" maxlength="100" value="<?php echo ($nationality)?$nationality:''; ?>"  />
             @error('nationality')
               <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
             @enderror  
@@ -511,7 +511,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
         <div class="col-xs-12 col-sm-12 col-md-6">
           <div class="form-group">
             <label for="institute_add" class="form-label" >Institute Name and address </label>
-            <input class="form-control" name="institute_name" autocomplete="off" type="text" maxlength="30" required=""  value="<?php echo ($institute_name)?$institute_name:''; ?>"  />
+            <input class="form-control" name="institute_name" autocomplete="off" type="text" required=""  value="<?php echo ($institute_name)?$institute_name:''; ?>"  />
             @error('institute_name')
               <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
             @enderror  
@@ -616,7 +616,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
         <div class="col-xs-12 col-sm-12 col-md-3">
           <div class="form-group ">
             <label for="pa" class="form-label" >Permanent Address</label>
-            <textarea class="form-control" name="permanent_address" id="pa" maxlength="200" style="resize:vertical; height:50px;" autocomplete="off" required="" >{{ $permanent_address }}</textarea>
+            <textarea class="form-control" name="permanent_address" id="pa" style="resize:vertical; height:50px;" autocomplete="off" required="" >{{ $permanent_address }}</textarea>
             @error('permanent_address')
               <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
             @enderror
