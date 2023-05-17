@@ -3,13 +3,43 @@
 @include('application.application_registeration_head')
 <?php
 $save_url = route('save_registration_details');
+$rn_no_id = $jobData[0]['rn_no_id'];
+$job_title = $jobData[0]['code_meta_name'];
+$rn_no = $jobData[0]['rn_no'];
+$apply_end_date = $jobData[0]['apply_end_date'];
+$job_type_id = $jobData[0]['job_type_id'];
 
+$masterCode = 'job_types';
+$codeMetaCodeArr = ['train_program'];
+$jobTypeIDs = Helper::getCodeNamesIdsByCodes($masterCode, $codeMetaCodeArr);
+$jobTitleLabel = "Post Applied For";
+if(in_array($job_type_id, $jobTypeIDs)){
+    $jobTitleLabel = "Training Applied For";
+}
 ?>
 <!-- main container start -->
 <div class="container-fluid border-top pt-5">                                          
     <div class="text-primary text-center mb-5 h4">Registration Details</div>
     <form id="online-form" name="registration-form" method="post" action="{{ $save_url }}" enctype="multipart/form-data" >        
       @csrf
+        <!-- hidden fields-->      		       
+        <input name="rn_no_id" type="hidden" value="{{ $rnNoId }}" readonly="readonly" id="rn_id" />
+        <input name="job_id" type="hidden" value="{{ $jobId }}" readonly="readonly" id="rn_id" />
+        <!-- Autofetched Details-->                       
+      <div class="row">       
+        <div class="col-xs-12 col-sm-12 col-md-4">
+          <div class="form-group">     
+            <label for="staticrn_no" class="form-label">RN No.</label>
+            <input type="text" readonly class="form-control" id="staticrn_no" value="{{ $rn_no }}" required="" />   
+          </div>
+        </div> 
+        <div class="col-xs-12 col-sm-12 col-md-4">
+          <div class="form-group">    
+            <label for="staticrn_job_title" class="form-label">{{ $jobTitleLabel }}</label> 
+            <input type="text" readonly class="form-control" id="staticrn_job_title" value="{{ $job_title }}" required=""  />
+          </div>
+        </div>   
+      </div>
         <!-- include candidate personal details form -->
         @include('application.candidate_personal_detail_form')  
         <!-- Permanent state, city, pincode section end -->

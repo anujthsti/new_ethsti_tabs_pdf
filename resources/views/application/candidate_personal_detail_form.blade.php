@@ -1,5 +1,6 @@
 <?php
 $apply_end_date = $jobData[0]['apply_end_date'];
+$job_type_id = $jobData[0]['job_type_id'];
 
 $domain_area_id = old('domain_area');
 $method_of_appointment = old('method_of_appointment');
@@ -254,7 +255,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
                 @enderror
               </div>
               <div class="col-xs-12 col-sm-12 col-md-6">
-                <input required="" class="form-control" name="age" type="text"  id="age_id" value="" readonly="readonly" placeholder="age" disabled />  
+                <input required="" class="form-control" name="age" type="text" id="age_id" value="" readonly="readonly" placeholder="age" disabled />  
               </div>  
             </div>  
           </div>      
@@ -701,10 +702,11 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
   //get age as on date
   $('#dob_id').change(function(){		  
       $('#age_id').val(''); 		
-	  var dob=$('#dob_id').val();		  
-	  var as_on_date=$('#last_dt').val();	
+      var dob=$('#dob_id').val();		  
+      var as_on_date=$('#last_dt').val();	
       getCalculatedAge(dob,as_on_date);	
   });
+
 
   $('#age_id').click(function(){	  
 	  $('#dob_id').trigger('change');

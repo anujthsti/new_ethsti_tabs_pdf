@@ -373,7 +373,10 @@ class Helper {
     public static function sms_parameter($can_mob, $sms_content)
     {	
         //SMS PARAMETERE configuration set	
-        $smsTemplateId = '1707162729358153319';
+        //$smsTemplateId = '1707162729358153319';
+        $smsTemplateId='1707161881883024063';
+        $sms_content = "We have successfully received Rs. 1000 against AEF Charges of Transaction ref. no. Test_555. Please keep the Transaction ID for future reference. You may download the receipt from payment portal (https://thsti.in/bdpay/receipt.php)";																									
+    
         $Phno = $can_mob;   
         $Msg = $sms_content;
         $Password = config('app.sms_settings.Password');
@@ -420,6 +423,35 @@ class Helper {
 
         curl_close($ch);
         return $output;
+    }
+
+    // send email
+    public static function send_mail(){
+        
+        $fromEmail = "kambojanuj@thsti.res.in";
+        $candidate_email = "kambojanuj1992@gmail.com";
+        $candidate_name = "Anuj Kamboj";
+        $candidate_email = strtolower($candidate_email); 
+		$subject = "Test Email";
+		$cc = "satyamkumar@thsti.res.in";
+		$headers = "From: ".$fromEmail . "\n" ."Cc:".$cc;
+		$headers .= "\nContent-type:text/html;charset=UTF-8";
+		//header and footer defined in mail config module
+		$mail_header = "";	
+        $mail_footer = "";			
+		$mail_content = "Testing Email in helper function.";
+		//mail content final 
+		$mail_content = "Dear ".$candidate_name.", <br/> ".$mail_header."<br/>".$mail_content."<br>".$mail_footer;			
+		// send mail function	
+		$response = mail($candidate_email,$subject,$mail_content,$headers);
+        echo "<pre>";
+        print_r($response);
+		if($response){ 
+            echo "Email sent";
+        }else{ 
+            echo "Email not sent";
+        }
+	  
     }
 
     public static function get_checkout_msg($data){

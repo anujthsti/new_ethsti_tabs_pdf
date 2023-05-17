@@ -237,8 +237,8 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                 if(typeof experienceArr['exp_to'] != "undefined"){
                     exp_to = experienceArr['exp_to'];
                 }
-                html += '<td><input name="exp_from[]" value="'+exp_from+'" type="date" style="width:200px;" class="exp_from form-control calculate_experience"/></td>';
-                html += '<td><input name="exp_to[]" value="'+exp_to+'" type="date" style="width:200px;" class="exp_to form-control calculate_experience"/></td>';
+                html += '<td><input name="exp_from[]" value="'+exp_from+'" type="date" style="width:200px;" class="exp_from exp_common form-control calculate_experience"/></td>';
+                html += '<td><input name="exp_to[]" value="'+exp_to+'" type="date" style="width:200px;" class="exp_to exp_common form-control calculate_experience"/></td>';
             @endif  
             @if(!empty($fieldsArray) && in_array('totalexperience', $fieldsArray)) 
                 let exp_total = "";
@@ -289,7 +289,7 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
     }
 
     // on select date for experience_to field
-    $('#exp').on('focusout','.exp_to',function(){				  	  				 
+    $('#exp').on('focusout','.exp_common',function(){				  	  				 
         let index = $(this).parent().parent().index();			
         let e_from = $('#exp tbody tr:eq('+index+') td').find('.exp_from').val();	 
         let e_to = $('#exp tbody tr:eq('+index+') td').find('.exp_to').val();		

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Http\Request;
 use Helper;
@@ -204,7 +205,7 @@ class ApplicationController extends Controller
             $codeNamesArr = $retData['codeNamesArr'];
             if(!empty($jobData)){                
                 // call view
-                return view('application.register', compact('jobData','fieldsArray','domainAreas','codeNamesArr','captcha_code','jobId'));
+                return view('application.register', compact('jobData','fieldsArray','domainAreas','codeNamesArr','captcha_code','jobId','rnNoId'));
             }else{
                 echo "Something went wrong.";
                 exit;
@@ -313,6 +314,8 @@ class ApplicationController extends Controller
                         $request->session()->put('candidate_id', $candidate_id);
                         $jobApplyArr = [];
                         $jobApplyArr = $this->candidate_job_apply_info_arr($postData, $candidate_id);
+                        // update is_basic_info_done to 1 - completed
+                        $jobApplyArr['is_basic_info_done'] = 1;
                         CandidatesJobsApply::create($jobApplyArr);
                     }
                 }
@@ -2539,6 +2542,32 @@ class ApplicationController extends Controller
         }
         
 
+    }
+
+    public function send_mail(){
+
+        //$mobile = "9517886722";
+        //$sms_content = "Test sms from new recruitment module.";
+        //$sms_param = Helper::sms_parameter($mobile, $sms_content);										
+        //$sms_res = Helper::send_message($sms_param);
+        //$json = json_decode($sms_res, true);
+        //echo "<pre>";
+        //print_r($json);
+        //Helper::send_mail();
+        $msg = "Test email laravel.";
+        $to_name = "kambojanuj1992@gmail.com";
+        $to_email = "kambojanuj1992@gmail.com";
+        //$res = Mail::to($to_email)->send($msg);
+        $SENDER_EMAIL_ADDRESS = "kambojanuj@thsti.res.in";
+        $data = array('name'=>'kambojanuj1992@gmail.com', 'body' => 'A test mail');
+        
+        //$html = "Hello <strong>{{name}}</strong>,<p>{{body}}</p>";
+        $res = Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email, $SENDER_EMAIL_ADDRESS) {
+                    $message->to($to_email, $to_name)->subject('Laravel Test Mail')->from($SENDER_EMAIL_ADDRESS,'Test Mail');
+                });
+               
+        print_r($res);
+        exit;
     }
 
 }
