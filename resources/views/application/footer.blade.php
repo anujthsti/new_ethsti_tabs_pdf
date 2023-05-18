@@ -63,6 +63,19 @@
               }
           });
     });
+
+    // get email otp
+    $("#getEmailOtp").click(function(){
+        let email = $("#email_id").val();
+        $.ajax({
+              type:'post',
+              url:"{{ route('get_email_otp') }}",
+              data:{email:email},
+              success:function(data){
+                alert("Kindly check OTP on your email"); 
+              }
+          });
+    });
   </script>
 
 </body>

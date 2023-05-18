@@ -2557,15 +2557,22 @@ class ApplicationController extends Controller
         $msg = "Test email laravel.";
         $to_name = "kambojanuj1992@gmail.com";
         $to_email = "kambojanuj1992@gmail.com";
+        $subject = "THSTI recruitment";
         //$res = Mail::to($to_email)->send($msg);
         $SENDER_EMAIL_ADDRESS = "kambojanuj@thsti.res.in";
-        $data = array('name'=>'kambojanuj1992@gmail.com', 'body' => 'A test mail');
+        $title = "THSTI";
+        $candidateName = "Anuj Kamboj";
+        $msgBody = "You are shortlisted for exam.";
+        $data = array('name'=>$candidateName, 'body' => $msgBody);
         
         //$html = "Hello <strong>{{name}}</strong>,<p>{{body}}</p>";
-        $res = Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email, $SENDER_EMAIL_ADDRESS) {
-                    $message->to($to_email, $to_name)->subject('Laravel Test Mail')->from($SENDER_EMAIL_ADDRESS,'Test Mail');
+        $res = Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email, $subject, $title, $SENDER_EMAIL_ADDRESS) {
+                    $message->to($to_email, $to_name)->subject($subject)->from($SENDER_EMAIL_ADDRESS,$title);
                 });
-               
+        /*$res = Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email, $SENDER_EMAIL_ADDRESS) {
+                    $message->to($to_email, $to_name)->subject('Laravel Test Mail')->from($SENDER_EMAIL_ADDRESS,'Test Mail');
+                });        
+        */       
         print_r($res);
         exit;
     }
