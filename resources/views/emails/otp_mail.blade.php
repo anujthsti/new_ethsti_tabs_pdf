@@ -1,0 +1,1 @@
+<strong>{{ $otp }}</strong> is the OTP for email verification. Please enter it in the space provided in the website.

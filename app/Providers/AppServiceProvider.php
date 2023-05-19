@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Models\RegisterCandidate;
+use App\Models\RegistrationOTP;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +60,25 @@ class AppServiceProvider extends ServiceProvider
             }
             return $status;
         });
+
+        Validator::extend('check_email_otp', function ($attribute, $value, $parameters, $validator) {
+            $inputs = $validator->getData();
+            $email_otp = $inputs['email_otp'];
+            $email_id = $inputs['email_id'];
+            $status = false;
+            $otpDetails = RegistrationOTP::orderBy('id','desc')
+                                        ->where('email_id',$email_id)
+                                        ->limit(1)
+                                        ->get(['otp'])
+                                        ->toArray(); 
+            //print_r($otpDetails);exit;
+            if(!empty($otpDetails) && ($otpDetails[0]['otp'] == $email_otp)) {
+                $status = true;
+            }
+            //echo $status;exit;
+            return $status;
+        });
+
 
     }
 }

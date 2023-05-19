@@ -5,7 +5,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   $candidateJobFormUrl = route('edit_candidate_applied_job_details', $candidateJobApplyEncID);
   // basic information url start
   $basicInformationRouteUrl = "#";
-  if($candidateJobApplyArr['is_payment_done'] == 0){
+  if($candidateJobApplyArr['is_final_submission_done'] == 0){
     $basicInformationRouteUrl = $candidateJobFormUrl;
   }
   //$basicInformationTabIdEnc = Helper::encodeId(1);  
@@ -13,21 +13,21 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   // qualification & experience information url start
   $qualificationTabIdEnc = Helper::encodeId(2);  
   $qualificationExperienceRouteUrl = "#";
-  if($candidateJobApplyArr['is_payment_done'] == 0){
+  if($candidateJobApplyArr['is_final_submission_done'] == 0){
     $qualificationExperienceRouteUrl = $candidateJobFormUrl."/".$qualificationTabIdEnc;
   }
   // qualification & experience information url end
   // phd detail information url start
   $phdDetailsRouteUrl = "#";
   $phdTabIdEnc = Helper::encodeId(3);  
-  if($is_publication_tab == 1 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 0){
+  if($is_publication_tab == 1 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 0){
     $phdDetailsRouteUrl = $candidateJobFormUrl."/".$phdTabIdEnc;
   }
   // phd detail information url end
   // documents upload information url start
   $documentUploadRouteUrl = "#";
   $documentUploadTabIdEnc = Helper::encodeId(4);  
-  if(($is_publication_tab == 1 && $candidateJobApplyArr['is_phd_details_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 0) || ($is_publication_tab == 0 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 0)){
+  if(($is_publication_tab == 1 && $candidateJobApplyArr['is_phd_details_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 0) || ($is_publication_tab == 0 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 0)){
     $documentUploadRoute = route('upload_candidate_documents', $candidateJobApplyEncID);
     $documentUploadRouteUrl = $documentUploadRoute."/".$documentUploadTabIdEnc;
   }
@@ -35,7 +35,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   // preview & final submit route start
   $finalSubmitRouteUrl = "#";
   $finalSubmitTabIdEnc = Helper::encodeId(5);  
-  if($candidateJobApplyArr['is_document_upload_done'] == 1){
+  if($candidateJobApplyArr['is_document_upload_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 1){
     $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
     $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
   }

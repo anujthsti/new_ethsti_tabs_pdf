@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Http\Request;
 use Helper;
@@ -36,6 +35,7 @@ use App\Models\FeeTransactions;
 use App\Models\FeeStatusTransactions;
 use App\Models\FeeCroneJob;
 use App\Models\FeeCroneJobTrans;
+use App\Models\RegistrationOTP;
 
 class ApplicationController extends Controller
 {
@@ -292,16 +292,18 @@ class ApplicationController extends Controller
 
         $postData = $request->post();
         //print_r($postData);exit;
-        $security_code = $request->session()->get('registration_captcha');
+        $security_code = "";//$request->session()->get('registration_captcha');
         $email_id = $postData['email_id'];
+        $email_otp = $postData['email_otp'];
         $emailValidate = '|check_unique_registration:'.$email_id;
-        $validator = $this->validate_candidate_details($request, $security_code, $emailValidate);
+        $validator = $this->validate_candidate_details($request, $security_code, $emailValidate, $email_otp, $email_id);
         
         try{
             if($validator->fails()) {
                 //withInput keep the users info
                 return redirect()->back()->withInput()->withErrors($validator->messages());
             } else {
+                //echo 11;exit;
                 // transactions start
                 DB::beginTransaction();
                 $postNewArray = [];
@@ -319,7 +321,7 @@ class ApplicationController extends Controller
                         CandidatesJobsApply::create($jobApplyArr);
                     }
                 }
-                // transactions start
+                // transactions commit
                 DB::commit();
                 return redirect()->route('dashboard')->with('success','Registration Successfull.');
             }
@@ -505,12 +507,12 @@ class ApplicationController extends Controller
         $validator = $this->validate_candidate_details($request, $security_code);
         
         try{
-            /*
+            
             if($validator->fails()) {
                 //withInput keep the users info
                 return redirect()->back()->withInput()->withErrors($validator->messages());
             } else {
-            */    
+                
                 // transactions start
                 DB::beginTransaction();
                 $postNewArray = [];
@@ -654,7 +656,7 @@ class ApplicationController extends Controller
                     $redirectUrl .= "/".$formTabIdEnc;
                 }
                 return redirect($redirectUrl)->with('success','Details updated successfully.');
-            //}
+            }
         }catch(\Exception $e){
             $errorMsg = $e->getMessage();
             DB::rollback();
@@ -666,32 +668,56 @@ class ApplicationController extends Controller
     }
 
     // common function to validate candidate details
-    public function validate_candidate_details($request, $security_code, $emailValidate=""){
+    public function validate_candidate_details($request, $security_code="", $emailValidate="", $email_otp="", $email_id=""){
 
-            $validator = Validator::make($request->all(), [
-                    'rn_no_id' => 'required',
-                    'job_id' => 'required',
-                    'email_id' => 'required|email'.$emailValidate,
-                    'mobile_no' => 'required',
-                    'full_name' => 'required',
-                    'father_name' => 'required',
-                    'mother_name' => 'required',
-                    'dob' => 'required',
-                    'gender' => 'required',
-                    'pwd_check' => 'required',
-                    'cast_category' => 'required',
-                    'nationality_type' => 'required',
-                    'correspondes_address' => 'required',
-                    'present_state' => 'required',
-                    'present_city' => 'required',
-                    'present_pincode' => 'required'
-                    //'security_code' => 'required|check_captcha:'.$security_code
-                ],
-                [
-                    //'check_captcha' => 'Invalid captcha code.',
-                    'check_unique_registration' => 'Email & Phone no. already exists.'
-                ]
-            );
+            $validationArray = [
+                'rn_no_id' => 'required',
+                'job_id' => 'required',
+                'email_id' => 'required|email'.$emailValidate,
+                'mobile_no' => 'required',
+                'full_name' => 'required',
+                'father_name' => 'required',
+                'mother_name' => 'required',
+                'dob' => 'required',
+                'gender' => 'required',
+                'pwd_check' => 'required',
+                'cast_category' => 'required',
+                'nationality_type' => 'required',
+                'correspondes_address' => 'required',
+                'present_state' => 'required',
+                'present_city' => 'required',
+                'present_pincode' => 'required'
+            ];
+
+            $validationMsgArr = [
+                'check_unique_registration' => 'Email & Phone no. already exists.'
+            ];
+            if(!empty($security_code)){
+                $securityCodeArr = [
+                    'security_code' => 'required|check_captcha:'.$security_code
+                ];  
+                $validationArray = array_merge($validationArray,$securityCodeArr);
+
+                $newMsgArr = [
+                    'check_captcha' => 'Invalid captcha code.'
+                ];   
+                $validationMsgArr = array_merge($validationMsgArr,$newMsgArr);
+            }
+            // email_otp
+            if(!empty($email_otp)){
+                $newOTPArr = [
+                    'email_otp'=>'check_email_otp:'.$email_otp
+                ];   
+                $validationArray = array_merge($validationArray,$newOTPArr);
+
+                $otpMsgArr = [
+                    'check_email_otp' => 'Invalid OTP code.'
+                ];   
+                $validationMsgArr = array_merge($validationMsgArr,$otpMsgArr);
+            }
+            //echo "<pre>";
+            //print_r($validationArray);exit;
+            $validator = Validator::make($request->all(), $validationArray, $validationMsgArr);
 
             return $validator;
     }
@@ -2575,6 +2601,51 @@ class ApplicationController extends Controller
         */       
         print_r($res);
         exit;
+    }
+
+    public function get_email_otp(Request $request){
+
+        try{
+            $status = 0;
+            $msg = "Kindly enter your email id in email field.";
+            $postData = $request->post();
+            if(isset($postData['email']) && !empty($postData['email'])){
+                $email = $postData['email'];
+                $to_name = $email;
+                $subject = "THSTI recruitment registration OTP";
+                $sender_email_address = "kambojanuj@thsti.res.in";
+                $title = "THSTI";
+                
+                $status = 1;
+                $otp = Helper::generateNumericOTP();
+                $emailStatus = Helper::send_otp_mail($email, $to_name, $subject, $msg, $title, $otp, $sender_email_address);
+                if($emailStatus == 1){
+                    $msg = "OTP sent on your email id. Kindly use it to complete registration.";
+                }else{
+                    $msg = "Something went wrong. Kindly contact support.";
+                }
+                $this->save_email_otp($email, $otp, $emailStatus);
+            }
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            $status = 0;
+            $msg = $errorMsg;
+        }
+        $retData['status'] = $status;
+        $retData['msg'] = $msg;
+        return $retData;
+    }
+
+    public function save_email_otp($email, $otp, $status){
+
+        $dataArray['email_id'] = $email;
+        $dataArray['otp'] = $otp;
+        $dataArray['status'] = $status;
+        RegistrationOTP::create($dataArray);
+        return 1;
     }
 
 }

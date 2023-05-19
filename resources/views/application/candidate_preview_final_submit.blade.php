@@ -1045,11 +1045,14 @@ $page_title = "Candidate Details";
                     </td>
                 </tr>
                 <!-- declaration end -->
-
-                <!-- submit button start -->
                 <tr>
                     <td colspan="3" align="center" >&nbsp;</td>
                 </tr>
+                
+                <tr>
+                    <td colspan="3" align="center" valign="top"><strong>Note: You will not be able to update any detail after final submit.</strong></td>
+                </tr>
+                <!-- submit button start -->
                 
                 <tr><td colspan="3" align="center" ><input class="btn btn-success" type="submit" name="submit" value="Final Submit"></td></tr>
                 <tr><td colspan="3">&nbsp;</td></tr>                    

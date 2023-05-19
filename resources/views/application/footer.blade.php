@@ -67,14 +67,20 @@
     // get email otp
     $("#getEmailOtp").click(function(){
         let email = $("#email_id").val();
-        $.ajax({
+        if(email.length == 0){
+          alert("Kindly enter your email id.");
+        }else{
+          $("#loader").show();
+          $.ajax({
               type:'post',
               url:"{{ route('get_email_otp') }}",
               data:{email:email},
               success:function(data){
-                alert("Kindly check OTP on your email"); 
+                $("#loader").hide();
+                alert(data['msg']); 
               }
           });
+        }
     });
   </script>
 

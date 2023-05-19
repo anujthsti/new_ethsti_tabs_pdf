@@ -19,6 +19,7 @@ if(in_array($job_type_id, $jobTypeIDs)){
 
 $is_register_form = 1;
 ?>
+
 <!-- main container start -->
 <div class="container-fluid border-top pt-5">                                          
     <div class="text-primary text-center mb-5 h4">Registration Details</div>
@@ -59,8 +60,13 @@ $is_register_form = 1;
                 @enderror  
                 <?php */ ?>  
                 <a href="javascript:void(0);" id="getEmailOtp" class="btn btn-success">Get Email OTP</a> 
+                <!-- loader html start -->
+                <div id="loader"></div>
+                <!-- loader html end -->
                 <input name="email_otp" type="text" autocomplete="off" id="email_otp" style="text-transform:none; margin: 10px;" class="form-control col-lg-2 col-md-2 col-sm-2" placeholder="Enter Email OTP" />
-                      
+                @error('email_otp')
+                  <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
+                @enderror      
             </div>
             <div class="form-group col-12" align="center">
               <input class="btn btn-primary col-lg-2 col-md-2 col-sm-3" id="draft" type="button" value="Verify Form" />&nbsp;

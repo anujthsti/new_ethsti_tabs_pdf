@@ -9,6 +9,7 @@ use App\Models\FormConfiguration;
 use App\Models\JobValidation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class Helper {
 
@@ -425,34 +426,6 @@ class Helper {
         return $output;
     }
 
-    // send email
-    public static function send_mail(){
-        
-        $fromEmail = "kambojanuj@thsti.res.in";
-        $candidate_email = "kambojanuj1992@gmail.com";
-        $candidate_name = "Anuj Kamboj";
-        $candidate_email = strtolower($candidate_email); 
-		$subject = "Test Email";
-		$cc = "satyamkumar@thsti.res.in";
-		$headers = "From: ".$fromEmail . "\n" ."Cc:".$cc;
-		$headers .= "\nContent-type:text/html;charset=UTF-8";
-		//header and footer defined in mail config module
-		$mail_header = "";	
-        $mail_footer = "";			
-		$mail_content = "Testing Email in helper function.";
-		//mail content final 
-		$mail_content = "Dear ".$candidate_name.", <br/> ".$mail_header."<br/>".$mail_content."<br>".$mail_footer;			
-		// send mail function	
-		$response = mail($candidate_email,$subject,$mail_content,$headers);
-        echo "<pre>";
-        print_r($response);
-		if($response){ 
-            echo "Email sent";
-        }else{ 
-            echo "Email not sent";
-        }
-	  
-    }
 
     public static function get_checkout_msg($data){
 
@@ -570,4 +543,46 @@ class Helper {
         return $jobValidations;                               
     }
     
+    
+    // send email
+    public static function send_otp_mail($to_email, $to_name, $subject, $msg, $title, $otp, $sender_email_address){
+        
+        $data = array('otp'=>$otp);
+        
+        //$html = "Hello <strong>{{name}}</strong>,<p>{{body}}</p>";
+        Mail::send('emails.otp_mail', $data, function($message) use ($to_name, $to_email, $subject, $title, $sender_email_address) {
+            $message->to($to_email, $to_name)->subject($subject)->from($sender_email_address,$title);
+        });
+        $status = 1;
+        if( count(Mail::failures()) > 0 ) {
+            $status = 0;
+        }
+        return $status;
+    }
+
+    // Function to generate OTP
+    public static function generateNumericOTP() {
+        
+        // Take a generator string which consist of
+        // all numeric digits
+        $generator = "1357902468";
+    
+        // Iterate for n-times and pick a single character
+        // from generator and append it to $result
+        
+        // Login for generating a random character from generator
+        //     ---generate a random number
+        //     ---take modulus of same with length of generator (say i)
+        //     ---append the character at place (i) from generator to result
+    
+        $result = "";
+        $n = 6;
+        for ($i = 1; $i <= $n; $i++) {
+            $result .= substr($generator, (rand()%(strlen($generator))), 1);
+        }
+    
+        // Return result
+        return $result;
+    }
+
 }

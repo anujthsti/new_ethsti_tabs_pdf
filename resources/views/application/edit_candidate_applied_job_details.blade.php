@@ -108,7 +108,6 @@ if (request()->routeIs('companies.*')) {
             <hr />                 	
             <!-- captcha & submit button section start -->		             
             <div class="form-group row" align="center">  
-                <?php /* ?>           
                 <div class="col-12" align="center">		
                     <span width="85" id="captcha" height="40" class="mb-1 captcha">{{ $captcha_code }}</span>
                     <input name="security_code" type="text" autocomplete="off" maxlength="6" id="security_code" style="text-transform:none; margin-top: 10px;" class="form-control col-lg-2 col-md-2 col-sm-2" />
@@ -118,7 +117,6 @@ if (request()->routeIs('companies.*')) {
                       <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                     @enderror           
                 </div>
-                <?php */ ?>
                 <div class="form-group col-12" align="center">
                   <input class="btn btn-primary col-lg-2 col-md-2 col-sm-3" id="draft" type="button" value="Verify Form" />&nbsp;
                   <input class="btn btn-success col-1" style="display:none;" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();" />

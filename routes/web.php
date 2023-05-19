@@ -185,6 +185,8 @@ Route::group(['prefix'=>'application'], function() {
         Route::get('pay_receipt/{id}','pay_receipt')->name('pay_receipt');
         Route::get('croneCheckCandidatePaymentStatus','croneCheckCandidatePaymentStatus')->name('croneCheckCandidatePaymentStatus');
         
+        Route::post('get_email_otp','get_email_otp')->name('get_email_otp');
+
         Route::get('send_mail','send_mail')->name('send_mail');
     });
 
