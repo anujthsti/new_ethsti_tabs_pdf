@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use PDF;
 
 use Illuminate\Http\Request;
 use Helper;
@@ -2585,7 +2586,7 @@ class ApplicationController extends Controller
         $to_email = "kambojanuj1992@gmail.com";
         $subject = "THSTI recruitment";
         //$res = Mail::to($to_email)->send($msg);
-        $SENDER_EMAIL_ADDRESS = "kambojanuj@thsti.res.in";
+        $SENDER_EMAIL_ADDRESS = config('app.sender_email_address');
         $title = "THSTI";
         $candidateName = "Anuj Kamboj";
         $msgBody = "You are shortlisted for exam.";
@@ -2613,7 +2614,7 @@ class ApplicationController extends Controller
                 $email = $postData['email'];
                 $to_name = $email;
                 $subject = "THSTI recruitment registration OTP";
-                $sender_email_address = "kambojanuj@thsti.res.in";
+                $sender_email_address = config('app.sender_email_address');
                 $title = "THSTI";
                 
                 $status = 1;
@@ -2646,6 +2647,148 @@ class ApplicationController extends Controller
         $dataArray['status'] = $status;
         RegistrationOTP::create($dataArray);
         return 1;
+    }
+
+
+    public function exportCandidateDetailsPdf($job_apply_id_enc) {
+        
+        $job_apply_id = Helper::decodeId($job_apply_id_enc);
+        $jobDetails = [];
+        $candidateDetails = [];
+        $candidateAcademicsDetails = [];
+        $candidatesAcademicsDocuments = [];
+        $candidatesCommonDocuments = [];
+        $candidatesExperienceDetails = [];
+        $candidatesExperienceDocuments = [];
+        $candidatesPublicationsDetails = [];
+        $candidatesPHDResearchDetails = [];
+        $candidatesRefreeDetails = [];
+        $feeTransactions = [];
+        
+        $candidateApplyDetails = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+                                                    ->where('candidates_jobs_apply.id', $job_apply_id)
+                                                    ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id'])
+                                                    ->toArray();
+        $rnNoEncId = "";
+        $jobEncId = "";
+        $candidate_id = "";
+        $is_after_payment_mail_sent = $candidateApplyDetails[0]['is_after_payment_mail_sent'];
+        if($is_after_payment_mail_sent == 0){
+        
+            if(isset($candidateApplyDetails) && !empty($candidateApplyDetails)){
+                $candidate_id = $candidateApplyDetails[0]['candidate_id'];
+                $jobId = $candidateApplyDetails[0]['job_id'];
+                $rn_no_id = $candidateApplyDetails[0]['rn_no_id'];
+                $job_validation_id = $candidateApplyDetails[0]['job_validation_id'];
+                $rnNoEncId = Helper::encodeId($rn_no_id);
+                $jobEncId = Helper::encodeId($jobId);
+                $jobDetails = Jobs::join('rn_nos','rn_nos.id','=','jobs.rn_no_id')
+                                ->where('jobs.id', $jobId)
+                                ->get(['jobs.*','rn_nos.rn_no']);
+                // candidate personal details                  
+                $candidateDetails = RegisterCandidate::where('id', $candidate_id)->get(['register_candidates.*']);    
+                // candidate academics details
+                $candidateAcademicsDetails = CandidatesAcademicsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_details.*'])->toArray();  
+                // candidate academics documents
+                $candidatesAcademicsDocuments = CandidatesAcademicsDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_documents.*'])->toArray();
+                // candidate common documents
+                $candidatesCommonDocuments = CandidatesCommonDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_common_documents.*'])->toArray();
+                // candidate experience details
+                $candidatesExperienceDetails = CandidatesExperienceDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_details.*'])->toArray();
+                // Candidates Experience Documents
+                $candidatesExperienceDocuments = CandidatesExperienceDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_documents.*'])->toArray();
+                // Candidates Publications Details
+                $candidatesPublicationsDetails = CandidatesPublicationsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_publications_details.*'])->toArray();
+                // Candidates PHDResearch Details
+                $candidatesPHDResearchDetails = CandidatesPHDResearchDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_phd_research_details.*'])->toArray();
+                // Candidates Refree Details
+                $candidatesRefreeDetails = CandidatesRefreeDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_refree_details.*'])->toArray();
+                // Fee Transactions Details
+                $feeTransactions = FeeTransactions::orderBy('id','desc')->where('job_apply_id', $job_apply_id)->limit(1)->get(['fee_transactions.*'])->toArray();
+                
+            }
+        
+            // get all code_names join with code_master
+            $masterDataArr = Helper::getCodeNames();
+            $isPDFGenerating = 1;
+            //return view("application/candidate_details_pdf",compact('candidateApplyDetails','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','feeTransactions','job_apply_id_enc','rnNoEncId','jobEncId','isPDFGenerating'));
+            
+            $pdf = PDF::loadView("application/candidate_details_pdf",compact('candidateApplyDetails','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','feeTransactions','job_apply_id_enc','rnNoEncId','jobEncId','isPDFGenerating'));
+            ////////////////////////////// PDF work start
+            //$pdf = PDF::loadView('application.test'); // <--- load your view into theDOM wrapper;
+            $folderPath = config('app.candidates_details_pdf_doc_path'); // <--- folder to store the pdf documents into the server;
+            $detailsFileName = "details_".time().'_'.$candidate_id.'_'.$job_apply_id.'.pdf' ; // <--giving the random filename,
+            $filePath = $folderPath . '/' . $detailsFileName;
+            // save as pdf in folder
+            $pdf->save($filePath);
+            $details_pdf_link = url($filePath);
+            //echo $generated_pdf_link;
+
+            // payment receipt pdf
+            $pay_rec = $candidateApplyDetails;//CandidatesJobsApply::where('id',$job_apply_id)->get('candidates_jobs_apply.*')->toArray();
+            $feeTransRec = $feeTransactions;
+            $pay_pdf = PDF::loadView('application/pay_receipt_pdf', compact('pay_rec','feeTransRec'));
+            $payfileName = "pay_receipt_".time().'_'.$candidate_id.'_'.$job_apply_id.'.pdf' ; // <--giving the random filename,
+            $payfilePath = $folderPath . '/' . $payfileName;
+            // save as pdf in folder
+            $pay_pdf->save($payfilePath);
+            $pay_receipt_pdf_link = url($payfilePath);
+            //echo "details_pdf_link: ".$details_pdf_link."<br>";
+            //echo "pay_receipt_pdf_link: ".$pay_receipt_pdf_link;
+            $to_email = $feeTransRec[0]['email'];
+            $to_name = $to_email;
+            $subject = "Application form submitted details & payment receipt.";
+            $title = "THSTI";
+            $mailTemplate = "emails.after_payment";
+            $candidateName = $feeTransRec[0]['name'];
+            $dataArr = [
+                'name' => $candidateName,
+                'profile_pdf_link' => $details_pdf_link,
+                'payment_receipt_pdf_link' => $pay_receipt_pdf_link
+            ];
+            $sender_email_address = config('app.sender_email_address');
+            $emailStatus = Helper::send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address);
+            if($emailStatus == 1){
+                $updateDataArr = [
+                    'details_pdf_name' => $detailsFileName,
+                    'pay_receipt_pdf_name' => $payfileName,
+                    'is_after_payment_mail_sent' => 1
+                ];
+                CandidatesJobsApply::where('id', $job_apply_id)->update($updateDataArr);
+                $msg = "Kindly check your email to download filled details and payment receit.";
+            }else{
+                $msg = "Something went wrong. Kindly contact support.";
+            }
+        }else{
+            $msg = "Email already sent.";
+        }
+        return $msg;
+        //return 1;
+        //return $pdf->stream('candidate_details.pdf');
+        //return response()->json($generated_pdf_link);
+    }
+
+    public function croneSendEmailAfterPayment(){
+
+        try{
+            $candidatesArray = CandidatesJobsApply::where('is_after_payment_mail_sent', 0)
+                                                    ->where('payment_status', 1)
+                                                    ->where('is_completed', 1)
+                                                    ->get(['id'])
+                                                    ->toArray();
+
+            foreach($candidatesArray as $data){
+                $job_apply_id_enc = Helper::encodeId($data['id']);
+                $this->exportCandidateDetailsPdf($job_apply_id_enc);
+            }
+            return 1;
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return 0;
+        }    
     }
 
 }

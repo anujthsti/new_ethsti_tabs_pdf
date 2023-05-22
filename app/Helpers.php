@@ -449,7 +449,7 @@ class Helper {
         return $customer_id;
     }
 
-    public static function get_status($status){
+    public static function get_payment_status($status){
         $statusHtml = '<span class="text-warning">Pending</span>';
         if($status == '0300'){ 
             $statusHtml = '<span class="text-success">Success</span>'; 
@@ -559,6 +559,7 @@ class Helper {
         }
         return $status;
     }
+    
 
     // Function to generate OTP
     public static function generateNumericOTP() {
@@ -583,6 +584,19 @@ class Helper {
     
         // Return result
         return $result;
+    }
+
+    // send email
+    public static function send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address){
+        
+        Mail::send($mailTemplate, $dataArr, function($message) use ($to_name, $to_email, $subject, $title, $sender_email_address) {
+            $message->to($to_email, $to_name)->subject($subject)->from($sender_email_address,$title);
+        });
+        $status = 1;
+        if( count(Mail::failures()) > 0 ) {
+            $status = 0;
+        }
+        return $status;
     }
 
 }

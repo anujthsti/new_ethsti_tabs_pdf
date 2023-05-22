@@ -1,5 +1,5 @@
 <?php
-$domainUrl = "http://localhost/new_ethsti_tabs";
+$domainUrl = "http://localhost/new_ethsti_tabs_pdf";
 return [
 
     /*
@@ -178,7 +178,8 @@ return [
 
         // for datatables functionality
         Yajra\DataTables\DataTablesServiceProvider::class,
-
+        // for pdf
+        Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -237,7 +238,8 @@ return [
         'Helper' => App\Helpers\Helper::class,
         // for datatables functionality
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-
+        // for pdf
+        'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 
     /********* encrypt keys *********/
@@ -266,7 +268,8 @@ return [
         'smsAPIUrl' => 'http://nimbusit.biz/api/SmsApi/SendBulkApi'
     ],
 
-    'candidates_docs_path' => 'public/upload/candidates_documents'
-
+    'candidates_docs_path' => 'public/upload/candidates_documents',
+    'candidates_details_pdf_doc_path' => 'public/upload/pdf_docs',
+    'sender_email_address' => 'kambojanuj@thsti.res.in'
 
 ];

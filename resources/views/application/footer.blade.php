@@ -82,6 +82,24 @@
           });
         }
     });
+
+    //$(document).ready(function(){
+        
+      function send_pay_receipt_email(job_apply_id_enc){
+
+        let routeUrl = '{{ route("exportCandidateDetailsPdf",":id") }}';
+        routeUrl = routeUrl.replace(':id', job_apply_id_enc);
+        //alert(routeUrl);
+        $.ajax({
+              type:'get',
+              url:routeUrl,
+              success:function(msg){
+                alert(msg); 
+              }
+          });
+      }
+      
+    //});
   </script>
 
 </body>

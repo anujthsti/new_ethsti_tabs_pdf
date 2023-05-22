@@ -188,6 +188,8 @@ Route::group(['prefix'=>'application'], function() {
         Route::post('get_email_otp','get_email_otp')->name('get_email_otp');
 
         Route::get('send_mail','send_mail')->name('send_mail');
+        Route::get('exportCandidateDetailsPdf/{id}','exportCandidateDetailsPdf')->name('exportCandidateDetailsPdf');
+        Route::get('croneSendEmailAfterPayment','croneSendEmailAfterPayment')->name('croneSendEmailAfterPayment');
     });
 
 });
