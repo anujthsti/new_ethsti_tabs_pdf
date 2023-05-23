@@ -1,3 +1,8 @@
+  <div class="container">
+      <div class="text-center h6">
+        For any technical issue or support kindly contact at <a href="mailto:support@thsti.res.in">support@thsti.res.in</a>
+      </div>
+  </div>
   <!--Footer-->
   <footer class="application-footer bg-dark11 shadow application_footer" style="">
     <div class="container">

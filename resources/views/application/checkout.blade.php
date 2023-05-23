@@ -4,6 +4,8 @@
 $page_title = "Confirm Payment | THSTI Payment Portal";
 ?>
 @include('application.application_head')
+<!-- include dashboard navigation -->
+@include('application.dashboard_nav')
 
 <style type="text/css">
 	#bdCheckoutFormInline { 
