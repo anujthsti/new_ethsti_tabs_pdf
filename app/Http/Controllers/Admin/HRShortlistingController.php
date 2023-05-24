@@ -34,57 +34,80 @@ class HRShortlistingController extends Controller
         
     }
 
-    public function candidate_list($rn_no_EncId="",$jobEncId="", $filterId=""){
+    public function candidate_list($rnNoTypeEncId="",$thsRNTypeEncId="", $rn_no_EncId="",$jobEncId="", $filterId=""){
 
-        $rn_nos = Rn_no::orderBy('id','desc')->get();
+        $rn_nos = [];
         $positionsArr = [];
         $candidatesList = [];
         $masterData = [];
-        if(isset($rn_no_EncId) && !empty($rn_no_EncId)){
-            $rnNoId = Helper::decodeId($rn_no_EncId);
-            $positionsArr = Jobs::join('code_names','code_names.id','=','jobs.post_id')
-                                ->where('rn_no_id', $rnNoId)
-                                ->where('jobs.status', 1)
-                                ->get(['code_names.*','jobs.id as job_id']);
-                            
-            if(isset($jobEncId) && !empty($jobEncId)){
-                $jobId = Helper::decodeId($jobEncId);
-                $selectArray = ['register_candidates.*','candidates_jobs_apply.id as candidate_job_apply_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.category_id','candidates_jobs_apply.application_status','candidates_jobs_apply.total_experience','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_completed','candidates_jobs_apply.age_calculated'];
-
-                // If shortlisted filter
-                if(isset($filterId) && !empty($filterId)){
-                    if($filterId == 1 || $filterId == 2 || $filterId == 3){
-                        // 1 for shortlistd, 2 for rejected, 3 provisional shortlisted
-                        $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
-                                                                ->where('candidates_jobs_apply.job_id', $jobId)
-                                                                ->where('candidates_jobs_apply.shortlisting_status', $filterId)
-                                                                ->where('candidates_jobs_apply.status', 1)
-                                                                ->get($selectArray);
-                    }
-                    else if($filterId == 4){
-                        // for screened records filter
-                        $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
-                                                                ->where('candidates_jobs_apply.job_id', $jobId)
-                                                                ->where('candidates_jobs_apply.is_screened', 1)
-                                                                ->where('candidates_jobs_apply.status', 1)
-                                                                ->get($selectArray);
-                    }
+        $cdsaTypeIdEnc = "";
+        // get rolling job type
+        $rnNoTypesArr = Helper::getCodeNamesByMasterCode("rn_no_type");
+        $ths_rn_types = [];
+        if(isset($rnNoTypeEncId) && !empty($rnNoTypeEncId)){
+            $rnNoTypeId = Helper::decodeId($rnNoTypeEncId);
+            if($rnNoTypeId == 109){ // for thsti RN Types
+                $ths_rn_types = Helper::getCodeNamesByMasterCode("ths_rn_types");
+                if(!empty($thsRNTypeEncId)){
+                    $ths_typesId = Helper::decodeId($thsRNTypeEncId);
+                    $rn_nos = Rn_no::orderBy('id','desc')
+                                ->where('rn_type_id', $rnNoTypeId)
+                                ->where('ths_rn_type_id', $ths_typesId)
+                                ->get();
                 }
-                else{
-                    $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
-                                                        ->where('candidates_jobs_apply.job_id', $jobId)
-                                                        ->where('candidates_jobs_apply.status', 1)
-                                                        ->get($selectArray);
-                }
-                // get all code_names join with code_master
-                if(!empty($candidatesList)){
-                    $masterData = Helper::getCodeNames();  
-                }                                   
-                                                 
-            }                    
+            }else{
+                $cdsaTypeIdEnc = Helper::encodeId(1010);
+                $rn_nos = Rn_no::orderBy('id','desc')
+                                ->where('rn_type_id', $rnNoTypeId)
+                                ->get();
+            }
+            
+            if(isset($rn_no_EncId) && !empty($rn_no_EncId)){
+                $rnNoId = Helper::decodeId($rn_no_EncId);
+                $positionsArr = Jobs::join('code_names','code_names.id','=','jobs.post_id')
+                                    ->where('rn_no_id', $rnNoId)
+                                    ->where('jobs.status', 1)
+                                    ->get(['code_names.*','jobs.id as job_id']);
+                                
+                if(isset($jobEncId) && !empty($jobEncId)){
+                    $jobId = Helper::decodeId($jobEncId);
+                    $selectArray = ['register_candidates.*','candidates_jobs_apply.id as candidate_job_apply_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.category_id','candidates_jobs_apply.application_status','candidates_jobs_apply.total_experience','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_completed','candidates_jobs_apply.age_calculated'];
 
+                    // If shortlisted filter
+                    if(isset($filterId) && !empty($filterId)){
+                        if($filterId == 1 || $filterId == 2 || $filterId == 3){
+                            // 1 for shortlistd, 2 for rejected, 3 provisional shortlisted
+                            $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                                    ->where('candidates_jobs_apply.job_id', $jobId)
+                                                                    ->where('candidates_jobs_apply.shortlisting_status', $filterId)
+                                                                    ->where('candidates_jobs_apply.status', 1)
+                                                                    ->get($selectArray);
+                        }
+                        else if($filterId == 4){
+                            // for screened records filter
+                            $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                                    ->where('candidates_jobs_apply.job_id', $jobId)
+                                                                    ->where('candidates_jobs_apply.is_screened', 1)
+                                                                    ->where('candidates_jobs_apply.status', 1)
+                                                                    ->get($selectArray);
+                        }
+                    }
+                    else{
+                        $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                            ->where('candidates_jobs_apply.job_id', $jobId)
+                                                            ->where('candidates_jobs_apply.status', 1)
+                                                            ->get($selectArray);
+                    }
+                    // get all code_names join with code_master
+                    if(!empty($candidatesList)){
+                        $masterData = Helper::getCodeNames();  
+                    }                                   
+                                                    
+                }                    
+
+            }
         }
-        return view("hr_shortlisting/candidates_list", compact('rn_nos','positionsArr','candidatesList','masterData','rn_no_EncId','jobEncId','filterId'));
+        return view("hr_shortlisting/candidates_list", compact('rn_nos','positionsArr','candidatesList','masterData','rn_no_EncId','jobEncId','filterId','rnNoTypesArr','rnNoTypeEncId','ths_rn_types','thsRNTypeEncId','cdsaTypeIdEnc'));
     }
 
     public function candidate_print($job_apply_id_enc){

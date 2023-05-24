@@ -60,10 +60,12 @@ class ApplicationController extends Controller
         $rollingNamesArr = ['rolling'];
         $jobTypeIDsRolling = Helper::getCodeNamesIdsByCodes($masterCode, $rollingNamesArr);
         //print_r($jobTypeIDsToApplyBtn);exit;
+        $currentDate = date('Y-m-d');
         $jobs = Jobs::join('rn_nos', 'rn_nos.id', '=', 'jobs.rn_no_id')
                 ->join('code_names', 'code_names.id', '=', 'jobs.post_id')
                 ->orderBy('id','desc')
                 ->where('jobs.status',1)
+                ->where('jobs.apply_end_date','>=',$currentDate)
                 ->get(['jobs.*','rn_nos.rn_no','rn_nos.rn_document','code_names.code_meta_name']);
           
         return view('application.jobs',compact('jobs','jobTypeIDsToApplyBtn','jobTypeCoreOrProject','jobTypeIDsRolling'));
@@ -350,7 +352,7 @@ class ApplicationController extends Controller
                                                         ->orderBy('candidates_jobs_apply.id','desc')
                                                         ->where('candidates_jobs_apply.candidate_id', $candidate_id)
                                                         ->where('candidates_jobs_apply.status', 1)
-                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.is_basic_info_done','candidates_jobs_apply.is_qualification_exp_done','candidates_jobs_apply.is_phd_details_done','candidates_jobs_apply.is_document_upload_done','candidates_jobs_apply.is_final_submission_done','candidates_jobs_apply.is_payment_done','candidates_jobs_apply.payment_status','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required','jobs.job_validation_id'])
+                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.is_basic_info_done','candidates_jobs_apply.is_qualification_exp_done','candidates_jobs_apply.is_phd_details_done','candidates_jobs_apply.is_document_upload_done','candidates_jobs_apply.is_final_submission_done','candidates_jobs_apply.is_payment_done','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_final_submit_after_payment','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required','jobs.job_validation_id'])
                                                         ->toArray();
             $mastersDataArr = Helper::getCodeNames();    
             $postsMasterArr = Helper::getCodeNamesByCode($mastersDataArr,'code','post_master');
@@ -2459,15 +2461,29 @@ class ApplicationController extends Controller
             }       
     }
 
-    public function pay_receipt($appliedJobEncId){
+    public function pay_receipt($candidateJobApplyEncID, $formTabIdEnc=""){
 
-        $job_apply_id = Helper::decodeId($appliedJobEncId);
-        $pay_rec = CandidatesJobsApply::where('id',$job_apply_id)->get('candidates_jobs_apply.*')->toArray();
+        $job_apply_id = Helper::decodeId($candidateJobApplyEncID);
+        //$pay_rec = CandidatesJobsApply::where('id',$job_apply_id)->get('candidates_jobs_apply.*')->toArray();
+        $pay_rec = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+                                                    ->where('candidates_jobs_apply.id', $job_apply_id)
+                                                    ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id']);
+        
+        $candidateJobApplyDetail = $pay_rec;
         $feeTransRec = [];
         if(isset($pay_rec) && !empty($pay_rec)){
             $feeTransRec = FeeTransactions::orderBy('id','desc')->where('job_apply_id', $job_apply_id)->limit(1)->get(['fee_transactions.*'])->toArray();
         }
-        return view('application/pay_receipt', compact('pay_rec','feeTransRec'));
+        $jobValidations = [];
+        if(!empty($candidateJobApplyDetail) && isset($candidateJobApplyDetail[0]['job_validation_id'])){
+            $job_validation_id = $candidateJobApplyDetail[0]['job_validation_id'];
+            $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
+                                                    ->where('job_validation.id', $job_validation_id)
+                                                    ->where('job_min_education_trans.status', 1)
+                                                    ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab','job_min_education_trans.education_id','job_min_education_trans.job_validation_id'])
+                                                    ->toArray(); 
+        }
+        return view('application/pay_receipt', compact('pay_rec','feeTransRec','formTabIdEnc','candidateJobApplyDetail','candidateJobApplyEncID','jobValidations'));
     }
 
     public function preview_application_final_submit($job_apply_id_enc, $formTabIdEnc=""){
@@ -2545,15 +2561,131 @@ class ApplicationController extends Controller
 
         try{
             $postData = $request->post();
+            /*
             $declaration = $postData['declaration'];
             if($declaration == 1){
+            */    
                 // update candidate is_final_submission_done
                 $jobApplyArr['is_final_submission_done'] = 1;
                 $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
                 CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
-                $redirectUrl = route('checkout',$job_apply_id_enc);
+                $candidatesJobsApplyArr = CandidatesJobsApply::where('id', $candidateJobApplyID)->get(['candidates_jobs_apply.*'])->toArray();
+                $is_payment_done = $candidatesJobsApplyArr[0]['is_payment_done'];
+                $redirectUrl = "";
+                if($is_payment_done == 1){
+                    $redirectUrl = route('pay_receipt',$job_apply_id_enc);
+                }else{
+                    $redirectUrl = route('checkout',$job_apply_id_enc);
+                }
                 $formTabIdEnc = Helper::encodeId(6);   
                 $redirectUrl .= "/".$formTabIdEnc;
+                return redirect($redirectUrl);
+            /*    
+            }else{
+                $errorMsg = "Please select the declaration checkbox.";
+                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+            }
+            */
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            //$errorMsg = "Something went wrong. Please contact administrator.";
+            DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+        }
+        
+
+    }
+
+    
+    //////////////////  after payment final submission start  //////////////////////////////
+    public function final_submission_after_payment($job_apply_id_enc, $formTabIdEnc=""){
+
+        $final_submission_after_payment = 1;
+        $candidateJobApplyEncID = $job_apply_id_enc;
+        $job_apply_id = Helper::decodeId($job_apply_id_enc);
+        $nextId = "";
+        $previousId = "";
+        $jobDetails = [];
+        $candidateDetails = [];
+        $candidateAcademicsDetails = [];
+        $candidatesAcademicsDocuments = [];
+        $candidatesCommonDocuments = [];
+        $candidatesExperienceDetails = [];
+        $candidatesExperienceDocuments = [];
+        $candidatesPublicationsDetails = [];
+        $candidatesPHDResearchDetails = [];
+        $candidatesRefreeDetails = [];
+        $feeTransactions = [];
+        $candidatesJobHRRemarks = [];
+        $previousRec = [];
+        $nextRec = [];
+        $jobAgeRelaxation = [];
+        $jobExperienceValidation = [];
+        $jobEducationValidation = [];
+
+        $candidateJobApplyDetail = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
+                                                    ->where('candidates_jobs_apply.id', $job_apply_id)
+                                                    ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id']);
+        $rnNoEncId = "";
+        $jobEncId = "";
+        if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
+            $candidate_id = $candidateJobApplyDetail[0]['candidate_id'];
+            $jobId = $candidateJobApplyDetail[0]['job_id'];
+            $rn_no_id = $candidateJobApplyDetail[0]['rn_no_id'];
+            $job_validation_id = $candidateJobApplyDetail[0]['job_validation_id'];
+            $rnNoEncId = Helper::encodeId($rn_no_id);
+            $jobEncId = Helper::encodeId($jobId);
+            $jobDetails = Jobs::join('rn_nos','rn_nos.id','=','jobs.rn_no_id')
+                              ->where('jobs.id', $jobId)
+                              ->get(['jobs.*','rn_nos.rn_no']);
+
+            $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
+                              ->where('job_validation.id', $job_validation_id)
+                              ->where('job_min_education_trans.status', 1)
+                              ->get(['job_validation.is_age_validate','job_validation.is_exp_tab','job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab','job_min_education_trans.education_id','job_min_education_trans.job_validation_id'])
+                              ->toArray();                  
+            // candidate personal details                  
+            $candidateDetails = RegisterCandidate::where('id', $candidate_id)->get(['register_candidates.*']);    
+            // candidate academics details
+            $candidateAcademicsDetails = CandidatesAcademicsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_details.*'])->toArray();  
+            // candidate academics documents
+            $candidatesAcademicsDocuments = CandidatesAcademicsDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_academics_documents.*'])->toArray();
+            // candidate common documents
+            $candidatesCommonDocuments = CandidatesCommonDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_common_documents.*'])->toArray();
+            // candidate experience details
+            $candidatesExperienceDetails = CandidatesExperienceDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_details.*'])->toArray();
+            // Candidates Experience Documents
+            $candidatesExperienceDocuments = CandidatesExperienceDocuments::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_experience_documents.*'])->toArray();
+            // Candidates Publications Details
+            $candidatesPublicationsDetails = CandidatesPublicationsDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_publications_details.*'])->toArray();
+            // Candidates PHDResearch Details
+            $candidatesPHDResearchDetails = CandidatesPHDResearchDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_phd_research_details.*'])->toArray();
+            // Candidates Refree Details
+            $candidatesRefreeDetails = CandidatesRefreeDetails::where('candidate_job_apply_id', $job_apply_id)->where('status', 1)->get(['candidates_refree_details.*'])->toArray();
+            // Fee Transactions Details
+            $feeTransactions = FeeTransactions::orderBy('id','desc')->where('job_apply_id', $job_apply_id)->limit(1)->get(['fee_transactions.*'])->toArray();
+                
+        }
+        
+        // get all code_names join with code_master
+        $masterDataArr = Helper::getCodeNames();
+        return view("application/candidate_preview_final_submit",compact('candidateJobApplyDetail','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','job_apply_id_enc','rnNoEncId','jobEncId','jobValidations','candidateJobApplyEncID','formTabIdEnc','final_submission_after_payment','feeTransactions'));
+    }
+
+    public function save_final_submission_after_payment(Request $request, $job_apply_id_enc, $formTabIdEnc=""){
+
+        try{
+            $postData = $request->post();
+            $declaration = $postData['declaration'];
+            if($declaration == 1){
+                // update candidate is_final_submission_done
+                $jobApplyArr['is_final_submit_after_payment'] = 1;
+                $candidateJobApplyID = Helper::decodeId($job_apply_id_enc);
+                CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
+                $redirectUrl = route('dashboard');
+                $this->exportCandidateDetailsPdf($job_apply_id_enc);
                 return redirect($redirectUrl);
             }else{
                 $errorMsg = "Please select the declaration checkbox.";
@@ -2568,8 +2700,8 @@ class ApplicationController extends Controller
             return redirect()->back()->withInput()->with('error_msg',$errorMsg);
         }
         
-
     }
+    //////////////////  after payment final submission end  //////////////////////////////
 
     public function send_mail(){
 

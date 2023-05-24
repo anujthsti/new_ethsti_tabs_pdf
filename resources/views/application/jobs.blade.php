@@ -66,7 +66,7 @@
     $projectActiveClass = "";
     $projectAreaSelected = "false";
     $projectTabClass = "";
-    if($jobTypeCoreOrProject == "project"){
+    if($jobTypeCoreOrProject == "project" || ($coreJobsHtml == "" && $projectJobsHtml != "")){
         $coreActiveClass = "";
         $coreAreaSelected = "false";
         $coreTabClass = "";

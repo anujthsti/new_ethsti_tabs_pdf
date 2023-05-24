@@ -7,7 +7,13 @@
     $createBtnLink = "";
 ?>
 <!-- common sections variables end -->
-
+<style>
+    @media only screen and (min-width: 1200px) {
+        .container, .container-lg, .container-md, .container-sm, .container-xl {
+            max-width: 1700px !important;
+        }
+    }
+</style>    
 <x-app-layout>
     <!-- section header title html -->
     @include('layouts/header_title')
@@ -22,12 +28,63 @@
         <!-- success message alert html start -->
         @if ($message = Session::get('success'))
             <!-- include success message common view -->
-            @include('layouts/success_message')
+            @include('layouts/success_message') 
         @endif
         <!-- success message alert html end -->
         <div class="candidatesListContainer" id="candidatesListContainer">
             <!-- dropdown filter rows start -->
             <div class="row" style="margin: 20px 0px;">
+                
+                <div class="col-md-3 col-sm-12">
+                    <select name="rn_types" id="rn_types" class="form-control">
+                        <option value="">Select RN Type</option>
+                        @foreach($rnNoTypesArr as $rn_no_type)
+                            <?php
+                            $rnTypeId = $rn_no_type['id'];
+                            $rnNoTypeIdEnc = Helper::encodeId($rnTypeId);
+                            $rnNoTypeSelected = "";
+                            if($rnNoTypeEncId == $rnNoTypeIdEnc){
+                                $rnNoTypeSelected = "selected";
+                            }
+                            ?>
+                            <option value="{{ $rnNoTypeIdEnc }}" data-id="<?php echo $rnTypeId; ?>" data-code="{{ $rn_no_type['meta_code'] }}" <?php echo $rnNoTypeSelected; ?>>{{ $rn_no_type['code_meta_name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div id="ths_rn_types" class="col-xs-12 col-sm-12 col-md-4">
+                    <div class="form-group">
+                        <select id="ths_types" name="ths_types" class="form-control">
+                            <?php
+                            if(!empty($ths_rn_types)){
+                            ?>
+                                <option value="">Select THS Type</option>
+                                @foreach($ths_rn_types as $ths_type)
+                                    <?php
+                                    $thsRnTypeIdEnc = Helper::encodeId($ths_type['id']);
+                                    $thsRnTypeSelected = "";
+                                    if($thsRNTypeEncId == $thsRnTypeIdEnc){
+                                        $thsRnTypeSelected = "selected";
+                                    }
+                                    ?>
+                                    <option value="{{ $thsRnTypeIdEnc }}" data-code="{{ $ths_type['id'] }}" data-code="{{ $ths_type['meta_code'] }}" <?php echo $thsRnTypeSelected; ?>>{{ $ths_type['code_meta_name'] }}</option>
+                                @endforeach
+                            <?php
+                            }else{
+                            ?>
+                                <option value="{{ $cdsaTypeIdEnc }}">CDSA Type</option>
+                            <?php    
+                            }
+                            ?>    
+                        </select>
+                        @error('ths_types')
+                        <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-12"></div>
+
                 <div class="col-md-3 col-sm-12">
                     <select name="rn_nos" id="rn_nos" class="form-control">
                         <option value="">Select RN No.</option>
@@ -43,6 +100,7 @@
                         @endforeach
                     </select>
                 </div>
+
 
                 <div class="col-md-3 col-sm-12">
                     <select name="posts" id="posts" class="form-control">
@@ -67,8 +125,8 @@
             <!-- dropdown filter rows end -->
             <!-- filters start -->          
             <?php 
-            if(isset($jobEncId) && !empty($jobEncId) && isset($rn_no_EncId) && !empty($rn_no_EncId)){ 
-                $listingPageUrl = route('candidate_list')."/".$rn_no_EncId."/".$jobEncId;
+            if(isset($rnNoTypeEncId) && !empty($rnNoTypeEncId) && isset($thsRNTypeEncId) && !empty($thsRNTypeEncId) && isset($jobEncId) && !empty($jobEncId) && isset($rn_no_EncId) && !empty($rn_no_EncId)){ 
+                $listingPageUrl = route('candidate_list')."/".$rnNoTypeEncId."/".$thsRNTypeEncId."/".$rn_no_EncId."/".$jobEncId;
                 $exportUrl = route('candidates_export_to_excel')."/".$rn_no_EncId."/".$jobEncId;
             ?>      
             <div class="row" style="margin: 20px 0px;">
@@ -177,20 +235,59 @@
 
     <script>
         
+        $("#rn_types").change(function(){
+            let rn_type = $(this).val();
+            if(rn_type != ""){
+                let code = $(this).find(':selected').data('code');
+                let rnNoTypeEncId = $(this).val();
+                if(code == "thsti"){
+                    //$("#ths_rn_types").show();
+                    redirectToCandidatesList(rnNoTypeEncId);
+                }else{
+                    //$("#ths_rn_types").hide();
+                    let ths_typesEncId = $("#ths_types :selected").val();
+                    redirectToCandidatesList(rnNoTypeEncId,ths_typesEncId);
+                }
+                $("#rn_no_field").val("");
+            }else{
+                alert("Please select RN Type.");
+            }
+        });
+        $("#ths_types").change(function(){
+            let rnNoTypeEncId = $("#rn_types :selected").val();
+            let ths_typesEncId = $("#ths_types :selected").val();
+            redirectToCandidatesList(rnNoTypeEncId,ths_typesEncId);
+        });
+        /*
+        $("#rn_types").change(function(){
+            let rnNoTypeEncId = $(this).val();
+            redirectToCandidatesList(rnNoTypeEncId);
+        });
+        */
         $("#rn_nos").change(function(){
+            let rnNoTypeEncId = $("#rn_types :selected").val();
+            let ths_typesEncId = $("#ths_types :selected").val();
             let rn_no_EncId = $(this).val();
-            redirectToCandidatesList(rn_no_EncId);
+            redirectToCandidatesList(rnNoTypeEncId,ths_typesEncId,rn_no_EncId);
         });
 
         $("#listFilter").click(function(){
+            let rnNoTypeEncId = $("#rn_types :selected").val();
+            let ths_typesEncId = $("#ths_types :selected").val();
             let rn_no_EncId = $("#rn_nos :selected").val();
             let job_EncId = $("#posts :selected").val();
-            redirectToCandidatesList(rn_no_EncId, job_EncId);
+            redirectToCandidatesList(rnNoTypeEncId,ths_typesEncId,rn_no_EncId, job_EncId);
         });
 
-        function redirectToCandidatesList(rn_no_EncId, job_EncId=""){
-            let redirectRoute = "<?php echo route('candidate_list');?>/"+rn_no_EncId;
-            if(job_EncId != ""){
+        function redirectToCandidatesList(rnNoTypeEncId,ths_typesEncId="",rn_no_EncId="", job_EncId=""){
+            let redirectRoute = "<?php echo route('candidate_list');?>/"+rnNoTypeEncId;
+            if(ths_typesEncId != "" && ths_typesEncId != "undefined"){
+                redirectRoute += "/"+ths_typesEncId; 
+            }
+            if(rn_no_EncId != "" && ths_typesEncId != "undefined"){
+                redirectRoute += "/"+rn_no_EncId; 
+            }
+            if(job_EncId != "" && ths_typesEncId != "undefined"){
                 redirectRoute += "/"+job_EncId; 
             }
             window.location.href = redirectRoute;

@@ -6,6 +6,8 @@ $form_action = "";
 $pay_status = $feeTransRec[0]['pay_status'];
 $job_apply_id = $pay_rec[0]['id'];
 $job_apply_id_enc = Helper::encodeId($job_apply_id);
+// for phd
+$is_publication_tab = $jobValidations[0]['is_publication_tab'];
 ?>
 @include('application.application_head')
 
@@ -14,7 +16,9 @@ $job_apply_id_enc = Helper::encodeId($job_apply_id);
     <!-- old existing submit form file -> online-update.php -->
     <!-- include dashboard navigation -->
     @include('application.dashboard_nav')
-    <div class="container-fluid border-top pt-5">                          
+    <div class="container-fluid border-top pt-5">     
+        <!-- candidate form steps --> 
+        @include('application.candidate_form_steps')                      
         <div class="container" id="mail_content">
     <?php //require_once("../ethsti/includes/ethsti_print_header.php"); ?>    
         

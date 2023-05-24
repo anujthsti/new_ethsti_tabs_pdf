@@ -139,7 +139,7 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
 
     // hr shortlisting route start
     Route::controller(HRShortlistingController::class)->group(function () {
-        Route::get('candidate_list/{rn_no_id?}/{post_id?}/{filter_id?}', 'candidate_list')->name('candidate_list');
+        Route::get('candidate_list/{rn_type_id?}/{ths_rn_type_id?}/{rn_no_id?}/{post_id?}/{filter_id?}', 'candidate_list')->name('candidate_list');
         Route::get('candidate_print/{id}', 'candidate_print')->name('candidate_print');
         Route::post('save_candidate_shortlisting/{id}', 'save_candidate_shortlisting')->name('save_candidate_shortlisting');
         Route::get('candidates_export_to_excel/{rn_no_id?}/{post_id?}/{filter_id?}', 'candidates_export_to_excel')->name('candidates_export_to_excel');
@@ -182,7 +182,7 @@ Route::group(['prefix'=>'application'], function() {
         Route::post('calculate_experience','calculate_experience')->name('calculate_experience');
         Route::post('calculate_grand_total_exp','calculate_grand_total_exp')->name('calculate_grand_total_exp');
         Route::get('payment_response','payment_response')->name('payment_response');
-        Route::get('pay_receipt/{id}','pay_receipt')->name('pay_receipt');
+        Route::get('pay_receipt/{id}/{tab_id?}','pay_receipt')->name('pay_receipt');
         Route::get('croneCheckCandidatePaymentStatus','croneCheckCandidatePaymentStatus')->name('croneCheckCandidatePaymentStatus');
         
         Route::post('get_email_otp','get_email_otp')->name('get_email_otp');
@@ -217,6 +217,10 @@ Route::group(['prefix'=>'application','middleware' => 'candidatesession'], funct
         Route::post('application_final_submission/{id}/{tab_id?}','application_final_submission')->name('application_final_submission');
         Route::get('checkout/{id}/{tab_id?}','checkout')->name('checkout');
         Route::post('add_fee_transaction/{id}','add_fee_transaction')->name('add_fee_transaction');
+        Route::get('final_submission_after_payment/{id}/{tab_id?}','final_submission_after_payment')->name('final_submission_after_payment');
+        
+        Route::post('save_final_submission_after_payment/{id}/{tab_id?}','save_final_submission_after_payment')->name('save_final_submission_after_payment');
+        
     });
 
 });

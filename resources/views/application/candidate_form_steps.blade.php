@@ -2,10 +2,11 @@
 if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
 
   $candidateJobApplyArr = $candidateJobApplyDetail[0];
+  $is_final_submit_after_payment = $candidateJobApplyArr['is_final_submit_after_payment'];
   $candidateJobFormUrl = route('edit_candidate_applied_job_details', $candidateJobApplyEncID);
   // basic information url start
   $basicInformationRouteUrl = "#";
-  if($candidateJobApplyArr['is_final_submission_done'] == 0){
+  if($is_final_submit_after_payment == 0){
     $basicInformationRouteUrl = $candidateJobFormUrl;
   }
   //$basicInformationTabIdEnc = Helper::encodeId(1);  
@@ -13,21 +14,21 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   // qualification & experience information url start
   $qualificationTabIdEnc = Helper::encodeId(2);  
   $qualificationExperienceRouteUrl = "#";
-  if($candidateJobApplyArr['is_final_submission_done'] == 0){
+  if($is_final_submit_after_payment == 0){
     $qualificationExperienceRouteUrl = $candidateJobFormUrl."/".$qualificationTabIdEnc;
   }
   // qualification & experience information url end
   // phd detail information url start
   $phdDetailsRouteUrl = "#";
   $phdTabIdEnc = Helper::encodeId(3);  
-  if($is_publication_tab == 1 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 0){
+  if($is_publication_tab == 1 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $is_final_submit_after_payment == 0){
     $phdDetailsRouteUrl = $candidateJobFormUrl."/".$phdTabIdEnc;
   }
   // phd detail information url end
   // documents upload information url start
   $documentUploadRouteUrl = "#";
   $documentUploadTabIdEnc = Helper::encodeId(4);  
-  if(($is_publication_tab == 1 && $candidateJobApplyArr['is_phd_details_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 0) || ($is_publication_tab == 0 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 0)){
+  if(($is_publication_tab == 1 && $candidateJobApplyArr['is_phd_details_done'] == 1 && $is_final_submit_after_payment == 0) || ($is_publication_tab == 0 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $is_final_submit_after_payment == 0)){
     $documentUploadRoute = route('upload_candidate_documents', $candidateJobApplyEncID);
     $documentUploadRouteUrl = $documentUploadRoute."/".$documentUploadTabIdEnc;
   }
@@ -35,7 +36,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   // preview & final submit route start
   $finalSubmitRouteUrl = "#";
   $finalSubmitTabIdEnc = Helper::encodeId(5);  
-  if($candidateJobApplyArr['is_document_upload_done'] == 1 && $candidateJobApplyArr['is_final_submission_done'] == 1){
+  if($candidateJobApplyArr['is_document_upload_done'] == 1 && $is_final_submit_after_payment == 0){
     $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
     $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
   }
@@ -43,18 +44,27 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   // checkout route start
   $checkoutPaymentRouteUrl = "#";
   $checkoutPaymentTabIdEnc = Helper::encodeId(6);  
-  if($candidateJobApplyArr['is_final_submission_done'] == 1){
-    $checkoutPaymentRoute = route('checkout', $candidateJobApplyEncID);
-    $checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
+  $checkoutTabTitle = "Payment";
+  if($candidateJobApplyArr['is_final_submission_done'] == 1 && $is_final_submit_after_payment == 0){
+    if(isset($candidateJobApplyArr['is_payment_done'])){
+        $checkoutPaymentRoute = route('pay_receipt', $candidateJobApplyEncID);
+        $checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
+        $checkoutTabTitle = "Payment Receipt";
+    }else{
+        $checkoutPaymentRoute = route('checkout', $candidateJobApplyEncID);
+        $checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
+    }
+    
   }
-/*
-else if($candidateJobApplyArr['is_final_submission_done'] == 1 && $candidateJobApplyArr['is_payment_done'] == 1){
-  $paymentTabTitle = "Payment Receipt";
-  $checkoutPaymentRoute = route('pay_receipt', $candidateJobApplyEncID);
-  $checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
-}
-*/
-// checkout route end
+  // checkout route end
+  // Final submission route start
+  $finalSubmissionRouteUrl = "#";
+  $finalSubmissionTabIdEnc = Helper::encodeId(7);  
+  if($candidateJobApplyArr['is_payment_done'] == 1 && $is_final_submit_after_payment == 0){
+        $finalSubmissionRouteUrl = route('final_submission_after_payment', $candidateJobApplyEncID);
+        $finalSubmissionRouteUrl = $finalSubmissionRouteUrl."/".$finalSubmissionTabIdEnc;
+  }
+  // Final submission route end
 
     // basic info class start
     $basicInfoClass = "notcompleted";
@@ -110,6 +120,15 @@ else if($candidateJobApplyArr['is_final_submission_done'] == 1 && $candidateJobA
         $paymentClass = "completed";
     }
     // payment class end
+    // final submission class start
+    $finalSubmissionClass = "notcompleted";
+    if($formTabIdEnc == $finalSubmissionTabIdEnc){
+        $finalSubmissionClass = "current";
+    }
+    else if($is_final_submit_after_payment == 1){
+        $finalSubmissionClass = "completed";
+    }
+    // final submission class end
 }
 ?>
 <ul id="wizardStatus"> 
@@ -129,9 +148,12 @@ else if($candidateJobApplyArr['is_final_submission_done'] == 1 && $candidateJobA
     </li>  
     
     <li class="<?php echo $previewClass; ?>">
-        <a href="<?php echo $finalSubmitRouteUrl; ?>">Preview Application & Final Submit</a>
+        <a href="<?php echo $finalSubmitRouteUrl; ?>">Preview Application</a>
     </li>
     <li class="<?php echo $paymentClass; ?>">
-        <a href="<?php echo $checkoutPaymentRouteUrl; ?>">Payment</a>
+        <a href="<?php echo $checkoutPaymentRouteUrl; ?>"><?php echo $checkoutTabTitle; ?></a>
+    </li>
+    <li class="<?php echo $finalSubmissionClass; ?>">
+        <a href="<?php echo $finalSubmissionRouteUrl; ?>">Final Submission</a>
     </li>
 </ul>
