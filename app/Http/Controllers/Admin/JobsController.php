@@ -106,6 +106,8 @@ class JobsController extends Controller
             
             $required = config("validations.required");
             $email_optional = config("validations.email_optional");
+            $postData = $request->post();
+            
             $request->validate([
                 'rn_no_id' => $required,
                 'post_id' => $required,
@@ -122,10 +124,12 @@ class JobsController extends Controller
             
             // transactions start
             DB::beginTransaction();
-
+            
             $postData = $request->post();
             $postNewArray = $postData;
-            $domain_area_ids = $postData['domain_area_ids'];
+            if(isset($postData['domain_area_ids']) && !empty($postData['domain_area_ids'])){
+                $domain_area_ids = $postData['domain_area_ids'];
+            }
             //print_r($domain_area_ids);exit;
             $rn_no_id = $postData['rn_no_id'];
             //print_r($postNewArray);exit;
@@ -212,30 +216,32 @@ class JobsController extends Controller
                 $successMsg = "Job has been updated successfully";
                 // domain area updations start
                 $jobId = $id;
-                $jobDomainIds = [];
-                $jobDomainArr = JobDomainArea::where('job_id', $jobId)
-                                            ->where('status', 1)
-                                            ->get('domain_area_id')
-                                            ->toArray();
-                if(!empty($jobDomainArr)){
-                    $jobDomainIds = array_column($jobDomainArr, 'domain_area_id');
-                }
-                if(!empty($jobDomainIds)){
-                    // new domain ids
-
-                    $newDomainItems = array_diff($domain_area_ids, $jobDomainIds);   
-                    
-                    // old unselected domain ids    
-                    $oldDomainItems = array_diff($jobDomainIds, $domain_area_ids);  
-                    
-                    ///////////////////////////  old items status deleted start  /////////////////////////
-                    if(!empty($oldDomainItems)){
-                        JobDomainArea::where('job_id', $jobId)->whereIn('domain_area_id', $oldDomainItems)->update(['status' => 3]);
+                if(isset($postData['domain_area_ids']) && !empty($postData['domain_area_ids'])){
+                    $jobDomainIds = [];
+                    $jobDomainArr = JobDomainArea::where('job_id', $jobId)
+                                                ->where('status', 1)
+                                                ->get('domain_area_id')
+                                                ->toArray();
+                    if(!empty($jobDomainArr)){
+                        $jobDomainIds = array_column($jobDomainArr, 'domain_area_id');
                     }
-                    
-                }else{
-                    $newDomainItems = $domain_area_ids;
-                }       
+                    if(!empty($jobDomainIds)){
+                        // new domain ids
+
+                        $newDomainItems = array_diff($domain_area_ids, $jobDomainIds);   
+                        
+                        // old unselected domain ids    
+                        $oldDomainItems = array_diff($jobDomainIds, $domain_area_ids);  
+                        
+                        ///////////////////////////  old items status deleted start  /////////////////////////
+                        if(!empty($oldDomainItems)){
+                            JobDomainArea::where('job_id', $jobId)->whereIn('domain_area_id', $oldDomainItems)->update(['status' => 3]);
+                        }
+                        
+                    }else{
+                        $newDomainItems = $domain_area_ids;
+                    }      
+                } 
                 
                 // domain area updations end
             }else{

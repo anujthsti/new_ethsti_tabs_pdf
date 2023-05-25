@@ -89,7 +89,8 @@ ul#wizardStatus li{
   font-size:14px;
   line-height:30px;
   padding:0 25px 0 40px;
-  position:relative
+  position:relative;
+  margin-bottom: 5px;
 }
 
 ul#wizardStatus li:first-child{

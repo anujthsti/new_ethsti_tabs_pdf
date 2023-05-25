@@ -13,6 +13,7 @@
         }
     }
     ?>
+    <hr>
     <div class="row" id="relatives">
         <div class="form-group col-lg-12 col-md-12">
             <label class="form-check-label mr-1">Do you have any near relative/friend working in THSTI. If so, please state?</label>

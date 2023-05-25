@@ -97,7 +97,7 @@ class ApplicationController extends Controller
     }
 
     public function check_login(Request $request){
-
+ 
         $request->validate([
             'email' => 'required',
             'mobile' => 'required'
@@ -110,9 +110,18 @@ class ApplicationController extends Controller
                             ->where('status', 1)
                             ->get(['id'])
                             ->toArray();
+                            
         if(!empty($loginUserData)){
             $candidate_id = $loginUserData[0]['id'];
             $request->session()->put('candidate_id', $candidate_id);
+            $jobId = $request->session()->get('applicationJobId');
+            $rnNoId = $request->session()->get('applicationRNNOId');
+            if(!empty($jobId) && !empty($rnNoId)){
+                $insertArr['rn_no_id'] = $rnNoId;
+                $insertArr['job_id'] = $jobId;
+                $insertArr['candidate_id'] = $candidate_id;
+                CandidatesJobsApply::create($insertArr);
+            }
             return redirect()->route('dashboard');
         }else{
             $msg = "Invalid email or password.";
@@ -347,7 +356,7 @@ class ApplicationController extends Controller
         $candidate_id = $request->session()->get('candidate_id');
         if(isset($candidate_id) && !empty($candidate_id)){
             $candidate_details = RegisterCandidate::find($candidate_id);
-            $candidateJobApplyDetail = CandidatesJobsApply::join('rn_nos','rn_nos.id','=','candidates_jobs_apply.rn_no_id')
+            $candidateJobApplyDetailArr = CandidatesJobsApply::join('rn_nos','rn_nos.id','=','candidates_jobs_apply.rn_no_id')
                                                         ->join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
                                                         ->orderBy('candidates_jobs_apply.id','desc')
                                                         ->where('candidates_jobs_apply.candidate_id', $candidate_id)
@@ -358,7 +367,7 @@ class ApplicationController extends Controller
             $postsMasterArr = Helper::getCodeNamesByCode($mastersDataArr,'code','post_master');
             $domainAreaArr = Helper::getCodeNamesByCode($mastersDataArr,'code','domain_area');
             
-            return view('application.dashboard',compact('candidate_details','candidateJobApplyDetail','mastersDataArr','postsMasterArr','domainAreaArr'));
+            return view('application.dashboard',compact('candidate_details','candidateJobApplyDetailArr','mastersDataArr','postsMasterArr','domainAreaArr'));
         }else{
             // if user will access page directly then redirect to jobs list page
             return redirect()->route('candidate_dashboard_login');
@@ -391,12 +400,16 @@ class ApplicationController extends Controller
             $postId = $candidateJobApplyDetail[0]['post_id'];
             $candidate_id = $candidateJobApplyDetail[0]['candidate_id'];
             $is_experience = $candidateJobApplyDetail[0]['is_experience'];
-            $is_publication = $candidateJobApplyDetail[0]['is_experience'];
+            $is_publication = $candidateJobApplyDetail[0]['is_publication'];
 
             $retData = $this->get_candidate_selected_job_details($jobId);
             // get job validation minimum education
             $jobData = $retData['jobData'];
+            /*echo "<pre>";
+            print_r($jobData);
+            exit;*/
             if(!empty($jobData)){
+                //echo 11;exit;
                 $job_validation_id = $jobData[0]['job_validation_id'];
                 //echo $job_validation_id;exit;
                 $jobValidations = JobValidation::leftJoin('job_min_education_trans','job_min_education_trans.job_validation_id','=','job_validation.id')
@@ -507,8 +520,11 @@ class ApplicationController extends Controller
         if(isset($postData['is_phd_job']) && !empty($postData['is_phd_job'])){
             $is_phd_job = 1;
         }
-        $validator = $this->validate_candidate_details($request, $security_code);
-        
+        if($formTabId == ""){
+            $validator = $this->validate_candidate_details($request, $security_code);
+        }else{
+            $validator = $this->validate_security_code($request, $security_code);
+        }
         try{
             
             if($validator->fails()) {
@@ -555,7 +571,9 @@ class ApplicationController extends Controller
                 }
                 else if($formTabId == 2){
                     //******************************* */ academic, experience, refree, relationship details **********************/
-                    
+                    /*echo "<pre>";
+                    print_r($postData);
+                    exit;*/
                     // update candidate academic details start
                     $retData = $this->update_candidate_academic_details($postData, $candidate_id, $candidateJobApplyID);
                     
@@ -601,6 +619,12 @@ class ApplicationController extends Controller
                     // update candidate refree details end
                     // update is_qualification_exp_done to 1 - completed
                     $jobApplyArr['is_qualification_exp_done'] = 1;
+                    if(isset($postData['exp_check']) && !empty($postData['exp_check'])){
+                        $jobApplyArr['is_experience'] = $postData['exp_check'];
+                        if(isset($postData['exp_grand_total']) && !empty($postData['exp_grand_total'])){
+                            $jobApplyArr['total_experience'] = $postData['exp_grand_total'];
+                        }
+                    }
                     // update candidate job apply details
                     CandidatesJobsApply::where('id', $candidateJobApplyID)
                                         ->update($jobApplyArr);
@@ -608,6 +632,7 @@ class ApplicationController extends Controller
                 else if($formTabId == 3){
                     //*********************************************  PHD Details ***************************/
                     //update candidate publications details start
+                    
                     if(isset($postData['pub_check']) && $postData['pub_check'] == 1){
                         $retData = $this->update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID);
                         if($retData['status'] == 'error'){
@@ -633,6 +658,9 @@ class ApplicationController extends Controller
                     }
                     // update is_phd_details_done to 1 - completed
                     $jobApplyArr['is_phd_details_done'] = 1;
+                    if(isset($postData['pub_check']) && !empty($postData['pub_check'])){
+                        $jobApplyArr['is_publication'] = $postData['pub_check'];
+                    }
                     // update candidate job apply details
                     CandidatesJobsApply::where('id', $candidateJobApplyID)
                                         ->update($jobApplyArr);
@@ -724,6 +752,33 @@ class ApplicationController extends Controller
 
             return $validator;
     }
+
+    public function validate_security_code($request, $security_code=""){
+
+        $validationArray = [
+            'rn_no_id' => 'required',
+            'job_id' => 'required'
+        ];
+
+        
+        if(!empty($security_code)){
+            $securityCodeArr = [
+                'security_code' => 'required|check_captcha:'.$security_code
+            ];  
+            $validationArray = array_merge($validationArray,$securityCodeArr);
+
+            $newMsgArr = [
+                'check_captcha' => 'Invalid captcha code.'
+            ];   
+            $validationMsgArr = $newMsgArr;
+        }
+        
+        //echo "<pre>";
+        //print_r($validationArray);exit;
+        $validator = Validator::make($request->all(), $validationArray, $validationMsgArr);
+
+        return $validator;
+}
 
     // array of candidate personal details
     public function register_candidate_personal_details_arr($postData){
@@ -841,15 +896,15 @@ class ApplicationController extends Controller
             if(isset($postData['institute_name']) && !empty($postData['institute_name'])){
                 $jobApplyArr['institute_name'] = $postData['institute_name'];
             }
+            /*
             if(isset($postData['exp_check']) && !empty($postData['exp_check'])){
                 $jobApplyArr['is_experience'] = $postData['exp_check'];
                 if(isset($postData['exp_grand_total']) && !empty($postData['exp_grand_total'])){
                     $jobApplyArr['total_experience'] = $postData['exp_grand_total'];
                 }
             }
-            if(isset($postData['pub_check']) && !empty($postData['pub_check'])){
-                $jobApplyArr['is_publication'] = $postData['pub_check'];
-            }
+            */
+            
             if(isset($postData['rel_person_name']) && !empty($postData['rel_person_name'])){
                 $jobApplyArr['relative_name'] = $postData['rel_person_name'];
             }
@@ -1162,6 +1217,7 @@ class ApplicationController extends Controller
             $rn_no_id = $postData['rn_no_id'];
             $job_id = $postData['job_id'];
             DB::beginTransaction();
+            
             if(isset($postData['pub_no']) && !empty($postData['pub_no'])){
                 $pub_nos = $postData['pub_no'];
                 $pub_authors = $postData['pub_author'];

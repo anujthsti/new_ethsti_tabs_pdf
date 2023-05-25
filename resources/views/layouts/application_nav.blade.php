@@ -37,7 +37,7 @@
 <!-- navigation end -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">  
-        <a class="navbar-brand"  href="https://thsti.res.in/"><i class="fa fa-home"></i> HOME</a>
+        <a class="navbar-brand"  href="<?php echo route('dashboard'); ?>"><i class="fa fa-home"></i> HOME</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -48,7 +48,7 @@
                     <a class="nav-link" href="https://thsti.in/application/terms-conditions.pdf" target="_blank">TERMS & CONDITIONS</a>
                 </li>
                 <li class="nav-item">
-                    <a button="" type="button" class="btn btn-warning" href="https://thsti.in/application/dashboard.php"><i class="fa fa-sign-in">&nbsp;Dashboard</i></a>
+                    <a button="" type="button" class="btn btn-warning" href="<?php echo route('dashboard'); ?>"><i class="fa fa-sign-in">&nbsp;Dashboard</i></a>
                 </li>
             </ul>
             

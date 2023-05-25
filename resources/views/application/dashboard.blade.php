@@ -55,9 +55,9 @@ $page_title = "Dashboard";
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($candidateJobApplyDetail as $appliedJob)
+                        @foreach($candidateJobApplyDetailArr as $appliedJob)
                             <?php
-                            
+                            $candidateJobApplyDetail[0] = $appliedJob;
                             $encId = Helper::encodeId($appliedJob['id']);
                             $job_validation_id = $appliedJob['job_validation_id'];
                             $candidateJobApplyEncID = $encId;
