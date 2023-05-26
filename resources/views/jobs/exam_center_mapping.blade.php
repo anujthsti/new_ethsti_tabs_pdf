@@ -1,6 +1,9 @@
 <?php
 $title = "Exam centers mapping";
-$form_action = "";           
+$form_action = route('save_exam_center_mapping');      
+if(!empty($jobId)){
+    $form_action .= "/".$jobId;
+}     
 ?>
 <x-app-layout>
     <x-slot name="header">
@@ -12,7 +15,7 @@ $form_action = "";
         <div class="row">
             <div class="col-lg-12 margin-tb">
                 <div class="text-left">
-                    <a class="btn btn-primary" href="{{ route('manage_jobs') }}"> Manage Jobs</a>
+                    <a class="btn btn-primary" href="{{ route('manage_exam_centers_mapping') }}"> Manage Exam Centers</a>
                 </div>
             </div>
         </div>
@@ -29,6 +32,13 @@ $form_action = "";
         </div>
         @endif
         
+        <?php
+        $job_id = old('job_id');
+        $exam_centers = old('exam_centers');
+        if(!empty($selectedCentersIds)){
+            $exam_centers = $selectedCentersIds;
+        }
+        ?>
         <form action="<?php echo $form_action; ?>" method="POST" enctype="multipart/form-data">
             @csrf
             
@@ -37,7 +47,7 @@ $form_action = "";
                 <div class="col-xs-12 col-sm-12 col-md-4">
                     <div class="form-group">
                         <label class="form-label">RN No.:</label>
-                        <select name="rn_no_id" class="form-control select2">
+                        <select name="rn_no_id" id="rn_no_id" class="form-control select2">
                             <option></option>
                             @foreach($rn_nos as $rn_no)
                                 <?php
@@ -59,24 +69,47 @@ $form_action = "";
                 <div class="col-xs-12 col-sm-12 col-md-4">
                     <div class="form-group">
                         <label class="form-label">Post</label>
-                        <select name="post_id" class="form-control select2">
+                        <select name="job_id" class="form-control select2">
                             @foreach($posts_list as $post)
                                 <?php
                                 $selectedPost = "";
-                                if($post['id'] == $post_id){
+                                if($post['id'] == $job_id){
                                     $selectedPost = "selected=selected";
                                 }
                                 ?>
                                 <option value="{{ $post['id'] }}" <?php echo $selectedPost; ?>>{{ $post['code_meta_name'] }}</option>
                             @endforeach
                         </select>
-                        @error('job_title')
+                        @error('job_id')
                         <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
                 <!-- job title end -->
-                
+            </div>
+            
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-12 col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Exam Centers</label>
+                        <select name="exam_centers[]" class="form-control select2" multiple>
+                            @foreach($examCenters as $center)
+                                <?php
+                                $selectedPost = "";
+                                if(!empty($exam_centers) && in_array($center['id'], $exam_centers)){
+                                    $selectedPost = "selected=selected";
+                                }
+                                ?>
+                                <option value="{{ $center['id'] }}" <?php echo $selectedPost; ?>>{{ $center['centre_name'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('exam_centers')
+                        <div class="alert alert-danger mt-1 mb-1">{{ $exam_centers }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="col-xs-12 col-sm-12 col-md-4 text-left">
                     </br>
                     <button type="submit" class="btn btn-primary text-right">Submit</button>
@@ -85,4 +118,11 @@ $form_action = "";
         </form>
     </div>
 
+    <script>
+        $("#rn_no_id").change(function(){
+            let rn_no_id = $(this).val();
+            let redirectUrl = '<?php echo route('add_exam_center_mapping') ?>/'+rn_no_id;
+            window.location.href = redirectUrl;
+        });
+    </script>
 </x-app-layout>    

@@ -122,6 +122,16 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::get('delete_form_configuration/{id}', 'delete_form_configuration')->name('delete_form_configuration');
         // routes for form configuration end
 
+        // routes for exam center mapping start
+        Route::get('add_exam_center_mapping/{id?}', 'add_exam_center_mapping')->name('add_exam_center_mapping');
+        Route::post('save_exam_center_mapping/{id?}','save_exam_center_mapping')->name('save_exam_center_mapping');
+        Route::get('manage_exam_centers_mapping','manage_exam_centers_mapping')->name('manage_exam_centers_mapping');
+        
+        Route::get('edit_exam_center_mapping/{id?}/{jobId?}','add_exam_center_mapping')->name('edit_exam_center_mapping');
+        Route::get('delete_exam_center_mapping/{id?}/{jobId?}','delete_exam_center_mapping')->name('delete_exam_center_mapping');
+        
+        // routes for exam center mapping end
+        
         // routes for form field types start
         /*
         Route::get('manage_form_field_types', 'manage_form_field_types')->name('manage_form_field_types');

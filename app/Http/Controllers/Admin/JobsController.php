@@ -18,6 +18,8 @@ use App\Models\FormFieldType;
 use App\Models\FormConfiguration;
 use App\Models\FormFieldsConfiguration;
 use App\Models\JobDomainArea;
+use App\Models\ExamCenters;
+use App\Models\ExamCenterMapping;
 
 
 class JobsController extends Controller
@@ -959,6 +961,144 @@ class JobsController extends Controller
             return redirect()->route('manage_form_configuration')->with('success',$successMsg);
     }
     ///////////////////////////////// manage form configuration functions ends
+
+    ///////////////////////////////// exam center mapping functions starts
+
+    public function manage_exam_centers_mapping(){
+
+        $examCentersMapp = ExamCenterMapping::join('rn_nos','rn_nos.id','=','exam_center_mapping.rn_no_id')
+                                            ->groupBy(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
+                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
+                                            ->toArray();
+        /*echo "<pre>";
+        print_r($examCentersMapp);
+        exit;*/                                    
+        return view('jobs.manage_exam_centers_mapping',compact('examCentersMapp'));
+    }
+
+    public function add_exam_center_mapping($rn_no_id="", $jobId=""){
+
+        $posts_list = [];
+        $examCenters = [];
+        $selectedCentersIds = [];
+        if(!empty($rn_no_id)){
+            $posts_list = Jobs::join('code_names', 'code_names.id', '=', 'jobs.post_id')
+                                ->orderBy('jobs.id','asc')
+                                ->where('rn_no_id', $rn_no_id)
+                                ->where('jobs.status','!=',3)
+                                ->get(['jobs.id','code_names.code_meta_name'])
+                                ->toArray();
+
+            $examCenters = ExamCenters::orderBy('centre_name','asc')->get(['exam_centers.*'])->toArray();
+
+            if(!empty($jobId)){
+                $examCentersMapp = ExamCenterMapping::where('job_id',$jobId)
+                                            ->where('status',1)
+                                            ->get(['exam_center_id'])
+                                            ->toArray();
+                if(!empty($examCentersMapp)){                            
+                    $selectedCentersIds = array_column($examCentersMapp, 'exam_center_id');
+                }
+            }
+        }
+        $rn_nos = Rn_no::orderBy('id','desc')->get();
+        return view('jobs.exam_center_mapping',compact('rn_nos','posts_list','examCenters','rn_no_id','selectedCentersIds','jobId'));
+    }
+
+    
+    public function save_exam_center_mapping(Request $request, $jobId=""){
+
+            try{
+                        
+                $insertData = $request->post();
+                
+                $validator = $request->validate([
+                                'rn_no_id' => 'required',
+                                'job_id' => 'required',
+                                'exam_centers' => 'required'
+                            ]);
+
+                DB::beginTransaction();
+                $batchInsertArr = [];
+                $exam_centers = $insertData['exam_centers'];
+                $newIds = [];
+                $commonIds = [];      
+                if(!empty($jobId)){
+                    $examCenterIdsArr = ExamCenterMapping::where('job_id', $jobId)->where('status', 1)->get(['exam_center_id'])->toArray();                                       
+                    if(!empty($examCenterIdsArr)){
+                        $examCenterIds = array_column($examCenterIdsArr, 'exam_center_id');                                            
+                        // new IDs to insert
+                        $newIds = array_diff($exam_centers, $examCenterIds);   
+                        //echo count($newTabItems);exit;
+                        // old IDs to delete    
+                        $oldIds = array_diff($examCenterIds, $exam_centers);  
+                        // Ids to Update
+                        $commonIds = array_intersect($exam_centers, $examCenterIds);  
+
+                        // delete old Ids start
+                        if(!empty($oldIds)){
+                            ExamCenterMapping::where('job_id', $jobId)
+                                                    ->where('status', 1)
+                                                    ->whereIn('exam_center_id', $oldIds)
+                                                    ->update(['status' => 3]);
+                        }
+                        // delete old Ids end
+
+                    }else{
+                        $newIds = $exam_centers;
+                    } 
+                }
+                if(!empty($exam_centers)){
+                    foreach($exam_centers as $center_id){
+                        $mappginArr = [];
+                        $mappginArr['rn_no_id'] = $insertData['rn_no_id'];
+                        $mappginArr['job_id'] = $insertData['job_id'];
+                        $mappginArr['exam_center_id'] = $center_id;
+                        // push in batch insert array
+                        if(!empty($newIds) && in_array($center_id, $newIds)){
+                            array_push($batchInsertArr, $mappginArr);
+                        }
+                        // push in batch update array
+                        if(!empty($commonIds) && in_array($center_id, $commonIds)){
+                            ExamCenterMapping::where('job_id', $jobId)
+                                            ->where('status', 1)
+                                            ->where('exam_center_id', $center_id)
+                                            ->update($mappginArr);
+                        }
+                    }
+                    if(!empty($batchInsertArr)){
+                        ExamCenterMapping::insert($batchInsertArr);
+                    }
+                    DB::commit();
+                    $finalSubmitRouteUrl = route('manage_exam_centers_mapping');
+                    return redirect($finalSubmitRouteUrl)->with('success','Records added.');
+                }else{
+                    return redirect()->back()->withInput()->with('error_msg','Please select exam centers.');
+                }
+            
+            }catch(\Exception $e){
+                $errorMsg = $e->getMessage();
+                //$errorMsg = "Something went wrong. Please contact administrator.";
+                DB::rollback();
+                // log error in file
+                Helper::logErrorInFile($e);
+                return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+            }
+        
+    }
+
+    public function delete_exam_center_mapping($rn_no_id="", $jobId=""){
+
+        // delete old Ids start
+        if(!empty($rn_no_id) && !empty($jobId)){
+            ExamCenterMapping::where('job_id', $jobId)
+                                    ->where('status', 1)
+                                    ->update(['status' => 3]);
+        }
+        $finalSubmitRouteUrl = route('manage_exam_centers_mapping');
+        return redirect($finalSubmitRouteUrl)->with('success','Records deleted.');
+    }
+    ///////////////////////////////// exam center mapping functions ends
 
     ///////////////////////////////// manage form field types functions starts
     /*
