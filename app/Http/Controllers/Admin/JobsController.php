@@ -968,7 +968,7 @@ class JobsController extends Controller
 
         $examCentersMapp = ExamCenterMapping::join('rn_nos','rn_nos.id','=','exam_center_mapping.rn_no_id')
                                             ->groupBy(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
-                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
+                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','exam_center_mapping.id as exam_center_map_id'])
                                             ->toArray();
         /*echo "<pre>";
         print_r($examCentersMapp);
@@ -1100,6 +1100,18 @@ class JobsController extends Controller
     }
     ///////////////////////////////// exam center mapping functions ends
 
+    ///////////////////////////////// exam shift function start
+    public function exam_interview_shift($exam_center_map_id="", $job_id=""){
+
+        echo $exam_center_map_id;exit;
+        $examCenters = ExamCenterMapping::join('exam_centers','exam_centers.id','=','exam_center_mapping.exam_center_id')
+                                            ->where(['exam_center_mapping.id',$exam_center_map_id])
+                                            ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address'])
+                                            ->toArray();
+        return view('jobs.exam_interview_shift', compact('exam_center_map_id','job_id','examCenters'));
+    }
+    ///////////////////////////////// exam shift function end
+    
     ///////////////////////////////// manage form field types functions starts
     /*
     public function manage_form_field_types(){

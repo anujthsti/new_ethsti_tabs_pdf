@@ -29,17 +29,18 @@ $title = "Manage Exam centers mapping";
             <!-- table header html end -->
             <tbody>
                 <!-- table rows for loop start -->
-                @foreach ($examCentersMapp as $roNo)
+                @foreach ($examCentersMapp as $examCenter)
                     <?php
-                    $subUrl = "/".$roNo['id']."/".$roNo['job_id'];//Helper::encodeId($roNo['job_id']);
+                    $subUrl = "/".$examCenter['id']."/".$examCenter['job_id'];//Helper::encodeId($roNo['job_id']);
                     ?>
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $roNo['rn_no'] }}</td>
+                        <td>{{ $examCenter['rn_no'] }}</td>
                         <td>
                             <!-- action html start -->
                             <a class="btn btn-primary" href="<?php echo route('edit_exam_center_mapping').$subUrl; ?>"><i class="fa fa-pencil"></i></a>
                             <a class="btn btn-danger" href="<?php echo route('delete_exam_center_mapping').$subUrl; ?>"><i class="fa fa-trash"></i></a>
+                            <a class="btn btn-primary" href="<?php echo route('exam_interview_shift').'/'.$examCenter['exam_center_map_id']; ?>">Shift</a>
                             <!-- action html end -->
                         </td>
                     </tr>

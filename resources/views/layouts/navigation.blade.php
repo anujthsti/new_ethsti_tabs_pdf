@@ -71,6 +71,10 @@
                             <li class="nav-item <?php if(request()->routeIs('candidate_list')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('candidate_list') }}">Shortlist</a>
                             </li>
+                            <li class="nav-item <?php if(request()->routeIs('manage_exam_centers_mapping')){ ?>active<?php } ?>">
+                                <a class="nav-link" href="{{ route('manage_exam_centers_mapping') }}">Exam Centers Mapping</a>
+                            </li>
+                            
                             
                         </ul>
                     </div>
