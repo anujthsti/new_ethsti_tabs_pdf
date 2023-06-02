@@ -966,13 +966,14 @@ class JobsController extends Controller
 
     public function manage_exam_centers_mapping(){
 
-        $examCentersMapp = ExamCenterMapping::join('rn_nos','rn_nos.id','=','exam_center_mapping.rn_no_id')
+        $examCentersMapp = array();
+        
+        $examCentersMapp = ExamCenterMapping::leftJoin('rn_nos','rn_nos.id','=','exam_center_mapping.rn_no_id')
                                             ->groupBy(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
-                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','exam_center_mapping.id as exam_center_map_id'])
+                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
                                             ->toArray();
-        /*echo "<pre>";
-        print_r($examCentersMapp);
-        exit;*/                                    
+        //->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','exam_center_mapping.id as exam_center_map_id'])
+                                            
         return view('jobs.manage_exam_centers_mapping',compact('examCentersMapp'));
     }
 
@@ -1101,15 +1102,37 @@ class JobsController extends Controller
     ///////////////////////////////// exam center mapping functions ends
 
     ///////////////////////////////// exam shift function start
-    public function exam_interview_shift($exam_center_map_id="", $job_id=""){
+    public function exam_interview_shift($jobId=""){
 
-        echo $exam_center_map_id;exit;
+        //echo $exam_center_map_id;exit;
+        $examCenters = array();
         $examCenters = ExamCenterMapping::join('exam_centers','exam_centers.id','=','exam_center_mapping.exam_center_id')
-                                            ->where(['exam_center_mapping.id',$exam_center_map_id])
-                                            ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address'])
-                                            ->toArray();
-        return view('jobs.exam_interview_shift', compact('exam_center_map_id','job_id','examCenters'));
+                                        ->where('exam_center_mapping.job_id', $jobId)
+                                        ->where('exam_center_mapping.status', 1)
+                                        ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address','exam_center_mapping.rn_no_id'])
+                                        ->toArray();
+        /*print_r($examCenters);
+        exit;*/                                    
+        return view('jobs.exam_interview_shift', compact('jobId','examCenters'));
+        
     }
+
+    public function save_exam_interview_shift(Request $request, $jobId){
+
+        $request->validate([
+            'exam_center' => 'required',
+            'is_exam_or_interview' => 'required'
+        ]);
+        
+        return redirect()->back()->withInput();
+        //->with('error_msg',$errorMsg)
+        /*$data = $request->post();
+        echo "<pre>";
+        print_r($data);
+        exit;
+        */
+    }
+
     ///////////////////////////////// exam shift function end
     
     ///////////////////////////////// manage form field types functions starts

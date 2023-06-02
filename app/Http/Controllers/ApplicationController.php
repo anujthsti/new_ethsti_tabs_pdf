@@ -1079,6 +1079,9 @@ class ApplicationController extends Controller
             $jobApplyArr = [];
             $rn_no_id = $postData['rn_no_id'];
             $job_id = $postData['job_id'];
+            /*echo "<pre>";
+            print_r($postData);
+            exit;*/
             DB::beginTransaction();
             if(isset($postData['exp_from']) && !empty($postData['exp_from'])){
                 $exp_from = $postData['exp_from'];
@@ -1683,8 +1686,8 @@ class ApplicationController extends Controller
                 $destinationParentFolderPath = config('app.candidates_docs_path');
                 $destinationParentFolderPath .= "/".$candidateJobApplyID;
                 $maxFileSize200KB = 200*1024;// 200 KB
-                $maxFileSize50KB = 50*1024;// 50 KB
-                $maxFileSize10KB = 10*1024;// 10 KB
+                $maxFileSize50KB = 100*1024;// 50 KB
+                $maxFileSize10KB = 100*1024;// 10 KB
                 $maxFileSize500KB = 500*1024;// 10 KB
                 $fileExtentionArr = ['pdf'];// should be array
                 $fileExtentionImageArr = ['jpg','JPG','jpeg','JPEG'];// should be array

@@ -11,6 +11,9 @@ $exp_prev_desig = old('exp_prev_desig');
 $exp_gp = old('exp_gp');
 $exp_gross = old('exp_gross');
 $nature_of_duties = old('nature_of_duties');
+//$presently_working = old('presently_working');
+
+$apply_end_date = $jobData[0]['apply_end_date'];
 
 $experienceDetailsArr = [];
 if(!empty($fieldsArray) && in_array('exp_from', $fieldsArray)){
@@ -45,13 +48,34 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
         </div>
                         
         <div id="exp_hide" class="col-lg-12 col-md-12">      
-            <div class="text-primary h4">Experience Details</div>                    
+            <div class="text-primary h4">
+                Experience Details 
+                <?php 
+                $applyEndDate = "";
+                if(!empty($apply_end_date)){
+                    $apply_end_dateDMY = Helper::convertDateYMDtoDMY($apply_end_date);
+                    $apply_end_dateDMY = str_replace("/", "-", $apply_end_dateDMY);
+                    echo "(as on ".$apply_end_dateDMY.")";
+                } 
+                ?>  
+                <span style="color:red;">(Start from present employer)</span>
+            </div> 
+            <?php /* ?>  
+            <div class="col-lg-12 col-md-12">            
+                <label class="form-check-label mr-1" >Presently Working?</label> 
+                <div class="form-check form-check-inline">
+                    <input name="presently_working" class="presently_working" <?php echo ($presently_working == 0)?'checked':''; ?> type="radio" value="0" /><label class="form-check-label ml-1 mr-1">No</label>
+                    <input name="presently_working" class="presently_working" <?php echo ($presently_working == 1)?'checked':''; ?> type="radio" value="1" /><label class="form-check-label ml-1 mr-1">Yes</label>                  
+                </div>
+            </div>
+            <?php */ ?>
               <table class="table table-bordered table-sm table-hover table-responsive table-hover" id="exp">
                 <thead class="bg-light">
                     <tr>       
                         @if(!empty($fieldsArray) && in_array('exp_from', $fieldsArray))      
                         <th colspan="2">Period of Employment</th>
                         @endif
+                        <th rowspan="2">Presently Working?</th>
                         @if(!empty($fieldsArray) && in_array('totalexperience', $fieldsArray)) 
                         <th rowspan="2">Total Experience</th>
                         @endif
@@ -225,6 +249,9 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
     // experience row html
     function experience_row(experienceArr=[]){
 
+        let noOfRows = $('#experienceTBody tr').length;
+        let index = noOfRows;
+        let apply_end_date = '<?php echo $apply_end_date; ?>';
         let html = "";
             html += '<tr class="exp_rec_row">';      
             //.exp_from, .exp_to, .exp_total, .exp_org_name, .exp_prev_desig, .exp_gp, .exp_gross
@@ -240,6 +267,18 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                 html += '<td><input name="exp_from[]" value="'+exp_from+'" type="date" style="width:200px;" class="exp_from exp_common form-control calculate_experience"/></td>';
                 html += '<td><input name="exp_to[]" value="'+exp_to+'" type="date" style="width:200px;" class="exp_to exp_common form-control calculate_experience"/></td>';
             @endif  
+            // is_present_working
+            let presently_working = 0;
+            let presentWorkingCheck = "";
+            if(apply_end_date == exp_to){
+                presentWorkingCheck = 'checked="checked"';
+            }
+            html += '<td><input type="checkbox" name="is_present_working" class="presently_working" value="1" '+presentWorkingCheck+'></td>';
+            /*
+            html += '<td>';
+                html += '<input name="presently_working['+index+']" class="presently_working" type="radio" value="1" /><label class="form-check-label ml-1 mr-1">Yes</label>';                  
+            html += '</td>';  
+            */  
             @if(!empty($fieldsArray) && in_array('totalexperience', $fieldsArray)) 
                 let exp_total = "";
                 if(typeof experienceArr['exp_total'] != "undefined"){
@@ -291,46 +330,65 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
     // on select date for experience_to field
     $('#exp').on('focusout','.exp_common',function(){				  	  				 
         let index = $(this).parent().parent().index();			
-        let e_from = $('#exp tbody tr:eq('+index+') td').find('.exp_from').val();	 
-        let e_to = $('#exp tbody tr:eq('+index+') td').find('.exp_to').val();		
-        //console.log('i: '+i);	
-        //console.log('e_from: '+e_from);
-        //console.log('e_to: '+e_to);	  				  		 				  
-          		
-        /*
-        var last_dt = $('#last_dt').val();
-        var exp_to = $(this).val();									
-        if(new Date(exp_to) > new Date(last_dt))
-        { 
-            alert("Please select the last date of advt for the current employment.");
-            $(this).val(last_dt);
-        }
-        */
-        if(e_from!='' && e_to!='')	
-        {
-            if(e_to>e_from)
-            {							
-                getCalculatedExperience(index, e_from, e_to);		  									
-            }
-            else
-            { 
-                alert("Please correct the date order"); 
-                $('#exp tbody tr:eq('+index+') td').find('.exp_total').val('');  
-                $('.exp_total')   
-            }
-        }
-        else
-        { 				  		
-            if(e_from=='')
-            {	
-                $('#exp tbody tr:eq('+index+') td').find('.exp_from').focus();  
-            }
-            else
-            {	
-                $('#exp tbody tr:eq('+index+') td').find('.exp_to').focus();  
-            }						
-        }
+        change_calculated_experience(index);
     });
 
+    function change_calculated_experience(index){
+        let e_from = $('#exp tbody tr:eq('+index+') td').find('.exp_from').val();	 
+        let e_to = $('#exp tbody tr:eq('+index+') td').find('.exp_to').val();		
+        let presently_working = $('#exp tbody tr:eq('+index+') td').find('.presently_working').val();	
+        let apply_end_date = '<?php echo $apply_end_date; ?>';	
+        let canContinue = 1;
+        if(presently_working == 1){
+            if(e_to > apply_end_date){
+                canContinue = 0;
+            }
+        }
+        if(canContinue == 1){
+            if(e_from!='' && e_to!='')	
+            {
+                if(e_to>e_from)
+                {							
+                    getCalculatedExperience(index, e_from, e_to);		  									
+                }
+                else
+                { 
+                    alert("Please correct the date order"); 
+                    $('#exp tbody tr:eq('+index+') td').find('.exp_total').val('');  
+                    $('.exp_total')   
+                }
+            }
+            else
+            { 				  		
+                if(e_from=='')
+                {	
+                    $('#exp tbody tr:eq('+index+') td').find('.exp_from').focus();  
+                }
+                else
+                {	
+                    $('#exp tbody tr:eq('+index+') td').find('.exp_to').focus();  
+                }						
+            }
+        }else{
+            alert("Experience end date should be less than Application End date");
+            $('#exp tbody tr:eq('+index+') td').find('.exp_to').val('');
+        }
+    }
+
+    //$(".presently_working").change(function(){
+    $(document).on("change", ".presently_working", function () {   
+        $('.presently_working').not(this).prop('checked', false); 
+        let index = $(this).parent().parent().index();
+        let apply_end_date = "";
+        if (this.checked) {
+            apply_end_date = '<?php echo $apply_end_date; ?>';	
+            $('#exp tbody tr:eq('+index+') td').find('.exp_to').val(apply_end_date);
+            //$('#exp tbody tr:eq('+index+') td').find('.exp_to').prop("readonly", true);
+        }else{
+            $('#exp tbody tr:eq('+index+') td').find('.exp_to').val(apply_end_date);
+            //$('#exp tbody tr:eq('+index+') td').find('.exp_to').prop("readonly", false);
+        }
+        change_calculated_experience(index);
+    });
     
 </script>

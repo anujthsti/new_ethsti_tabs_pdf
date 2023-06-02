@@ -40,7 +40,9 @@ $title = "Manage Exam centers mapping";
                             <!-- action html start -->
                             <a class="btn btn-primary" href="<?php echo route('edit_exam_center_mapping').$subUrl; ?>"><i class="fa fa-pencil"></i></a>
                             <a class="btn btn-danger" href="<?php echo route('delete_exam_center_mapping').$subUrl; ?>"><i class="fa fa-trash"></i></a>
-                            <a class="btn btn-primary" href="<?php echo route('exam_interview_shift').'/'.$examCenter['exam_center_map_id']; ?>">Shift</a>
+                            <?php /** */ ?>
+                            <a class="btn btn-primary" href="<?php echo route('exam_interview_shift')."/".$examCenter['job_id']; ?>">Shift</a>
+                            <?php /**/ ?>
                             <!-- action html end -->
                         </td>
                     </tr>

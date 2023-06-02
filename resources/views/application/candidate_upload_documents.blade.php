@@ -33,6 +33,7 @@ $castCategoryId = "";
 $is_pwd = "";
 $is_ex_serviceman = "";
 $type_of_employment = "";
+$is_govt_servent = "";
 if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     $rn_no_id = $candidateJobApplyDetail[0]['rn_no_id'];
     $jobId = $candidateJobApplyDetail[0]['job_id'];
@@ -40,6 +41,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     $is_pwd = $candidateJobApplyDetail[0]['is_pwd'];
     $is_ex_serviceman = $candidateJobApplyDetail[0]['is_ex_serviceman'];
     $type_of_employment = $candidateJobApplyDetail[0]['type_of_employment'];
+    $is_govt_servent = $candidateJobApplyDetail[0]['is_govt_servent']; 
 }
 
 $castCategoryGenIdArr = Helper::getCodeNamesIdsByCodes("cast_categories", ["gen"]);
@@ -58,6 +60,7 @@ $is_publication_tab = "";
 if(isset($jobValidations[0]['is_publication_tab'])){
     $is_publication_tab = $jobValidations[0]['is_publication_tab'];
 }
+
 ?>
 @include('application.application_head')
 
@@ -109,11 +112,10 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             if($isTrainProgram == 0 && !in_array($castCategoryId, $castCategoryGenIdArr) || $is_pwd == 1){
             ?>
                 <div class="text-primary h4">Upload Certificates (.pdf file only and Size less than <span class="text-danger">200KB</span>)
-                <?php 
-                //if(file_exists("../ethsti/writereaddata/".$c_dtl['category_certificate']) || file_exists("../ethsti/writereaddata/".$c_dtl['pwd_certificate']) || file_exists("../ethsti/writereaddata/".$c_dtl['esm_certificate'])){ ?> 
+                <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['category_certificate']))){  ?> 
                     <i class="fa fa-edit text-danger" id="categories_edit">Edit</i>
                     <i class="fa fa-undo text-danger" id="categories_undo" style="display:none;">Cancel</i>
-                <?php //} ?> 
+                <?php } ?> 
                 </div>     
             <?php } ?>  				 
                 <div class="col-12 mb-5">                                                                   
@@ -183,20 +185,23 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             <!--------- Categories certificates end ----------->  
 
             <!--------- Update Acacdemic Cerficates and degrees start ------>
-            <?php if($isTrainProgram == 0 && !empty($candidateAcademicsDetails)){?>
+            <?php 
+            if($isTrainProgram == 0 && !empty($candidateAcademicsDetails)){
+                $existingAcademicDocsIds = [];
+                if(!empty($candidatesAcademicsDocuments)){
+                    $existingAcademicDocsIds = array_column($candidatesAcademicsDocuments,'education_id');
+                }
+                ?>
                 <div class="text-primary h4">
                     Upload Academics Certificates/ Degrees (.pdf file only and Size less than <span class="text-danger">200KB</span>)
-                    <?php //if($c_dtl['academic_upload']!=''){?> 
+                    <?php if(!empty($existingAcademicDocsIds)){ ?> 
                         <i class="fa fa-edit text-danger" id="academic_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="academic_undo" style="display:none;">Cancel</i>
-                    <?php //} ?> 
+                    <?php } ?> 
                 </div> 
                 <div class="col-12 mb-5" id="#edu">                                                            
                     <?php 
-                    $existingAcademicDocsIds = [];
-                    if(!empty($candidatesAcademicsDocuments)){
-                        $existingAcademicDocsIds = array_column($candidatesAcademicsDocuments,'education_id');
-                    }
+                    
                     foreach($candidateAcademicsDetails as $academic){ 
                         $education_id = $academic['education_id'];
                         $educationData = [];
@@ -230,19 +235,20 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             <!--------- Update Experience documents start ------>                 
             <?php 
             if($isTrainProgram == 0 && !empty($candidateExperienceDetails)){ 
+                $existingExperienceDocsIds = [];
+                if(!empty($candidatesExperienceDocuments)){
+                    $existingExperienceDocsIds = array_column($candidatesExperienceDocuments,'candidate_experience_detail_id');
+                }
             ?> 
                 <div class="text-primary h4">Upload Experience Certificates (.pdf file only and Size less than <span class="text-danger">200KB</span>)
-                    <?php //if($c_dtl['exp_upload']!=''){?> 
+                    <?php if(!empty($existingExperienceDocsIds)){?> 
                         <i class="fa fa-edit text-danger" id="exp_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="exp_undo" style="display:none;">Cancel</i>
-                    <?php //} ?> 
+                    <?php } ?> 
                 </div>
                 <div class="col-12 mb-5">                         
                     <?php 
-                        $existingExperienceDocsIds = [];
-                        if(!empty($candidatesExperienceDocuments)){
-                            $existingExperienceDocsIds = array_column($candidatesExperienceDocuments,'candidate_experience_detail_id');
-                        }
+                        
                         foreach($candidateExperienceDetails as $experience){ 
                             $candidate_experience_detail_id = $experience['id'];
                     ?>
@@ -277,16 +283,15 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             ?>
                 <div class="text-primary h4">
                     Upload Images (.jpg/.jpeg file only)
-                    <?php 
-                    //if($c_dtl['passport_photo']!='' || $c_dtl['passport_sig']!=''){?> 
+                    <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_photo']))){ ?> 
                         <i class="fa fa-edit text-danger" id="images_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="images_undo" style="display:none;">Cancel</i>
-                    <?php //} ?> 
+                    <?php } ?> 
                 </div>  
                 <div class="col-lg-12 col-md-12 col-sm-12 mb-5">                       
                     <div class="form-group" id="img_attachements_id">              
                         <div class="form-group row">
-                            <label for="passport_photo" class="col-lg-6 col-md-6 col-sm-6">Upload passport size Photograph (200 x 250) of maximum  <span class="text-danger h5">50 KB</span></label>   
+                            <label for="passport_photo" class="col-lg-6 col-md-6 col-sm-6">Upload passport size Photograph (200 x 250) of maximum  <span class="text-danger h5">100 KB</span></label>   
                             <input name="passport_photo" type="file" id="passport_photo" class="col-lg-4 images" style="display:none;" />                               
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_photo']))){ 
@@ -301,7 +306,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             <?php } ?>
                         </div>
                         <div class="form-group row">
-                            <label for="passport_sig" class="col-lg-6 col-md-6 col-sm-6">Upload Signature (150 x 100) of  maximum <span class="text-danger h5">10 KB</span></label>
+                            <label for="passport_sig" class="col-lg-6 col-md-6 col-sm-6">Upload Signature (150 x 100) of  maximum <span class="text-danger h5">100 KB</span></label>
                             <input name="passport_sig" type="file" id="passport_sig" class="col-lg-4 images" style="display:none;" />
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_sign']))){ 
@@ -325,6 +330,10 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 <?php if(isset($candidatePHDResearchDetails[0]['funding_agency']) && !empty($candidatePHDResearchDetails[0]['funding_agency'])){ ?> 
                     <div class="text-primary h4">
                         Fellowship/Certificate Attachments (.pdf file only and Size less than <span class="text-danger">200KB</span>) 
+                        <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['fellowship_certificate']))){ ?>
+                        <i class="fa fa-edit text-danger" id="fellowship_edit">Edit</i>
+                        <i class="fa fa-undo text-danger" id="fellowship_undo" style="display:none;">Cancel</i>
+                        <?php } ?>
                     </div>
                     <div class="col-lg-12 col-md-12 col-sm-12 mb-5">
                         <div class="form-group row">
@@ -333,7 +342,8 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['fellowship_certificate']))){ 
                                 $fellowshipDocName = $candidatesCommonDocuments[0]['fellowship_certificate'];
                                 $fellowshipDocUrl = url($candidateDocsParentFolderPath."/".$fellowshipDocName);
-                            ?>    
+                            ?>  
+                                <input name="fellowship_upload" type="file" id="fellowship_upload" style="display:none;" disabled="disabled" />
                                 <a target="_new" href="<?php echo $fellowshipDocUrl; ?>">View File</a>
                             <?php 
                             } 
@@ -350,6 +360,10 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 <?php if(isset($candidatePHDResearchDetails[0]['exam_name']) && !empty($candidatePHDResearchDetails[0]['exam_name'])){ ?>    
                     <div class="text-primary h4">
                         Exam Qualified (.pdf file only and Size less than <span class="text-danger">200KB</span>) 
+                        <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['exam_qualified_certificate']))){ ?>    
+                        <i class="fa fa-edit text-danger" id="exam_qualified_edit">Edit</i>
+                        <i class="fa fa-undo text-danger" id="exam_qualified_undo" style="display:none;">Cancel</i>
+                        <?php } ?>
                     </div>
                     <div class="col-lg-12 col-md-12 col-sm-12 mb-5">
                         <div class="form-group row">
@@ -358,7 +372,8 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['exam_qualified_certificate']))){ 
                                 $examQualifiedDocName = $candidatesCommonDocuments[0]['exam_qualified_certificate'];
                                 $examQualifiedDocUrl = url($candidateDocsParentFolderPath."/".$examQualifiedDocName);
-                            ?>    
+                            ?>   
+                                <input name="exam_qualified_upload" type="file" id="exam_qualified_upload" style="display:none;" disabled="disabled" />
                                 <a target="_new" href="<?php echo $examQualifiedDocUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -374,12 +389,12 @@ if(isset($jobValidations[0]['is_publication_tab'])){
 
                 
                 <div class="text-primary h4">Attachments (.pdf file only and Size less than <span class="text-danger">500KB</span>)    
-                    <!--            
+                                
                     <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['id_card']))){?>
                         <i class="fa fa-edit text-danger" id="attachments_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="attachments_undo" style="display:none;">Cancel</i>
                     <?php } ?> 
-                    -->
+                    
                 </div>         		                            
                 
 
@@ -395,6 +410,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                                 $idCardDocName = $candidatesCommonDocuments[0]['id_card'];
                                 $idCardDocUrl = url($candidateDocsParentFolderPath."/".$idCardDocName);
                             ?>    
+                                <input class="attachments_view"  name="id_card" type="file" id="id_card" value="" style="display:none;" disabled="disabled" />   
                                 <a target="_new" href="<?php echo $idCardDocUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -413,7 +429,8 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['age_proof']))){ 
                                 $age_proofDocName = $candidatesCommonDocuments[0]['age_proof'];
                                 $age_proofDocUrl = url($candidateDocsParentFolderPath."/".$age_proofDocName);
-                            ?>    
+                            ?>   
+                                <input class="attachments_view"  name="age_proof" type="file" id="age_proof" value="" style="display:none;" disabled="disabled" /> 
                                 <a target="_new" href="<?php echo $age_proofDocUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -425,15 +442,15 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                     <!-- Age proof end -->
                     
                     <!-- Employer NOC start -->
-                    <?php if(in_array('forwardingletternoc', $fieldsArray) || $type_of_employment == 1){ ?>
+                    <?php if(in_array('forwardingletternoc', $fieldsArray) && $is_govt_servent == 1 && $type_of_employment == 1){ ?>
                         <div class="form-group row">
                             <label for="employer_noc" class="col-lg-6 col-md-6 col-sm-6">Forwarding letter/NOC from current employer/Current experience certificate</label>                
-                            <?php //if($c_dtl['employer_noc']!='' && file_exists("../ethsti/writereaddata/".$c_dtl['employer_noc'])){ ?>
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['noc_certificate']))){ 
                                 $nocDocName = $candidatesCommonDocuments[0]['noc_certificate'];
                                 $nocDocUrl = url($candidateDocsParentFolderPath."/".$nocDocName);
                             ?>    
+                                <input class="attachments_view"  name="employer_noc" type="file" id="employer_noc" value="" style="display:none;" disabled="disabled" />   
                                 <a target="_new" href="<?php echo $nocDocUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -453,6 +470,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                                 $stmtName = $candidatesCommonDocuments[0]['stmt_proposal'];
                                 $stmtUrl = url($candidateDocsParentFolderPath."/".$stmtName);
                             ?>
+                                <input class="attachments_view"  name="stmt_proposal" type="file" id="stmt_proposal" value="" style="display:none;" disabled="disabled" />   
                                 <a target="_new" href="<?php echo $stmtName;?>">View File</a>
                             <?php 
                             }else{ 
@@ -467,12 +485,12 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                     <?php if(in_array('uploadcv', $fieldsArray)){ ?>
                         <div class="form-group row">
                             <label for="attach_cv" class="col-lg-6 col-md-6 col-sm-6">Upload CV</label>
-                            <input class="attachments_view"  name="cv" type="file" id="attach_cv" style="display:none;"   />                
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_cv']))){ 
                                 $cvName = $candidatesCommonDocuments[0]['candidate_cv'];
                                 $cvUrl = url($candidateDocsParentFolderPath."/".$cvName);
                             ?>    
+                                <input class="attachments_view" name="cv" type="file" id="attach_cv" value="" style="display:none;" disabled="disabled" />
                                 <a target="_new" href="<?php echo $cvUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -489,17 +507,15 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             <label for="attach_pub_list" class="col-lg-6 col-md-6 col-sm-6">List of Publications and Patents</label>                
                             <label>
                             
-                            <input class="attachments_view" name="listpublication" type="file" style="display:none;" />                                                      
-                            
-                            <?php //if($c_dtl['listpublication']!='' && file_exists("../ethsti/writereaddata/".$c_dtl['listpublication'])){ ?>
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['listpublication']))){ 
                                 $listpublicationName = $candidatesCommonDocuments[0]['listpublication'];
                                 $listpublicationUrl = url($candidateDocsParentFolderPath."/".$listpublicationName);
                             ?>    
+                                <input class="attachments_view" name="listpublication" value="" type="file" style="display:none;" disabled="disabled" />                                                      
                                 <a target="_new" href="<?php echo $listpublicationUrl;?>">View File</a>
                             <?php }else{ ?>
-                                <input name="listpublication" type="file" id="attach_pub_list" />
+                                <input name="listpublication" type="file" id="attach_pub_list" value="" />
                                 <!--    
                                 <label <?php //echo ($rec_job_valid['list_pub_open']==1)?'style="display:none"':''; ?> id="list_pub_close"><i class="fa fa-close">&nbsp;Close</i></label>
                                 <label id="list_pub_open" style="display:none;"><i class="fa fa-upload">&nbsp;Upload</i></label>
@@ -516,13 +532,13 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                         <div class="form-group row">
                             <label for="attach_pub1" class="col-lg-6 col-md-6 col-sm-6">Publications (Best Five/Ten)</label>
                             
-                            <input class="attachments_view" name="publication" type="file" id="attach_pub1" style="display:none;" />
                             <?php //if($c_dtl['publication']!='' && file_exists("../ethsti/writereaddata/".$c_dtl['publication'])){ ?>
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['publication']))){ 
                                 $publicationName = $candidatesCommonDocuments[0]['publication'];
                                 $publicationUrl = url($candidateDocsParentFolderPath."/".$publicationName);
                             ?>    
+                                <input class="attachments_view" name="publication" type="file" id="attach_pub1" style="display:none;" disabled="disabled" />
                                 <a target="_new" href="<?php echo $publicationUrl; ?>">View File</a>
                             <?php 
                             }else{ 
@@ -538,12 +554,12 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                         <div class="form-group row">
                             <label for="attach_pro" class="col-lg-6 col-md-6 col-sm-6">Project Proposal</label>                
                             <label>
-                                <input class="attachments_view"  name="project" type="file"  style="display:none;" />
                                 <?php 
                                 if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['project_proposal']))){ 
                                     $proposalName = $candidatesCommonDocuments[0]['project_proposal'];
                                     $proposalUrl = url($candidateDocsParentFolderPath."/".$proposalName);
                                 ?>    
+                                    <input class="attachments_view"  name="project" type="file" style="display:none;" disabled="disabled" />
                                     <a target="_new" href="<?php echo $proposalUrl; ?>">View File</a>
                                 <?php }else{ ?>
                                     <input name="project" type="file" id="attach_pro" /> 				                
@@ -691,7 +707,8 @@ if(isset($jobValidations[0]['is_publication_tab'])){
         //Attachments edit
         $("#attachments_edit").click(function(){	
             $('.attachments_view').each(function(){
-                $(this).show();			
+                $(this).show();	
+                $(this).removeAttr("disabled");			
             });
             $("#attachments_undo").show();
             $("#attachments_edit").hide();
@@ -717,6 +734,40 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             $('#attach_pub_list').show();
             $('#list_pub_close').show();
             $('#list_pub_open').hide();	
+        });
+        
+        //fellowship sectinon edit
+        $("#fellowship_edit").click(function(){	
+                $("#fellowship_upload").show();
+                $("#fellowship_upload").removeAttr("disabled");
+                $("#fellowship_edit").hide();
+                $("#fellowship_undo").show();
+           
+        });
+        $("#fellowship_undo").click(function(){	
+                $("#fellowship_upload").val('');
+                $("#fellowship_upload").hide();
+                //$(this).addAttr("disabled");
+                $("#fellowship_undo").hide();
+                $("#fellowship_edit").show();				
+            
+        });
+
+        //exam qualified sectinon edit
+        $("#exam_qualified_edit").click(function(){	
+                $("#exam_qualified_upload").show();
+                $("#exam_qualified_upload").removeAttr("disabled");
+                $("#exam_qualified_edit").hide();
+                $("#exam_qualified_undo").show();
+           
+        });
+        $("#exam_qualified_undo").click(function(){	
+                $("#exam_qualified_upload").val('');
+                $("#exam_qualified_upload").hide();
+                //$(this).addAttr("disabled");
+                $("#exam_qualified_undo").hide();
+                $("#exam_qualified_edit").show();				
+            
         });
         
         
