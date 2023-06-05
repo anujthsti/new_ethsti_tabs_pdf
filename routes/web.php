@@ -194,7 +194,7 @@ Route::group(['prefix'=>'application'], function() {
         Route::post('save_registration_details','save_registration_details')->name('save_registration_details');
         Route::post('calculate_experience','calculate_experience')->name('calculate_experience');
         Route::post('calculate_grand_total_exp','calculate_grand_total_exp')->name('calculate_grand_total_exp');
-        Route::get('payment_response','payment_response')->name('payment_response');
+        Route::any('payment_response','payment_response')->name('payment_response');
         Route::get('pay_receipt/{id}/{tab_id?}','pay_receipt')->name('pay_receipt');
         Route::get('croneCheckCandidatePaymentStatus','croneCheckCandidatePaymentStatus')->name('croneCheckCandidatePaymentStatus');
         

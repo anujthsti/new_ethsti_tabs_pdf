@@ -211,6 +211,10 @@ $page_title = "Candidate Details";
                 @include('hr_shortlisting.candidate_submitted_experience_detail')  
                 <!-- Experience details end -->
 
+                <!-- fellowship details start -->
+                @include('hr_shortlisting.candidate_submitted_fellowship_detail') 
+                <!-- fellowship details end -->
+                  
                 <!-- publication details start -->
                 @include('hr_shortlisting.candidate_submitted_publication_detail')  
                 <!-- publication details end -->
@@ -227,10 +231,7 @@ $page_title = "Candidate Details";
                 @include('hr_shortlisting.candidate_submitted_reference_detail')   
                 <!-- reference tab end -->
 
-                <!-- fellowship details start -->
-                @include('hr_shortlisting.candidate_submitted_fellowship_detail') 
-                <!-- fellowship details end -->
-                       
+                     
                 <!-- payment transaction details start -->
                 @include('hr_shortlisting.candidate_payment_detail')
                 <!-- payment transaction details end -->

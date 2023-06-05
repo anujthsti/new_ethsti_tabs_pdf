@@ -85,6 +85,8 @@ if (request()->routeIs('companies.*')) {
                 @include('application.candidate_academic_details')
                 <!-- include candidate experience details section -->
                 @include('application.candidate_experience_details')
+                <!-- include candidate fellowship details section -->
+                @include('application.candidate_fellowship')
                 <!-- include candidate refree details section -->
                 @include('application.candidate_refree')
                 <?php
@@ -97,8 +99,7 @@ if (request()->routeIs('companies.*')) {
                 @include('application.candidate_patents')
                 <!-- include candidate research statement details section -->
                 @include('application.candidate_research_statement')
-                <!-- include candidate fellowship details section -->
-                @include('application.candidate_fellowship')
+                
                 <?php
             }
             else{

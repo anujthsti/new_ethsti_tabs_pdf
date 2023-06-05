@@ -10,6 +10,7 @@ $cgpa = old('cgpa');
 $division = old('division');
 $duration_of_course = old('duration_of_course');
 $phd_result = old('phd_result');
+$thesis_title = old('thesis_title');
 if(isset($academicDetails) && !empty($academicDetails)){
     $minJobEduRequired = array_column($academicDetails, 'education_id');
     $exam_pass = $minJobEduRequired;
@@ -22,6 +23,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
     $division = array_column($academicDetails, 'division');
     $duration_of_course = array_column($academicDetails, 'duration_of_course');
     $phd_result = array_column($academicDetails, 'phd_result');
+    $thesis_title = array_column($academicDetails, 'thesis_title');
 }
 
 ?>
@@ -87,7 +89,8 @@ if(isset($academicDetails) && !empty($academicDetails)){
                 academicArr['division'] = "";
                 academicArr['duration_of_course'] = "";
                 academicArr['phd_result'] = "";
-                
+                academicArr['thesis_title'] = "";
+
                 @if(isset($mn_pass[$key]) && !empty($mn_pass[$key]))
                     academicArr['mn_pass'] = <?php echo $mn_pass[$key]; ?>; 
                 @endif
@@ -115,6 +118,10 @@ if(isset($academicDetails) && !empty($academicDetails)){
                 @if(isset($phd_result[$key]) && !empty($phd_result[$key]))
                     academicArr['phd_result'] = <?php echo $phd_result[$key]; ?>; 
                 @endif
+                @if(isset($thesis_title[$key]) && !empty($thesis_title[$key]))
+                    academicArr['thesis_title'] = '<?php echo $thesis_title[$key]; ?>'; 
+                @endif
+                
                 
                 academicDetailNewRow(minEducationID, academicArr);
             @endforeach
@@ -321,6 +328,8 @@ if(isset($academicDetails) && !empty($academicDetails)){
                 selectOption1 = '';
                 selectOption2 = 'selected="selected"';
             }
+
+            let thesis_title = academicArr['thesis_title'];
                 /*let phdConfirmationByHtml = '<td class="phd_edu_col" colspan="3" '+stylePhd+'>';
                         phdConfirmationByHtml += '<div class="form-group">';
                             phdConfirmationByHtml += '<label class="form-label"><b>PHD Result:</b> </label><br>';
@@ -330,13 +339,18 @@ if(isset($academicDetails) && !empty($academicDetails)){
                     phdConfirmationByHtml += '</td>';
                 rowHtml += phdConfirmationByHtml;*/
                 //
-                let phdConfirmationByHtml = '<td class="phd_edu_col" colspan="3" '+stylePhd+'>';
+                let phdConfirmationByHtml = '<td class="phd_edu_col" colspan="1" '+stylePhd+'>';
                         phdConfirmationByHtml += '<select name="phd_result[]" class="form-control phd_result" '+phd_resultRequired+'>';
                             phdConfirmationByHtml += '<option value="">Select PHD Result</option>';
                             phdConfirmationByHtml += '<option '+selectOption1+' value="1">Degree Awarded</option>';
                             phdConfirmationByHtml += '<option '+selectOption2+' value="2">Thesis Submitted</option>';
                         phdConfirmationByHtml += '</select>';
                     phdConfirmationByHtml += '</td>';
+
+                    phdConfirmationByHtml += '<td class="phd_edu_col" colspan="2" '+stylePhd+'>';
+                        phdConfirmationByHtml += '<input name="thesis_title[]" class="form-control" value="'+thesis_title+'" placeholder="Thesis Title">';
+                    phdConfirmationByHtml += '</td>';
+
                 rowHtml += phdConfirmationByHtml;
             // phd confirmation end
             

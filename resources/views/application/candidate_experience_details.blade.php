@@ -58,7 +58,7 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                     echo "(as on ".$apply_end_dateDMY.")";
                 } 
                 ?>  
-                <span style="color:red;">(Start from present employer)</span>
+                <span style="color:red;">(Start from present employment)</span>
             </div> 
             <?php /* ?>  
             <div class="col-lg-12 col-md-12">            
@@ -87,7 +87,7 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                         <th rowspan="2">Name of the Organisation</th>
                         @endif
                         @if(!empty($fieldsArray) && in_array('grosspay', $fieldsArray)) 
-                        <th colspan="2">Salary Per Month(INR) </th>      
+                        <th colspan="2">Salary Per Month(INR)</th>      
                         @endif        
                     </tr>
                     <tr>
@@ -268,12 +268,16 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                 html += '<td><input name="exp_to[]" value="'+exp_to+'" type="date" style="width:200px;" class="exp_to exp_common form-control calculate_experience"/></td>';
             @endif  
             // is_present_working
-            let presently_working = 0;
-            let presentWorkingCheck = "";
-            if(apply_end_date == exp_to){
-                presentWorkingCheck = 'checked="checked"';
+            if(index == 0){
+                let presently_working = 0;
+                let presentWorkingCheck = "";
+                if(apply_end_date == exp_to){
+                    presentWorkingCheck = 'checked="checked"';
+                }
+                html += '<td><input type="checkbox" name="is_present_working" class="presently_working" value="1" '+presentWorkingCheck+'></td>';
+            }else{
+                html += '<td></td>';
             }
-            html += '<td><input type="checkbox" name="is_present_working" class="presently_working" value="1" '+presentWorkingCheck+'></td>';
             /*
             html += '<td>';
                 html += '<input name="presently_working['+index+']" class="presently_working" type="radio" value="1" /><label class="form-check-label ml-1 mr-1">Yes</label>';                  

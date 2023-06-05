@@ -13,7 +13,7 @@ $is_research_tab = $jobValidations[0]['is_research_tab'];
     ?>
     <div class="row" id="research" > 
         <div class="form-group col-12">
-            <label class="form-check-label mr-1" >Do you want to submit research statement? </label>
+            <label class="form-check-label mr-1" >Do you want to submit research statement/proposal ? </label>
             <div class="form-check form-check-inline">
                 <input name="rs_check" class="rs_check" checked type="radio" value="0" <?php echo ($rs_check==0)?'checked':''; ?> />
                 <label class="form-check-label mr-1 ml-1">No</label>

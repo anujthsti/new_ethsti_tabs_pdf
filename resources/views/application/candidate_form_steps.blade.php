@@ -140,7 +140,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     </li>  
     @if($is_publication_tab == 1)  
     <li class="<?php echo $phdDetailClass; ?>">
-        <a href="<?php echo $phdDetailsRouteUrl; ?>">PHD Details</a>
+        <a href="<?php echo $phdDetailsRouteUrl; ?>">Research Credentials</a>
     </li>
     @endif
     <li class="<?php echo $documentUploadClass; ?>">

@@ -117,10 +117,18 @@ class ApplicationController extends Controller
             $jobId = $request->session()->get('applicationJobId');
             $rnNoId = $request->session()->get('applicationRNNOId');
             if(!empty($jobId) && !empty($rnNoId)){
-                $insertArr['rn_no_id'] = $rnNoId;
-                $insertArr['job_id'] = $jobId;
-                $insertArr['candidate_id'] = $candidate_id;
-                CandidatesJobsApply::create($insertArr);
+                $existingRec = CandidatesJobsApply::where('rn_no_id', $rnNoId)
+                                                    ->where('job_id', $jobId)  
+                                                    ->where('candidate_id', $candidate_id)
+                                                    ->where('status', 1)
+                                                    ->get(['candidates_jobs_apply.id'])
+                                                    ->toArray();
+                if(empty($existingRec)){                                    
+                    $insertArr['rn_no_id'] = $rnNoId;
+                    $insertArr['job_id'] = $jobId;
+                    $insertArr['candidate_id'] = $candidate_id;
+                    CandidatesJobsApply::create($insertArr);
+                }
             }
             return redirect()->route('dashboard');
         }else{
@@ -649,13 +657,7 @@ class ApplicationController extends Controller
                     }
                     // update candidate publications details end
                     
-                    // update candidate PHD Research details start
-                    $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
-                    if($retData['status'] == 'error'){
-                        $errorMsg = $retData['msg'];
-                        DB::rollback();
-                        return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-                    }
+                    
                     // update is_phd_details_done to 1 - completed
                     $jobApplyArr['is_phd_details_done'] = 1;
                     if(isset($postData['pub_check']) && !empty($postData['pub_check'])){
@@ -667,6 +669,14 @@ class ApplicationController extends Controller
                     // update candidate PHD Research details end
                 }
                 
+                // update candidate PHD Research details start
+                $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
+                if($retData['status'] == 'error'){
+                    $errorMsg = $retData['msg'];
+                    DB::rollback();
+                    return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+                }
+
                 // transactions start
                 DB::commit();
                 $nextTabId = "";
@@ -948,8 +958,12 @@ class ApplicationController extends Controller
                 $percent = $postData['percent'];
                 $cgpa = $postData['cgpa'];
                 $division = $postData['division'];
-                $phd_result = $postData['phd_result'];
-                
+                $phd_result = [];
+                $thesis_title = [];
+                if(isset($postData['phd_result']) && !empty($postData['phd_result'])){
+                    $phd_result = $postData['phd_result'];
+                    $thesis_title = $postData['thesis_title'];
+                }
                 // get existing academic details
                 $academicDetails = CandidatesAcademicsDetails::where('candidate_id', $candidate_id)
                                                              ->where('job_id', $job_id)
@@ -1031,6 +1045,10 @@ class ApplicationController extends Controller
                     $academicArr['phd_result'] = null;
                     if(isset($phd_result[$key]) && !empty($phd_result[$key])){
                         $academicArr['phd_result'] = $phd_result[$key];
+                    }
+                    $academicArr['thesis_title'] = null;
+                    if(isset($thesis_title[$key]) && !empty($thesis_title[$key])){
+                        $academicArr['thesis_title'] = $thesis_title[$key];
                     }
                     
 
@@ -2122,7 +2140,7 @@ class ApplicationController extends Controller
         }    
     }
     
-    public function payment_response(Request $request){
+    public function payment_response(){
 
         try{
             //CHECK FOR THE RESPONSE
@@ -2337,6 +2355,11 @@ class ApplicationController extends Controller
                 $pendingFeeRec = FeeTransactions::where('pay_status', '=', '0300')
                                                 ->get('fee_transactions.*')
                                                 ->toArray();
+                /*
+                $pendingFeeRec = FeeTransactions::where('customer_id', '=', 'THSTI_13_JobFee_14_20230602095431')
+                                                ->get('fee_transactions.*')
+                                                ->toArray();                                
+                */                                 
                 /*
                 $pendingFeeRec = FeeTransactions::where(function ($query) {
                                                         $query->where('pay_status', '=', '0300')
