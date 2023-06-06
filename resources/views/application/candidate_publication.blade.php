@@ -10,13 +10,14 @@
     $no_of_cors_author_pub = old('no_of_cors_author_pub');
     $no_of_pub_impact_fact = old('no_of_pub_impact_fact');
     $no_of_citations = old('no_of_citations');
-    if(isset($candidatesPublicationsDetails) && !empty($candidatesPublicationsDetails)){
+    
+    if(isset($candidatesPHDResearchDetails) && !empty($candidatesPHDResearchDetails)){
         $pub_check = 1;
-        $no_of_pub = $candidatesPublicationsDetails[0]['no_of_pub'];
-        $no_of_first_author_pub = $candidatesPublicationsDetails[0]['no_of_first_author_pub'];
-        $no_of_cors_author_pub = $candidatesPublicationsDetails[0]['no_of_cors_author_pub'];
-        $no_of_pub_impact_fact = $candidatesPublicationsDetails[0]['no_of_pub_impact_fact'];
-        $no_of_citations = $candidatesPublicationsDetails[0]['no_of_citations'];
+        $no_of_pub = $candidatesPHDResearchDetails[0]['no_of_pub'];
+        $no_of_first_author_pub = $candidatesPHDResearchDetails[0]['no_of_first_author_pub'];
+        $no_of_cors_author_pub = $candidatesPHDResearchDetails[0]['no_of_cors_author_pub'];
+        $no_of_pub_impact_fact = $candidatesPHDResearchDetails[0]['no_of_pub_impact_fact'];
+        $no_of_citations = $candidatesPHDResearchDetails[0]['no_of_citations'];
     }
     ?>
     <div class="row">
@@ -46,10 +47,10 @@
                 <tbody id="publicationTBody">
                     <tr>
                         <td><input type="number" name="no_of_pub" value="{{ $no_of_pub }}" class="form-control"></td>
-                        <td><input type="number" name="no_of_first_author_pub" value="" class="form-control"></td>
-                        <td><input type="number" name="no_of_cors_author_pub" value="" class="form-control"></td>
-                        <td><input type="number" name="no_of_pub_impact_fact" value="" class="form-control"></td>
-                        <td><input type="number" name="no_of_citations" value="" class="form-control"></td>
+                        <td><input type="number" name="no_of_first_author_pub" value="{{ $no_of_first_author_pub }}" class="form-control"></td>
+                        <td><input type="number" name="no_of_cors_author_pub" value="{{ $no_of_cors_author_pub }}" class="form-control"></td>
+                        <td><input type="number" name="no_of_pub_impact_fact" value="{{ $no_of_pub_impact_fact }}" class="form-control"></td>
+                        <td><input type="number" name="no_of_citations" value="{{ $no_of_citations }}" class="form-control"></td>
                     </tr>
                 </tbody>  
             </table>                          

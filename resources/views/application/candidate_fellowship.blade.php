@@ -18,7 +18,7 @@
         $active_institute_name = $candidatesPHDResearchDetails[0]['active_institute_name'];
         $active_date = $candidatesPHDResearchDetails[0]['activation_date'];
     }
-    ?>
+    ?> 
     <div class="row">                                
         <div class="col-12" id="fellowship">
             <h4 class="text-primary">Fellowship Details</h4>

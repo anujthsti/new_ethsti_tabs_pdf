@@ -640,7 +640,7 @@ class ApplicationController extends Controller
                 else if($formTabId == 3){
                     //*********************************************  PHD Details ***************************/
                     //update candidate publications details start
-                    
+                    /*
                     if(isset($postData['pub_check']) && $postData['pub_check'] == 1){
                         $retData = $this->update_candidate_publications_details($postData, $candidate_id, $candidateJobApplyID);
                         if($retData['status'] == 'error'){
@@ -655,6 +655,7 @@ class ApplicationController extends Controller
                                                     ->where('status', 1)
                                                     ->update(['status' => 3]);
                     }
+                    */
                     // update candidate publications details end
                     
                     
@@ -1503,22 +1504,16 @@ class ApplicationController extends Controller
             if(isset($postData['patent_check']) && $postData['patent_check'] == 1){
                 $dataArr['is_have_patents'] = 1;
                 $dataArr['patent_information'] = $postData['patent_information'];
-                if(!empty($candidatesPHDResearchDetails)){
-                    if($candidatesPHDResearchDetails[0]['is_have_patents'] != $dataArr['is_have_patents'] || $candidatesPHDResearchDetails[0]['patent_information'] != $dataArr['patent_information']){
-                        $insertFlag = 2;
-                    }
-                }
+                $dataArr['no_patents_filed_national'] = $postData['no_patents_filed_national'];
+                $dataArr['no_patents_granted_national'] = $postData['no_patents_granted_national'];
+                $dataArr['no_patents_filed_international'] = $postData['no_patents_filed_international'];
+                $dataArr['no_patents_granted_international'] = $postData['no_patents_granted_international'];
+                
             }
              
             if(isset($postData['rs_check']) && $postData['rs_check'] == 1){
                 $dataArr['is_submitted_research_statement'] = 1;
                 $dataArr['research_statement'] = $postData['research_statement'];
-                
-                if(!empty($candidatesPHDResearchDetails)){
-                    if($candidatesPHDResearchDetails[0]['is_submitted_research_statement'] != $dataArr['is_submitted_research_statement'] || $candidatesPHDResearchDetails[0]['research_statement'] != $dataArr['research_statement']){
-                        $insertFlag = 2;
-                    }
-                }
                 
             }
             
@@ -1529,11 +1524,7 @@ class ApplicationController extends Controller
                 $dataArr['rank'] = $postData['rank'];
                 $dataArr['admission_test'] = $postData['admission_test'];
                 $dataArr['fellowship_valid_up_to'] = $postData['val_up_to'];
-                if(!empty($candidatesPHDResearchDetails)){
-                    if($candidatesPHDResearchDetails[0]['funding_agency'] != $dataArr['funding_agency'] || $candidatesPHDResearchDetails[0]['rank'] != $dataArr['rank'] || $candidatesPHDResearchDetails[0]['admission_test'] != $dataArr['admission_test'] || $candidatesPHDResearchDetails[0]['fellowship_valid_up_to'] != $dataArr['fellowship_valid_up_to']){
-                        $insertFlag = 2;
-                    }
-                }
+                
             }
             
             if(isset($postData['activate_fellow']) && $postData['activate_fellow'] == 1){
@@ -1541,11 +1532,6 @@ class ApplicationController extends Controller
                 $dataArr['is_fellowship_activated'] = 1;
                 $dataArr['active_institute_name'] = $postData['active_institute_name'];
                 $dataArr['activation_date'] = $postData['active_date'];
-                if(!empty($candidatesPHDResearchDetails)){
-                    if($candidatesPHDResearchDetails[0]['is_fellowship_activated'] != $dataArr['is_fellowship_activated'] || $candidatesPHDResearchDetails[0]['active_institute_name'] != $dataArr['active_institute_name'] || $candidatesPHDResearchDetails[0]['activation_date'] != $dataArr['activation_date']){
-                        $insertFlag = 2;
-                    }
-                }
                 
             }
             
@@ -1555,27 +1541,43 @@ class ApplicationController extends Controller
                 $dataArr['exam_name'] = $postData['exam_qualified_name'];
                 $dataArr['exam_score'] = $postData['exam_qualified_score'];
                 $dataArr['exam_qualified_val_up_to'] = $postData['exam_qualified_val_up_to'];
-                if(!empty($candidatesPHDResearchDetails)){
-                    if($candidatesPHDResearchDetails[0]['is_exam_qualified'] != $dataArr['is_exam_qualified'] || $candidatesPHDResearchDetails[0]['exam_name'] != $dataArr['exam_name'] || $candidatesPHDResearchDetails[0]['exam_score'] != $dataArr['exam_score'] || $candidatesPHDResearchDetails[0]['exam_qualified_val_up_to'] != $dataArr['exam_qualified_val_up_to']){
-                        $insertFlag = 2;
-                    }
-                }
                 
             }
-            /*echo "<pre>";
-            print_r($dataArr);
-            exit;*/
-            if($insertFlag == 2){
-                CandidatesPHDResearchDetails::where('candidate_id', $candidate_id)
-                                        ->where('candidate_job_apply_id', $candidateJobApplyID)
-                                        ->where('status', 1)
-                                        ->update(['status' => 3]);
+            // publications details
+            if(isset($postData['no_of_pub']) && !empty($postData['no_of_pub'])){
+                
+                $dataArr['no_of_pub'] = $postData['no_of_pub'];
+                $dataArr['no_of_first_author_pub'] = $postData['no_of_first_author_pub'];
+                $dataArr['no_of_cors_author_pub'] = $postData['no_of_cors_author_pub'];
+                $dataArr['no_of_pub_impact_fact'] = $postData['no_of_pub_impact_fact'];
+                $dataArr['no_of_citations'] = $postData['no_of_citations'];
+                
             }
-            if(isset($dataArr) && !empty($dataArr)){
-                $dataArr['candidate_id'] = $candidate_id;
-                $dataArr['job_id'] = $postData['job_id'];
-                $dataArr['candidate_job_apply_id'] = $candidateJobApplyID;
-                CandidatesPHDResearchDetails::create($dataArr);
+            /*
+                echo "<pre>";
+                print_r($dataArr);
+                exit;
+                */
+            if(!empty($dataArr)){    
+                if(!empty($candidatesPHDResearchDetails)){
+                    /*
+                    CandidatesPHDResearchDetails::where('candidate_id', $candidate_id)
+                                            ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                            ->where('status', 1)
+                                            ->update(['status' => 3]);
+                    */                        
+                    CandidatesPHDResearchDetails::where('candidate_id', $candidate_id)
+                                            ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                            ->where('status', 1)
+                                            ->update($dataArr);                        
+                }
+                else{
+                    $dataArr['candidate_id'] = $candidate_id;
+                    $dataArr['job_id'] = $postData['job_id'];
+                    $dataArr['candidate_job_apply_id'] = $candidateJobApplyID;
+                    
+                    CandidatesPHDResearchDetails::create($dataArr);
+                }
             }
 
             DB::commit();

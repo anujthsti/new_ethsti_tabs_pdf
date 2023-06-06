@@ -46,7 +46,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   $checkoutPaymentTabIdEnc = Helper::encodeId(6);  
   $checkoutTabTitle = "Payment";
   if($candidateJobApplyArr['is_final_submission_done'] == 1 && $is_final_submit_after_payment == 0){
-    if(isset($candidateJobApplyArr['is_payment_done'])){
+    if(isset($candidateJobApplyArr['is_payment_done']) && $candidateJobApplyArr['is_payment_done'] == 1){
         $checkoutPaymentRoute = route('pay_receipt', $candidateJobApplyEncID);
         $checkoutPaymentRouteUrl = $checkoutPaymentRoute."/".$checkoutPaymentTabIdEnc;
         $checkoutTabTitle = "Payment Receipt";
