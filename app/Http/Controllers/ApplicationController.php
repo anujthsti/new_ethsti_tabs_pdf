@@ -1712,7 +1712,8 @@ class ApplicationController extends Controller
                 $fileExtentionArr = ['pdf'];// should be array
                 $fileExtentionImageArr = ['jpg','JPG','jpeg','JPEG'];// should be array
                 //$candidateFolderName = "";
-                    
+                $errorMsgArr = [];
+                $isFileUploadError = 0;     
                 // category certificate upload start
                 if(!empty($request->file('category_certificate'))){
                     $fileData = $request->file('category_certificate');
@@ -1724,7 +1725,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['category_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1740,7 +1743,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['esm_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1756,7 +1761,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['pwd_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1772,7 +1779,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['candidate_photo'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1789,7 +1798,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['candidate_sign'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1806,7 +1817,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['fellowship_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1822,7 +1835,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['exam_qualified_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1838,7 +1853,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['id_card'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1854,7 +1871,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['age_proof'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1870,7 +1889,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['noc_certificate'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1886,7 +1907,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['stmt_proposal'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1902,7 +1925,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['candidate_cv'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1918,7 +1943,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['listpublication'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1934,7 +1961,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['publication'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -1950,7 +1979,9 @@ class ApplicationController extends Controller
                         $postCommonDocsArr['project_proposal'] = $fileName;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
-                        return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                        array_push($errorMsgArr,$errorMsg);
+                        $isFileUploadError = 1;
+                        //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                     }
                     
                 }
@@ -2002,7 +2033,9 @@ class ApplicationController extends Controller
                             }
                         }else{
                             $errorMsg = $fileUploadRetArr['msg'];
-                            return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                            array_push($errorMsgArr,$errorMsg);
+                            $isFileUploadError = 1;
+                            //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                         }
                     }
                 }
@@ -2037,7 +2070,9 @@ class ApplicationController extends Controller
                             }
                         }else{
                             $errorMsg = $fileUploadRetArr['msg'];
-                            return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                            array_push($errorMsgArr,$errorMsg);
+                            $isFileUploadError = 1;
+                            //return redirect()->back()->withInput()->with('file_error',$errorMsg);
                         }
                     }
                 }
@@ -2045,15 +2080,24 @@ class ApplicationController extends Controller
             }
 
             // update candidate is_document_upload_done
-            $jobApplyArr['is_document_upload_done'] = 1;
-            CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
+            if($isFileUploadError == 0){
+                $jobApplyArr['is_document_upload_done'] = 1;
+                CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
+            }
             // transactions commit
             DB::commit();
             //echo 11;exit;
-            $finalSubmitTabIdEnc = Helper::encodeId(5);  
-            $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
-            $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
-            return redirect($finalSubmitRouteUrl)->with('success','Documents uploaded.');
+            if($isFileUploadError == 0){
+                $finalSubmitTabIdEnc = Helper::encodeId(5);  
+                $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
+                $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
+                return redirect($finalSubmitRouteUrl)->with('success','Documents uploaded.');
+            }else{
+                $finalSubmitTabIdEnc = Helper::encodeId(4);  
+                $finalSubmitRoute = route('upload_candidate_documents', $candidateJobApplyEncID);
+                $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
+                return redirect($finalSubmitRouteUrl)->with('errorMsgArr',$errorMsgArr);
+            }
             
         }catch(\Exception $e){
             $errorMsg = $e->getMessage();
@@ -2147,12 +2191,14 @@ class ApplicationController extends Controller
         try{
             //CHECK FOR THE RESPONSE
             //$_REQUEST['msg'] = "THSTI|THSTI_3_JobFee_3_20230425092948|YCPH1857333605|311527275081|00000001.00|CPH|NA|10|INR|DIRECT|NA|NA|0.00|25-04-2023 15:00:05|0300|NA|kambojanuj@thsti.res.in|9999999999|Anuj|3|NA|NA|NA|NA|Success|43689AF4C8EB12BF644A1D098F8FF8A1A6E833FC0E12193C64742A9774E27D71";
+            //http://localhost/new_ethsti_tabs_pdf/application/payment_response?msg=THSTI|THSTI_3_JobFee_3_20230425092948|YCPH1857333605|311527275081|00000001.00|CPH|NA|10|INR|DIRECT|NA|NA|0.00|25-04-2023%2015:00:05|0300|NA|kambojanuj@thsti.res.in|9999999999|Anuj|3|NA|NA|NA|NA|Success|43689AF4C8EB12BF644A1D098F8FF8A1A6E833FC0E12193C64742A9774E27D71
             if(isset($_REQUEST['msg']))
             {	
                 $originalMsg = $_REQUEST['msg'];
                 $bd_res=explode("|",$originalMsg);			
-                //echo "<pre>";
-                //print_r($bd_res);
+                /*echo "<pre>";
+                print_r($bd_res);
+                exit;*/
                 $arr_count = sizeof($bd_res);
                 if($arr_count<26)
                 { 
@@ -2310,7 +2356,10 @@ class ApplicationController extends Controller
                                 //$result_jobs=@mysqli_query($conn,"UPDATE `apply_job` SET `txn_id`='".$txn_id."', `pay_st`='".$pay_st."' WHERE `id`='".$id."'");	
                                 //header("Location: https://thsti.in/bdpay/pay_receipt.php?bdcid='".$bdcid."'");  
                             }   
-                            return redirect()->route('pay_receipt', $jobApplyIdEnc)->with('success','Your payment completed. Please check status.');
+                            $finalSubmitTabIdEnc = Helper::encodeId(7);  
+                            $finalSubmitRoute = route('final_submission_after_payment', $jobApplyIdEnc);
+                            $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
+                            return redirect($finalSubmitRouteUrl)->with('success','Your payment completed. Please check status.');
                             /*    
                             else 
                             {   header('Location: https://thsti.in/bdpay/error.php?ercd=103'); }     

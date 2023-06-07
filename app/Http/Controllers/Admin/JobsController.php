@@ -1123,7 +1123,10 @@ class JobsController extends Controller
             'exam_center' => 'required',
             'is_exam_or_interview' => 'required'
         ]);
-        
+        $postData = $request->post();
+        echo "<pre>";
+        print_r($postData);
+        exit;
         return redirect()->back()->withInput();
         //->with('error_msg',$errorMsg)
         /*$data = $request->post();

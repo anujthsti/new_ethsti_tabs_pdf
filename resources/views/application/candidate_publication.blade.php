@@ -38,7 +38,7 @@
                 <thead>
                     <tr>
                         <th>Total number of publications</th>
-                        <th>Total number of first author publications</th>
+                        <th>Total number of publications as first author </th>
                         <th>Total number of publications as corresponding author</th>
                         <th>Total number of publications during the last five years in journals with impact factor > 5</th>
                         <th>Total number of citations</th>

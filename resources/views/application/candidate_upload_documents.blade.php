@@ -104,7 +104,13 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                     {{ session('file_error') }}
                 </div>
             @endif
-
+            @if(session('errorMsgArr'))
+                @foreach(session()->get('errorMsgArr') as $in)
+                    <div class="alert alert-danger mb-1 mt-1">
+                            {{$in}}
+                    </div>
+                @endforeach
+            @endif     
             <hr />          
             <!-- Files update fileds-->
             <!--------- Categories certificates starts ----------->

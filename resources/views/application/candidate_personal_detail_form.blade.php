@@ -182,7 +182,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
         ?>
         <div class="col-xs-12 col-sm-12 col-md-4">
           <div class="form-group">
-            <label for="full_name" class="form-label">Full Name</label>
+            <label for="full_name" class="form-label">Full Name <b>(as per the matriculation certificate)</b></label>
             <div class="row">
               <div class="col-xs-3 col-sm-3 col-md-3">
                 <select name='salutation' id='salutation' class="form-control" required="">  		 
