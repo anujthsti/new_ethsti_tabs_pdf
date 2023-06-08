@@ -11,7 +11,7 @@ $is_patent_tab = $jobValidations[0]['is_patent_tab'];
     $no_patents_filed_international = old('no_patents_filed_international');
     $no_patents_granted_international = old('no_patents_granted_international');
     if(isset($candidatesPHDResearchDetails) && !empty($candidatesPHDResearchDetails)){
-        $patent_check = 1;
+        $patent_check = $candidatesPHDResearchDetails[0]['is_have_patents'];
         $patent_information = $candidatesPHDResearchDetails[0]['patent_information'];
         $no_patents_filed_national = $candidatesPHDResearchDetails[0]['no_patents_filed_national'];
         $no_patents_granted_national = $candidatesPHDResearchDetails[0]['no_patents_granted_national'];
@@ -57,6 +57,12 @@ $is_patent_tab = $jobValidations[0]['is_patent_tab'];
 <!--End of Patent seection-->
 
 <script>
+
+    @if($patent_check == 1)
+        $('.patent_hide').show(); 
+    @else
+        $('.patent_hide').hide(); 
+    @endif
 //check patent
   $('.patent_check').click(function(){						
         if($(this).val()==1){ 

@@ -260,6 +260,7 @@ class ApplicationController extends Controller
 
         $from_date = $_POST['from_date'];
         $to_date = $_POST['to_date'];
+        $to_date = date("Y-m-d", strtotime($to_date." + 1 days"));
         $interval = date_diff(date_create($from_date), date_create($to_date));
         $calculatedExp = $interval->format("%Y Year, %M Months, %d Days");
         return $calculatedExp;
@@ -661,15 +662,15 @@ class ApplicationController extends Controller
                     
                     // update is_phd_details_done to 1 - completed
                     $jobApplyArr['is_phd_details_done'] = 1;
-                    if(isset($postData['pub_check']) && !empty($postData['pub_check'])){
+                    if(isset($postData['pub_check'])){
                         $jobApplyArr['is_publication'] = $postData['pub_check'];
                     }
+                    //print_r($jobApplyArr);exit;
                     // update candidate job apply details
                     CandidatesJobsApply::where('id', $candidateJobApplyID)
                                         ->update($jobApplyArr);
                     // update candidate PHD Research details end
                 }
-                
                 // update candidate PHD Research details start
                 $retData = $this->update_candidate_phd_research_details($postData, $candidate_id, $candidateJobApplyID);
                 if($retData['status'] == 'error'){
@@ -874,8 +875,10 @@ class ApplicationController extends Controller
                 $esm_check = $postData['esm_check'];
                 $jobApplyArr['is_ex_serviceman'] = $esm_check;
                 $jobApplyArr['is_esm_reservation_avail'] = 0;
+                $jobApplyArr['date_of_release'] = 0;
                 if($esm_check == 1){
                     $jobApplyArr['is_esm_reservation_avail'] = $postData['is_esm_reservation_avail'];
+                    $jobApplyArr['date_of_release'] = $postData['date_of_release'];
                 }
             }
             if(isset($postData['pwd_check'])){
@@ -1509,12 +1512,15 @@ class ApplicationController extends Controller
                 $dataArr['no_patents_filed_international'] = $postData['no_patents_filed_international'];
                 $dataArr['no_patents_granted_international'] = $postData['no_patents_granted_international'];
                 
+            }else{
+                $dataArr['is_have_patents'] = 0;
             }
              
             if(isset($postData['rs_check']) && $postData['rs_check'] == 1){
                 $dataArr['is_submitted_research_statement'] = 1;
                 $dataArr['research_statement'] = $postData['research_statement'];
-                
+            }else{
+                $dataArr['is_submitted_research_statement'] = 0;
             }
             
              
@@ -1643,6 +1649,7 @@ class ApplicationController extends Controller
                                                   ->where('status', 1)
                                                   ->get(['candidates_academics_details.*'])
                                                   ->toArray();
+        $academicDetails = $candidateAcademicsDetails;                                          
 
         $candidateExperienceDetails = CandidatesExperienceDetails::where('candidate_job_apply_id', $candidateJobApplyID)
                                                   ->where('status', 1)
@@ -1674,7 +1681,7 @@ class ApplicationController extends Controller
         echo "<pre>";
         print_r($candidateJobApplyDetail);
         exit;*/
-        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId','formTabIdEnc','jobValidations'));
+        return view('application.candidate_upload_documents',compact('candidateJobApplyDetail','retData','candidateJobApplyEncID','candidateAcademicsDetails','academicDetails','candidateExperienceDetails','candidatePHDResearchDetails','captcha_code','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDocuments','formTabId','formTabIdEnc','jobValidations'));
 
     }
 
@@ -1705,7 +1712,7 @@ class ApplicationController extends Controller
                 //$destinationParentFolderPath = "public/upload/candidates_documents";
                 $destinationParentFolderPath = config('app.candidates_docs_path');
                 $destinationParentFolderPath .= "/".$candidateJobApplyID;
-                $maxFileSize200KB = 200*1024;// 200 KB
+                $maxFileSize200KB = 500*1024;// 200 KB
                 $maxFileSize50KB = 100*1024;// 50 KB
                 $maxFileSize10KB = 100*1024;// 10 KB
                 $maxFileSize500KB = 500*1024;// 10 KB
@@ -1713,7 +1720,8 @@ class ApplicationController extends Controller
                 $fileExtentionImageArr = ['jpg','JPG','jpeg','JPEG'];// should be array
                 //$candidateFolderName = "";
                 $errorMsgArr = [];
-                $isFileUploadError = 0;     
+                $isFileUploadError = 0;
+                $isDocsUploaded = 0;     
                 // category certificate upload start
                 if(!empty($request->file('category_certificate'))){
                     $fileData = $request->file('category_certificate');
@@ -1723,6 +1731,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['category_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1741,6 +1750,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['esm_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1759,6 +1769,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['pwd_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1777,6 +1788,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['candidate_photo'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1796,6 +1808,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['candidate_sign'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1815,6 +1828,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['fellowship_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1833,6 +1847,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['exam_qualified_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1851,6 +1866,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['id_card'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1869,6 +1885,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['age_proof'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1887,6 +1904,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['noc_certificate'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1905,6 +1923,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['stmt_proposal'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1923,6 +1942,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['candidate_cv'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1941,6 +1961,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['listpublication'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1959,6 +1980,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['publication'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -1977,6 +1999,7 @@ class ApplicationController extends Controller
                     if($fileUploadRetArr['status'] == 1){
                         $fileName = $fileData->getClientOriginalName();
                         $postCommonDocsArr['project_proposal'] = $fileName;
+                        $isDocsUploaded = 1;
                     }else{
                         $errorMsg = $fileUploadRetArr['msg'];
                         array_push($errorMsgArr,$errorMsg);
@@ -2031,6 +2054,7 @@ class ApplicationController extends Controller
                             }else{
                                 CandidatesAcademicsDocuments::where('id', $existingAcademicsDocs[0]['id'])->update($postAcademicDocsArr);
                             }
+                            $isDocsUploaded = 1;
                         }else{
                             $errorMsg = $fileUploadRetArr['msg'];
                             array_push($errorMsgArr,$errorMsg);
@@ -2068,6 +2092,7 @@ class ApplicationController extends Controller
                             }else{
                                 CandidatesExperienceDocuments::where('id', $existingExperienceDocs[0]['id'])->update($postExperienceDocsArr);
                             }
+                            $isDocsUploaded = 1;
                         }else{
                             $errorMsg = $fileUploadRetArr['msg'];
                             array_push($errorMsgArr,$errorMsg);
@@ -2080,14 +2105,14 @@ class ApplicationController extends Controller
             }
 
             // update candidate is_document_upload_done
-            if($isFileUploadError == 0){
+            if($isFileUploadError == 0 && $isDocsUploaded = 1){
                 $jobApplyArr['is_document_upload_done'] = 1;
                 CandidatesJobsApply::where('id', $candidateJobApplyID)->update($jobApplyArr);
             }
             // transactions commit
             DB::commit();
             //echo 11;exit;
-            if($isFileUploadError == 0){
+            if($isFileUploadError == 0 && $isDocsUploaded = 1){
                 $finalSubmitTabIdEnc = Helper::encodeId(5);  
                 $finalSubmitRoute = route('preview_application_final_submit', $candidateJobApplyEncID);
                 $finalSubmitRouteUrl = $finalSubmitRoute."/".$finalSubmitTabIdEnc;
@@ -2119,7 +2144,8 @@ class ApplicationController extends Controller
                                                         ->toArray();
         $candidateData = [];    
         $amountToPay = "";   
-        $jobValidations = [];                                         
+        $jobValidations = [];    
+        $academicDetails = [];                                     
         if(!empty($candidateJobApplyDetail)){
             $category_id = $candidateJobApplyDetail[0]['category_id'];
             $job_id = $candidateJobApplyDetail[0]['job_id'];
@@ -2145,11 +2171,19 @@ class ApplicationController extends Controller
                                                     ->get(['job_validation.is_publication_tab','job_validation.is_patent_tab','job_validation.is_research_tab','job_validation.is_proposal_tab'])
                                                     ->toArray(); 
             }
+
+            // get candidate existing education details
+            $academicDetails = CandidatesAcademicsDetails::orderBy('id','asc')
+                                                         ->where('candidate_id', $candidate_id)
+                                                         ->where('job_id', $job_id)
+                                                         ->where('status', 1)
+                                                         ->get(['candidates_academics_details.*'])
+                                                         ->toArray();
             
         }      
         
 
-        return view('application.checkout', compact('candidateJobApplyDetail','candidateData','candidateJobApplyID','amountToPay','encJobApplyId','formTabIdEnc','jobValidations','candidateJobApplyEncID'));
+        return view('application.checkout', compact('candidateJobApplyDetail','academicDetails','candidateData','candidateJobApplyID','amountToPay','encJobApplyId','formTabIdEnc','jobValidations','candidateJobApplyEncID'));
 
     }
 

@@ -1,4 +1,5 @@
 <?php
+$isFinalSubmissionPage = 1;
 $page_title = "Candidate Details";
 ?>
 @include('application.header')
@@ -161,6 +162,7 @@ $page_title = "Candidate Details";
             $is_pwd = $candidateJobApplyDetail[0]['is_pwd']; 
             $is_ex_serviceman = $candidateJobApplyDetail[0]['is_ex_serviceman'];
             $is_esm_reservation_avail = $candidateJobApplyDetail[0]['is_esm_reservation_avail'];
+            $date_of_release = $candidateJobApplyDetail[0]['date_of_release'];
             $is_govt_servent = $candidateJobApplyDetail[0]['is_govt_servent'];
             $age = $candidateJobApplyDetail[0]['age_calculated'];
             $category_id = $candidateJobApplyDetail[0]['category_id'];
@@ -243,7 +245,7 @@ $page_title = "Candidate Details";
                 <?php  
                 $submitBtnTitle = "Proceed to Pay Now";
                 if(isset($final_submission_after_payment) && $final_submission_after_payment == 1){
-                    $submitBtnTitle = "Final Submit";
+                    $submitBtnTitle = "Final Submition";
                 ?>
                 <!-- payment transaction details start -->
                 @include('hr_shortlisting.candidate_payment_detail')

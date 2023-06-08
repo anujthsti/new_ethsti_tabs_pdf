@@ -117,7 +117,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             <?php 
             if($isTrainProgram == 0 && !in_array($castCategoryId, $castCategoryGenIdArr) || $is_pwd == 1){
             ?>
-                <div class="text-primary h4">Upload Certificates (.pdf file only and Size less than <span class="text-danger">200KB</span>)
+                <div class="text-primary h4">Upload Certificates (.pdf file only and Size less than <span class="text-danger">500KB</span>)
                 <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['category_certificate']))){  ?> 
                     <i class="fa fa-edit text-danger" id="categories_edit">Edit</i>
                     <i class="fa fa-undo text-danger" id="categories_undo" style="display:none;">Cancel</i>
@@ -199,7 +199,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 }
                 ?>
                 <div class="text-primary h4">
-                    Upload Academics Certificates/ Degrees (.pdf file only and Size less than <span class="text-danger">200KB</span>)
+                    Upload Academics Certificates/ Degrees (.pdf file only and Size less than <span class="text-danger">500KB</span>)
                     <?php if(!empty($existingAcademicDocsIds)){ ?> 
                         <i class="fa fa-edit text-danger" id="academic_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="academic_undo" style="display:none;">Cancel</i>
@@ -246,7 +246,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                     $existingExperienceDocsIds = array_column($candidatesExperienceDocuments,'candidate_experience_detail_id');
                 }
             ?> 
-                <div class="text-primary h4">Upload Experience Certificates (.pdf file only and Size less than <span class="text-danger">200KB</span>)
+                <div class="text-primary h4">Upload Experience Certificates (.pdf file only and Size less than <span class="text-danger">500KB</span>)
                     <?php if(!empty($existingExperienceDocsIds)){?> 
                         <i class="fa fa-edit text-danger" id="exp_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="exp_undo" style="display:none;">Cancel</i>
@@ -297,7 +297,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 <div class="col-lg-12 col-md-12 col-sm-12 mb-5">                       
                     <div class="form-group" id="img_attachements_id">              
                         <div class="form-group row">
-                            <label for="passport_photo" class="col-lg-6 col-md-6 col-sm-6">Upload passport size Photograph (200 x 250) of maximum  <span class="text-danger h5">100 KB</span></label>   
+                            <label for="passport_photo" class="col-lg-6 col-md-6 col-sm-6">Upload passport size Photograph of maximum  <span class="text-danger h5">100 KB</span></label>   
                             <input name="passport_photo" type="file" id="passport_photo" class="col-lg-4 images" style="display:none;" />                               
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_photo']))){ 
@@ -312,7 +312,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                             <?php } ?>
                         </div>
                         <div class="form-group row">
-                            <label for="passport_sig" class="col-lg-6 col-md-6 col-sm-6">Upload Signature (150 x 100) of  maximum <span class="text-danger h5">100 KB</span></label>
+                            <label for="passport_sig" class="col-lg-6 col-md-6 col-sm-6">Upload Signature of  maximum <span class="text-danger h5">100 KB</span></label>
                             <input name="passport_sig" type="file" id="passport_sig" class="col-lg-4 images" style="display:none;" />
                             <?php 
                             if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['candidate_sign']))){ 
@@ -335,7 +335,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 <!--------- Fellowship document upload start ------->  
                 <?php if(isset($candidatePHDResearchDetails[0]['funding_agency']) && !empty($candidatePHDResearchDetails[0]['funding_agency'])){ ?> 
                     <div class="text-primary h4">
-                        Fellowship/Certificate Attachments (.pdf file only and Size less than <span class="text-danger">200KB</span>) 
+                        Fellowship/Certificate Attachments (.pdf file only and Size less than <span class="text-danger">500KB</span>) 
                         <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['fellowship_certificate']))){ ?>
                         <i class="fa fa-edit text-danger" id="fellowship_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="fellowship_undo" style="display:none;">Cancel</i>
@@ -365,7 +365,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 <!--------- Exam Qualified document upload start ------->
                 <?php if(isset($candidatePHDResearchDetails[0]['exam_name']) && !empty($candidatePHDResearchDetails[0]['exam_name'])){ ?>    
                     <div class="text-primary h4">
-                        Exam Qualified (.pdf file only and Size less than <span class="text-danger">200KB</span>) 
+                        Exam Qualified (.pdf file only and Size less than <span class="text-danger">500KB</span>) 
                         <?php if(!empty($candidatesCommonDocuments) && (!empty($candidatesCommonDocuments[0]['exam_qualified_certificate']))){ ?>    
                         <i class="fa fa-edit text-danger" id="exam_qualified_edit">Edit</i>
                         <i class="fa fa-undo text-danger" id="exam_qualified_undo" style="display:none;">Cancel</i>
@@ -870,7 +870,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var img_size=$(this)[0].files[0].size/1024;		
             var ext=$(this)[0].files[0].type;
             if(ext=='image/jpeg' || ext=='image/jpg' || ext=='image/JPEG' || ext=='image/JPG')
-            {	if(img_size>50){ alert("Maximum file size is 50KB"); $(this).val(''); $(this).focus();  } }
+            {	if(img_size>100){ alert("Maximum file size is 100KB"); $(this).val(''); $(this).focus();  } }
             else
             { alert("Please upload Image format (.jpeg, .jpg) only"); $(this).val(''); $(this).focus();  }
         });
@@ -879,7 +879,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var img_size=$(this)[0].files[0].size/1024;		
             var ext=$(this)[0].files[0].type;
             if(ext=='image/jpeg' || ext=='image/jpg' || ext=='image/JPEG' || ext=='image/JPG')
-            {	if(img_size>10){ alert("Maximum file size is 10KB"); $(this).val(''); $(this).focus();  } }
+            {	if(img_size>100){ alert("Maximum file size is 100KB"); $(this).val(''); $(this).focus();  } }
             else
             { alert("Please upload Image format (.jpeg, .jpg) only"); $(this).val(''); $(this).focus();  }
         }); 
@@ -899,7 +899,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            { if(file_size>200){ alert("Maximum file size is 200KB"); $(this).val(''); $(this).focus();  } }
+            { if(file_size>500){ alert("Maximum file size is 500KB"); $(this).val(''); $(this).focus();  } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();  }
             
@@ -909,7 +909,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')	
-            { if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus(); }  }
+            { if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus(); }  }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();  }
         });
@@ -918,7 +918,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            { if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus();  } }
+            { if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus();  } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();  } 	  
         });
@@ -927,7 +927,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            {	if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus(); } }
+            {	if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus(); } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();   }
         });
@@ -936,7 +936,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            {	if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus(); } }
+            {	if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus(); } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();   }
         });
@@ -945,7 +945,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            {	if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus(); } }
+            {	if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus(); } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();   }
         });      
@@ -954,7 +954,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             var file_size=$(this)[0].files[0].size/1024;	
             var ext=$(this)[0].files[0].type;
             if(ext=='application/pdf')
-            {	if(file_size>200){ alert("Maximum file size is 200KB");  $(this).val(''); $(this).focus();  } }
+            {	if(file_size>500){ alert("Maximum file size is 500KB");  $(this).val(''); $(this).focus();  } }
             else
             { alert("Please upload PDF only"); $(this).val(''); $(this).focus();  }
         });

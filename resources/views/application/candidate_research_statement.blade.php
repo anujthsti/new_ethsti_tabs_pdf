@@ -7,7 +7,7 @@ $is_research_tab = $jobValidations[0]['is_research_tab'];
     $rs_check = old('rs_check');
     $research_statement = old('research_statement');
     if(isset($candidatesPHDResearchDetails) && !empty($candidatesPHDResearchDetails)){
-        $rs_check = 1;
+        $rs_check = $candidatesPHDResearchDetails[0]['is_submitted_research_statement'];
         $research_statement = $candidatesPHDResearchDetails[0]['research_statement'];
     }
     ?>
@@ -30,6 +30,11 @@ $is_research_tab = $jobValidations[0]['is_research_tab'];
 <!--End of Patent section-->
 
 <script>
+     @if($rs_check == 1)
+        $('#rs_hide').show(); 
+    @else
+        $('#rs_hide').hide(); 
+    @endif
   //check research statement
   $('.rs_check').click(function(){						
         if($(this).val()==1){ 

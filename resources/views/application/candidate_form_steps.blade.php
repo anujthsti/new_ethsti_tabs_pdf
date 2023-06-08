@@ -19,9 +19,17 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
   }
   // qualification & experience information url end
   // phd detail information url start
+  $isPHDEduSelected = 0;
+  if(isset($academicDetails) && !empty($academicDetails)){
+    $educationIds = array_column($academicDetails, 'education_id');
+    if(in_array(18, $educationIds)){
+        $isPHDEduSelected = 1;
+    }
+  }
   $phdDetailsRouteUrl = "#";
   $phdTabIdEnc = Helper::encodeId(3);  
-  if($is_publication_tab == 1 && $candidateJobApplyArr['is_qualification_exp_done'] == 1 && $is_final_submit_after_payment == 0){
+  $is_publication_tab = 0;
+  if($candidateJobApplyArr['is_qualification_exp_done'] == 1 && $is_final_submit_after_payment == 0 && ($is_publication_tab == 1 || $isPHDEduSelected == 1)){
     $phdDetailsRouteUrl = $candidateJobFormUrl."/".$phdTabIdEnc;
   }
   // phd detail information url end
@@ -138,7 +146,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     <li class="<?php echo $qualificationExpClass; ?>">
         <a href="<?php echo $qualificationExperienceRouteUrl; ?>">Qualification & Experience</a>
     </li>  
-    @if($is_publication_tab == 1)  
+    @if($is_publication_tab == 1 || $isPHDEduSelected == 1)  
     <li class="<?php echo $phdDetailClass; ?>">
         <a href="<?php echo $phdDetailsRouteUrl; ?>">Research Credentials</a>
     </li>

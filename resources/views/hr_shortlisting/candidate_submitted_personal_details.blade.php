@@ -195,6 +195,16 @@
                                         </tr>
                                         <?php if($is_ex_serviceman == 1){ ?>
                                         <tr>
+                                            <td align="left">Date of release</td>
+                                            <td colspan="3" align="left">
+                                                <?php 
+                                                if(isset($date_of_release) && !empty($date_of_release)){
+                                                    echo Helper::convertDateYMDtoDMY($date_of_release); 
+                                                }
+                                                ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="left">Have you avail the reservation available to ESM in civil side?</td>
                                             <td colspan="3" align="left">
                                                 <input <?php if($is_esm_reservation_avail==0){echo "checked='checked'";} else{echo "disabled='disabled'";} ?> type="radio"  readonly="readonly" />No&nbsp;

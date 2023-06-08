@@ -110,7 +110,7 @@
     ?>    
     <div class="row">                            
         <div class="col-12" id="exam_qualified">
-            <label class="form-check-label mr-1" >Any Exam Qualified?</label> 
+            <label class="form-check-label mr-1" >Any National Fellowship Exam Qualified?</label> 
             <input name="exam_qualified" class="exam_qualified" checked type="radio" value="0" <?php echo ($exam_qualified==0)?'checked':''; ?> />
             <label class="form-check-label ml-1 mr-1">No</label>
             <input name="exam_qualified" class="exam_qualified" type="radio" value="1" <?php echo ($exam_qualified==1)?'checked':''; ?> />

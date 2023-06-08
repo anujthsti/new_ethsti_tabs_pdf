@@ -12,7 +12,7 @@
     $no_of_citations = old('no_of_citations');
     
     if(isset($candidatesPHDResearchDetails) && !empty($candidatesPHDResearchDetails)){
-        $pub_check = 1;
+        $pub_check = $candidateJobApplyDetail[0]['is_publication'];
         $no_of_pub = $candidatesPHDResearchDetails[0]['no_of_pub'];
         $no_of_first_author_pub = $candidatesPHDResearchDetails[0]['no_of_first_author_pub'];
         $no_of_cors_author_pub = $candidatesPHDResearchDetails[0]['no_of_cors_author_pub'];
@@ -25,7 +25,7 @@
         <div class="form-group form-row col-12">
             <label class="form-check-label mr-1">Do you have publication/s?</label> 
             <div class="form-check form-check-inline">
-                <input name="pub_check" class="pub_check" type="radio" checked value="0" <?php echo ($pub_check==0)?'checked':'disabled'; ?> />
+                <input name="pub_check" class="pub_check" type="radio" checked value="0" <?php echo ($pub_check==0)?'checked':''; ?> />
                 <label class="form-check-label ml-1 mr-1">No</label> 
                 <input name="pub_check" class="pub_check" type="radio" value="1" <?php echo ($pub_check==1)?'checked':''; ?> />
                 <label class="form-check-label ml-1 mr-1">Yes</label> 
@@ -63,6 +63,11 @@
 
 <script>
     
+    @if($pub_check == 1)
+        $('#pub_hide').show(); 
+    @else
+        $('#pub_hide').hide(); 
+    @endif
     //check publication
     $('.pub_check').click(function(){						
         if($(this).val()==1){ 

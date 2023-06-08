@@ -203,6 +203,7 @@
                     $is_pwd = $candidateApplyDetails[0]['is_pwd']; 
                     $is_ex_serviceman = $candidateApplyDetails[0]['is_ex_serviceman'];
                     $is_esm_reservation_avail = $candidateApplyDetails[0]['is_esm_reservation_avail'];
+                    $date_of_release = $candidateJobApplyDetail[0]['date_of_release'];
                     $is_govt_servent = $candidateApplyDetails[0]['is_govt_servent'];
                     $age = $candidateApplyDetails[0]['age_calculated'];
                     $category_id = $candidateApplyDetails[0]['category_id'];

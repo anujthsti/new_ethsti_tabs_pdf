@@ -12,6 +12,16 @@
                         <span class="span" style="font-size:13x;">(An Autonomous Institute of the  Department of Biotechnology, Govt. of India)</span>
                     </td>
                 </tr>
+                <?php 
+                if(isset($isFinalSubmissionPage) && $isFinalSubmissionPage == 1){
+                ?>
+                <tr>
+                    <td colspan="3" align="center" valign="top"><h3 class="h3">Online Application Form</h3></td>
+                </tr>
+                <?php    
+                }else{ 
+                ?>
                 <tr>
                     <td colspan="3" align="center" valign="top"><h3 class="h3">Online Registration Form</h3></td>
                 </tr>
+                <?php } ?>

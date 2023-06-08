@@ -134,7 +134,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
     // on click add new row button
     $("#edu_add_id").click(function(){
         let flag = true;
-        $('.exam_pass:visible, .yr_pass:visible, .subject:visible, .board:visible, .percent:visible, .cgpa:visible, .division:visible, .duration_of_course:visible').each(function(){
+        $('.exam_pass:visible, .yr_pass:visible, .subject:visible, .board:visible, .division:visible, .duration_of_course:visible').each(function(){
             if($(this).val()=='')
             {
                 alert("Enter the value");
@@ -451,7 +451,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
             required = 'required=""';
         }
         let html = '<div class="form-group">';
-            html += '<input '+required+' value="'+percentRoundoffVal+'" name="percent[]" type="number" autocomplete="off"  maxlength="2" class="percent form-control">';
+            html += '<input value="'+percentRoundoffVal+'" name="percent[]" type="number" autocomplete="off"  maxlength="2" class="percent form-control">';
             html += '</div>';
         return html;    
     }
@@ -464,7 +464,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
             required = 'required=""';
         }
         let html = '<div class="form-group">';
-            html += '<input '+required+' value="'+cgpaVal+'" name="cgpa[]" type="text" autocomplete="off" class="cgpa form-control" maxlength="3">';
+            html += '<input value="'+cgpaVal+'" name="cgpa[]" type="text" autocomplete="off" class="cgpa form-control" maxlength="3">';
             html += '</div>';
         return html;    
     }

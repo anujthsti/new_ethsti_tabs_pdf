@@ -34,6 +34,7 @@ $permanent_state = old('permanent_state');
 $permanent_city = old('permanent_city');
 $permanent_pincode = old('permanent_pincode');
 $marital_status = old('marital_status');
+$date_of_release = old('date_of_release');
 
 if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     $candidateDetails = $candidateJobApplyDetail[0];
@@ -52,6 +53,7 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     $gender_id = $candidateDetails['gender'];
     $esm_check = $candidateDetails['is_ex_serviceman'];
     $is_esm_reservation_avail = $candidateDetails['is_esm_reservation_avail'];
+    $date_of_release = $candidateDetails['date_of_release'];
     $is_govt_servent = $candidateDetails['is_govt_servent'];
     $type_of_employment = $candidateDetails['type_of_employment']; 
     $type_of_employer = $candidateDetails['type_of_employer'];
@@ -316,6 +318,10 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
             @error('esm_check')
               <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
             @enderror
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-4 is_esm_reservation_avail_div">
+              <label for="esm_check" class="form-label">Date of release</label><br>
+              <input required="" class="form-control" name="date_of_release" type="date" id="date_of_release" value="<?php echo $date_of_release; ?>" placeholder="DD-MM-YYYY" />
           </div>
           <!-- Is Ex-serviceman reservation avail start -->
           <div class="col-xs-12 col-sm-12 col-md-4 is_esm_reservation_avail_div">
