@@ -120,7 +120,7 @@ if (request()->routeIs('companies.*')) {
                 </div>
                 <div class="form-group col-12" align="center">
                   <input class="btn btn-primary col-lg-2 col-md-2 col-sm-3" id="draft" type="button" value="Verify Form" />&nbsp;
-                  <input class="btn btn-success col-1" style="display:none;" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();" />
+                  <input class="btn btn-success col-lg-2 col-md-2 col-sm-3" style="display:none;" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();" />
                 </div>                
             </div>
             <!-- captcha & submit button section end -->

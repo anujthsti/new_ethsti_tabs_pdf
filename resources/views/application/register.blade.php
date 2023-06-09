@@ -173,7 +173,7 @@ $is_register_form = 1;
           else{ 
               $('#submit').show(); 
           }
-          alert("Your form has been verified!!!!");	  
+          alert("Your form has been verified, kindly click on update button to proceed.");	  
           return true;	
       }
   });

@@ -875,7 +875,7 @@ class ApplicationController extends Controller
                 $esm_check = $postData['esm_check'];
                 $jobApplyArr['is_ex_serviceman'] = $esm_check;
                 $jobApplyArr['is_esm_reservation_avail'] = 0;
-                $jobApplyArr['date_of_release'] = 0;
+                //$jobApplyArr['date_of_release'] = 0;
                 if($esm_check == 1){
                     $jobApplyArr['is_esm_reservation_avail'] = $postData['is_esm_reservation_avail'];
                     $jobApplyArr['date_of_release'] = $postData['date_of_release'];

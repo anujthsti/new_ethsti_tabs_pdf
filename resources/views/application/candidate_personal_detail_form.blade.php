@@ -321,7 +321,7 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
           </div>
           <div class="col-xs-12 col-sm-12 col-md-4 is_esm_reservation_avail_div">
               <label for="esm_check" class="form-label">Date of release</label><br>
-              <input required="" class="form-control" name="date_of_release" type="date" id="date_of_release" value="<?php echo $date_of_release; ?>" placeholder="DD-MM-YYYY" />
+              <input class="form-control" name="date_of_release" type="date" id="date_of_release" value="<?php echo $date_of_release; ?>" placeholder="DD-MM-YYYY" />
           </div>
           <!-- Is Ex-serviceman reservation avail start -->
           <div class="col-xs-12 col-sm-12 col-md-4 is_esm_reservation_avail_div">
@@ -762,8 +762,10 @@ $typeOfEmployerArr = Helper::getCodeNamesByMasterCode('type_of_employer');
       $('input:radio[name="esm_check"]').change(function(){
           if($(this).val() == 1){
             $('.is_esm_reservation_avail_div').show();
+            $("#date_of_release").addAttr("disabled");	
           }else{
             $('.is_esm_reservation_avail_div').hide();
+            $("#date_of_release").removeAttr("disabled");	
           }
       });
       

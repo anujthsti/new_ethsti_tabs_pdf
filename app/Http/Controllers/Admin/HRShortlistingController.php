@@ -136,6 +136,7 @@ class HRShortlistingController extends Controller
         $candidateApplyDetails = CandidatesJobsApply::join('jobs','jobs.id','=','candidates_jobs_apply.job_id')
                                                     ->where('candidates_jobs_apply.id', $job_apply_id)
                                                     ->get(['candidates_jobs_apply.*','jobs.age_limit_as_on_date','jobs.age_limit','jobs.job_validation_id']);
+        $candidateJobApplyDetail = $candidateApplyDetails;                                            
         $rnNoEncId = "";
         $jobEncId = "";
         if(isset($candidateApplyDetails) && !empty($candidateApplyDetails)){
@@ -208,7 +209,7 @@ class HRShortlistingController extends Controller
         $hRRemarks = HRRemarks::get(['apply_job_hr_remarks.*'])->toArray();
         // get all code_names join with code_master
         $masterDataArr = Helper::getCodeNames();
-        return view("hr_shortlisting/candidate_print",compact('candidateApplyDetails','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','feeTransactions','hRRemarks','candidatesJobHRRemarks','job_apply_id_enc','previousRec','nextRec','rnNoEncId','jobEncId','jobAgeRelaxation','jobExperienceValidation','jobEducationValidation'));
+        return view("hr_shortlisting/candidate_print",compact('candidateApplyDetails','candidateJobApplyDetail','masterDataArr','jobDetails','candidateDetails','candidateAcademicsDetails','candidatesAcademicsDocuments','candidatesCommonDocuments','candidatesExperienceDetails','candidatesExperienceDocuments','candidatesPublicationsDetails','candidatesPHDResearchDetails','candidatesRefreeDetails','feeTransactions','hRRemarks','candidatesJobHRRemarks','job_apply_id_enc','previousRec','nextRec','rnNoEncId','jobEncId','jobAgeRelaxation','jobExperienceValidation','jobEducationValidation'));
     }
 
     public function save_candidate_shortlisting(Request $request, $job_apply_id_enc){
