@@ -129,8 +129,11 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         
         Route::get('edit_exam_center_mapping/{id?}/{jobId?}','add_exam_center_mapping')->name('edit_exam_center_mapping');
         Route::get('delete_exam_center_mapping/{id?}/{jobId?}','delete_exam_center_mapping')->name('delete_exam_center_mapping');
-        Route::get('exam_interview_shift/{jobId?}','exam_interview_shift')->name('exam_interview_shift');
-        Route::post('save_exam_interview_shift/{jobId?}','save_exam_interview_shift')->name('save_exam_interview_shift');
+        Route::get('exam_interview_shift/{jobId?}/{exam_center_map_id?}/{shift_for_id?}','exam_interview_shift')->name('exam_interview_shift');
+        Route::post('save_exam_interview_shift/{jobId?}/{exam_center_map_id?}/{shift_for_id?}','save_exam_interview_shift')->name('save_exam_interview_shift');
+        
+        Route::get('candidate_center_mapping/{jobId?}/{exam_center_map_id?}/{shift_for_id?}/{shift_id?}','candidate_center_mapping')->name('candidate_center_mapping');
+        Route::post('save_candidate_center_mapping/{jobId?}/{exam_center_map_id?}/{shift_for_id?}/{shift_id?]','save_candidate_center_mapping')->name('save_candidate_center_mapping');
         
         
         // routes for exam center mapping end

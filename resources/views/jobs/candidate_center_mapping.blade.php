@@ -2,22 +2,24 @@
 $title = "Exam or Interview shifts";
 $center_map_id = $exam_center_map_id;
 $is_exam_or_interview = $shift_for_id;
-$exam_int_date = [];
-$reporting_time = [];
 
+/*
 if(isset($existedShiftInfo) && !empty($existedShiftInfo)){
     $center_map_id = $existedShiftInfo[0]['exam_center_map_id'];
     $is_exam_or_interview = $existedShiftInfo[0]['is_exam_or_interview'];
     $exam_int_date = array_column($existedShiftInfo, 'reporting_date');
     $reporting_time = array_column($existedShiftInfo, 'reporting_time');
 }
-
-$form_action = route("save_exam_interview_shift")."/".$jobId;
-if(!empty($center_map_id)){
-    $form_action .= "/".$center_map_id;
+*/
+$form_action = route("save_candidate_center_mapping")."/".$jobId;
+if(!empty($exam_center_map_id)){
+    $form_action .= "/".$exam_center_map_id;
 }
-if(!empty($is_exam_or_interview)){
-    $form_action .= "/".$is_exam_or_interview;
+if(!empty($shift_for_id)){
+    $form_action .= "/".$shift_for_id;
+}
+if(!empty($shift_id)){
+    $form_action .= "/".$shift_id;
 }
 ?>
 <x-app-layout>
@@ -90,34 +92,58 @@ if(!empty($is_exam_or_interview)){
                         @enderror
                     </div>
                 </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Shifts</label>
+                        <select name="exam_center_shifts" class="form-control select2 exam_center_shifts">
+                            <option></option>
+                            @foreach($existedShiftInfo as $shift)
+                                <?php
+                                $selected = "";
+                                if($shift['id'] == $shift_id){
+                                    $selected = "selected=selected";
+                                }
+                                ?>
+                                <option value="{{ $shift['id'] }}" {{ $selected }}>{{ $shift['reporting_date'] }} -- {{ $shift['reporting_time'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('exam_center_shifts')
+                        <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>    
             
+            
             <!-- shifts block start -->         
-            <div class="row">                      
-                <div id="acad_id" class="col-lg-12 col-md-12">
-                    <div class="text-primary h4">Exam Center Shifts</div>
+                    <div class="text-primary h4">Candidates List</div>
                     <table class="table table-bordered table-hover table-sm table-responsive-lg" id="shifts_table" >
                         <thead class="bg-light">
                             <tr>
-                                <th>Exam Date</th>
-                                <th>Reporting Time</th>
+                                <th><input type="checkbox" id="selectAll" name="selectAll" value="1" /> Select All</th>
+                                <th>Sr. No.</th>
+                                <th>Candidate Name</th>
+                                <th>Email</th>
                             </tr> 
                         </thead>     
                         <tbody id="shiftsDetailsBody">
-                            
+                            @foreach($candidatesList as $index=>$list)
+                                <?php $srNo = $index + 1; ?>
+                                <tr>
+                                    <td><input type="checkbox" class="candidates_checkboxes" name="candidates[]" value="{{ $list['id'] }}" /></td>
+                                    <td>{{ $srNo }}</td>
+                                    <td>{{ $list['full_name'] }}</td>
+                                    <td>{{ $list['email_id'] }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>            
                     </table>                                    
-                </div>
-                <div class="col-12 text-right">
-                    <button class="btn btn-primary" type="button" id="shift_add_id">Add</button>&nbsp;
-                    <button class="btn btn-primary" type="button" id="shift_rem_id">Remove</button>&nbsp;
-                    <button class="btn btn-primary" type="button" id="shift_clear" >Clear</button>
-                </div>	
-            </div>	            	       	                        
+                      	       	                        
             <!-- shifts block end -->
-            <div class="col-xs-12 col-sm-12 col-md-4 text-left">
+            <div class="col-xs-12 col-sm-12 col-md-4 text-center">
                 </br>
-                <button type="submit" class="btn btn-primary text-right">Submit</button>
+                <button type="submit" class="btn btn-success text-right">Submit</button>
             </div>    
         
         </form>
@@ -127,73 +153,16 @@ if(!empty($is_exam_or_interview)){
 
     <script>
 
-        $(document).ready(function(){
-            @if(isset($exam_int_date) && !empty($exam_int_date))
-                let exam_date = "";
-                let reporting_time = "";
-                let exam_center_shift_id = "";
-                @foreach($exam_int_date as $index=>$date_shift)
-                    exam_date = "";
-                    reporting_time = "";
-                    exam_center_shift_id = "";
-                    exam_date = "<?php echo $date_shift; ?>";
-                    reporting_time = "<?php echo $reporting_time[$index]; ?>";
-                    exam_center_shift_id = "<?php echo $existedShiftInfo[$index]['id']; ?>";
-                    shift_row(exam_date, reporting_time, exam_center_shift_id);
-                @endforeach
-            @else
-                shift_row();
-            @endif
-        });                        
-
-        function shift_row(exam_date="", reporting_time="", exam_center_shift_id=""){
-            let rowsHtml = "";
-                rowsHtml += "<tr>";
-                    rowsHtml += '<td>';
-                    rowsHtml += '<input type="hidden" class="exam_center_shift_id" name="exam_center_shift_id[]" value="'+exam_center_shift_id+'">';
-                    rowsHtml += '<input required="" class="form-control exam_int_date" name="exam_int_date[]" type="date" value="'+exam_date+'" placeholder="DD-MM-YYYY">';
-                    rowsHtml += '</td>';
-                    rowsHtml += '<td><input required="" type="text" class="reporting_time" name="reporting_time[]" value="'+reporting_time+'"></td>';
-                rowsHtml += "</tr>";
-
-            $('#shiftsDetailsBody').append(rowsHtml);
-        }
-
-        // on click add new row button
-        $("#shift_add_id").click(function(){
-            let flag = true;
-            $('.exam_int_date:visible, .reporting_time:visible').each(function(){
-                if($(this).val()=='')
-                {
-                    alert("Enter the value");
-                    $(this).focus();
-                    flag = false;
-                    return flag;
-                }			
-            });
-            if(flag == true){
-                shift_row();
-            }
-        });
-
-        // remove row on click Remove button
-        $('#shift_rem_id').click(function(){	
-            let noOfRows = $('#shiftsDetailsBody tr').length;
-            let minRows = 1;
-            
-            if(noOfRows > 1){ 
-                // remove row
-                $('#shiftsDetailsBody tr:last').remove(); 
+        $("#selectAll").click(function(){
+            if(this.checked){
+                $('.candidates_checkboxes').each(function(){
+                    $(".candidates_checkboxes").prop('checked', true);
+                })
             }else{
-                alert("Please provide minimum required informations.");
+                $('.candidates_checkboxes').each(function(){
+                    $(".candidates_checkboxes").prop('checked', false);
+                })
             }
-        });
-        
-        // clear all fields on click Clear button
-        $('#shift_clear').click(function(){		 
-            $('.exam_int_date:visible, .reporting_time:visible').each(function(){
-                $(this).val(''); 
-            });
         });
 
         $(".is_exam_or_interview").change(function(){
@@ -209,12 +178,36 @@ if(!empty($is_exam_or_interview)){
                 alert("Kindly select Shift For.");
             }
             if(canProceed == 1){
-                let redirectUrl = "<?php echo route('exam_interview_shift')."/".$jobId; ?>";
+                let redirectUrl = "<?php echo route('candidate_center_mapping')."/".$jobId; ?>";
                 redirectUrl += "/"+exam_center_map_id+"/"+is_exam_or_interview;
                 window.location.href = redirectUrl;
             }
         });
 
+        
+        $(".exam_center_shifts").change(function(){
+            let exam_center_map_id = $(".exam_center_map").find(":selected").val();
+            let is_exam_or_interview = $(".is_exam_or_interview").find(":selected").val();
+            let shift_id = $(this).val();
+            let canProceed = 1;
+            if(exam_center_map_id == "" || exam_center_map_id == "undefined"){
+                canProceed = 0;
+                alert("Kindly select exam center.");
+            }
+            if(is_exam_or_interview == "" || is_exam_or_interview == "undefined"){
+                canProceed = 0;
+                alert("Kindly select Shift For.");
+            }
+            if(shift_id == "" || shift_id == "undefined"){
+                canProceed = 0;
+                alert("Kindly select Shift For.");
+            }
+            if(canProceed == 1){
+                let redirectUrl = "<?php echo route('candidate_center_mapping')."/".$jobId; ?>";
+                redirectUrl += "/"+exam_center_map_id+"/"+is_exam_or_interview+"/"+shift_id;
+                window.location.href = redirectUrl;
+            }
+        });
     </script>                            
 
 </x-app-layout>    

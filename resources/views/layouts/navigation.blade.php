@@ -74,8 +74,17 @@
                             <li class="nav-item <?php if(request()->routeIs('manage_exam_centers_mapping')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_exam_centers_mapping') }}">Exam Centers Mapping</a>
                             </li>
-                            
-                            
+                            <?php /* ?>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Admit Card Masters
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('manage_exam_centers_mapping') }}">Exam Centers Mapping</a>
+                                    <a class="dropdown-item" href="{{ route('candidate_center_mapping') }}">Candidate Center Mapping</a>
+                                </div>
+                            </li>
+                            <?php */ ?>
                         </ul>
                     </div>
                 </nav>

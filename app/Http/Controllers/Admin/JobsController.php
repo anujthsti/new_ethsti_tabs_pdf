@@ -20,6 +20,8 @@ use App\Models\FormFieldsConfiguration;
 use App\Models\JobDomainArea;
 use App\Models\ExamCenters;
 use App\Models\ExamCenterMapping;
+use App\Models\ExamCenterShifts;
+use App\Models\CandidatesJobsApply;
 
 
 class JobsController extends Controller
@@ -969,8 +971,11 @@ class JobsController extends Controller
         $examCentersMapp = array();
         
         $examCentersMapp = ExamCenterMapping::leftJoin('rn_nos','rn_nos.id','=','exam_center_mapping.rn_no_id')
-                                            ->groupBy(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
-                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id'])
+                                            ->join('jobs','jobs.id','=','exam_center_mapping.job_id')
+                                            ->join('code_names','code_names.id','=','jobs.post_id')
+                                            ->where('exam_center_mapping.status', 1)
+                                            ->groupBy(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','code_names.code_meta_name'])
+                                            ->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','code_names.code_meta_name'])
                                             ->toArray();
         //->get(['exam_center_mapping.job_id','rn_nos.rn_no','rn_nos.id','exam_center_mapping.id as exam_center_map_id'])
                                             
@@ -1102,31 +1107,86 @@ class JobsController extends Controller
     ///////////////////////////////// exam center mapping functions ends
 
     ///////////////////////////////// exam shift function start
-    public function exam_interview_shift($jobId=""){
+    public function exam_interview_shift($jobId="", $exam_center_map_id="", $shift_for_id=""){
 
         //echo $exam_center_map_id;exit;
         $examCenters = array();
+        $existedShiftInfo = [];
         $examCenters = ExamCenterMapping::join('exam_centers','exam_centers.id','=','exam_center_mapping.exam_center_id')
                                         ->where('exam_center_mapping.job_id', $jobId)
                                         ->where('exam_center_mapping.status', 1)
-                                        ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address','exam_center_mapping.rn_no_id'])
+                                        ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address','exam_center_mapping.rn_no_id','exam_center_mapping.job_id'])
                                         ->toArray();
+        if(!empty($exam_center_map_id) && !empty($shift_for_id)){
+            $existedShiftInfo = ExamCenterShifts::where('exam_center_map_id', $exam_center_map_id)
+                                        ->where('is_exam_or_interview', $shift_for_id)
+                                        ->where('status', 1)
+                                        ->get(['exam_center_shifts.*'])
+                                        ->toArray();   
+        }                             
         /*print_r($examCenters);
         exit;*/                                    
-        return view('jobs.exam_interview_shift', compact('jobId','examCenters'));
+        return view('jobs.exam_interview_shift', compact('jobId','examCenters','existedShiftInfo','exam_center_map_id','shift_for_id'));
         
     }
 
-    public function save_exam_interview_shift(Request $request, $jobId){
+    public function save_exam_interview_shift(Request $request, $jobId, $exam_center_map_id, $shift_for_id){
 
         $request->validate([
-            'exam_center' => 'required',
+            'exam_center_map' => 'required',
             'is_exam_or_interview' => 'required'
         ]);
         $postData = $request->post();
-        echo "<pre>";
-        print_r($postData);
-        exit;
+        $exam_int_date = $postData['exam_int_date'];
+        $reporting_timeArr = $postData['reporting_time'];
+        $exam_center_shift_ids = $postData['exam_center_shift_id'];
+        //echo "<pre>";
+        //print_r($reporting_timeArr);
+        /*exit;*/
+        $existedShiftInfoIds = ExamCenterShifts::where('exam_center_map_id', $exam_center_map_id)
+                                        ->where('is_exam_or_interview', $shift_for_id)
+                                        ->where('status', 1)
+                                        ->get(['exam_center_shifts.id'])
+                                        ->toArray();   
+        $deleteIds = [];
+        if(!empty($existedShiftInfoIds)){
+            $existingIds = array_column($existedShiftInfoIds, 'id');
+            // old unselected domain ids    
+            $deleteIds = array_diff($existingIds, $exam_center_shift_ids);  
+            if(!empty($deleteIds)){
+                ExamCenterShifts::whereIn('id', $deleteIds)->update(['status'=>3]);
+            }
+        }
+
+        foreach($exam_int_date as $index=>$reportingDate){
+            if(!empty($reportingDate)){
+                $dataArr = [];
+                $existedShiftInfo = []; 
+                $reporting_time = $reporting_timeArr[$index];
+                
+                $exam_center_map_id = $postData['exam_center_map'];
+                
+                $dataArr['exam_center_map_id'] = $exam_center_map_id;
+                $dataArr['job_id'] = $postData['job_id'];
+                $dataArr['is_exam_or_interview'] = $postData['is_exam_or_interview'];
+                $dataArr['reporting_date'] = $reportingDate;
+                $dataArr['reporting_time'] = $reporting_time;
+                //print_r($dataArr);
+                if(isset($exam_center_shift_ids[$index]) && !empty($exam_center_shift_ids[$index])){
+                    $exam_center_shift_id = $exam_center_shift_ids[$index];
+                    ExamCenterShifts::where('id', $exam_center_shift_id)->update($dataArr);
+                    //echo "update";
+                }else{
+                    ExamCenterShifts::create($dataArr);
+                    //echo "create";
+                }
+            }
+            
+        }
+        
+        //print_r($postData);
+        //exit;
+        //ExamCenterShifts::
         return redirect()->back()->withInput();
         //->with('error_msg',$errorMsg)
         /*$data = $request->post();
@@ -1135,6 +1195,69 @@ class JobsController extends Controller
         exit;
         */
     }
+
+    public function candidate_center_mapping($jobId="", $exam_center_map_id="", $shift_for_id="", $shift_id=""){
+
+        $examCenters = array();
+        $existedShiftInfo = [];
+        $candidatesList = [];
+        $examCenters = ExamCenterMapping::join('exam_centers','exam_centers.id','=','exam_center_mapping.exam_center_id')
+                                        ->where('exam_center_mapping.job_id', $jobId)
+                                        ->where('exam_center_mapping.status', 1)
+                                        ->get(['exam_center_mapping.id','exam_centers.centre_name','exam_centers.centre_address','exam_center_mapping.rn_no_id','exam_center_mapping.job_id'])
+                                        ->toArray();
+
+        if(isset($exam_center_map_id) && !empty($exam_center_map_id) && isset($shift_for_id) && !empty($shift_for_id)){
+            $existedShiftInfo = ExamCenterShifts::where('exam_center_map_id', $exam_center_map_id)
+                                        ->where('is_exam_or_interview', $shift_for_id)
+                                        ->where('status', 1)
+                                        ->get(['exam_center_shifts.*'])
+                                        ->toArray();  
+
+            if(isset($shift_id) && !empty($shift_id)){
+                $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                    ->where('candidates_jobs_apply.job_id', $jobId)
+                                                    ->where('candidates_jobs_apply.shortlisting_status','!=', 2)
+                                                    ->where('candidates_jobs_apply.status', 1)
+                                                    ->where(function($query) use ($shift_for_id, $shift_id){
+                                                        if($shift_for_id == 1){
+                                                            $query->where('exam_shift_id', '=', $shift_id);
+                                                            $query->orWhere('exam_shift_id', '=', null); 
+                                                        }else{
+                                                            $query->where('interview_shift_id', '=', $shift_id);
+                                                            $query->orWhere('interview_shift_id', '=', null); 
+                                                        }
+                                                    })
+                                                    ->get(['register_candidates.full_name','register_candidates.email_id','register_candidates.correspondence_address','candidates_jobs_apply.id'])
+                                                    ->toArray();
+            }
+
+        }   
+
+        /*                                
+        if(!empty($exam_center_map_id) && !empty($shift_for_id)){
+            $existedShiftInfo = ExamCenterShifts::where('exam_center_map_id', $exam_center_map_id)
+                                        ->where('is_exam_or_interview', $shift_for_id)
+                                        ->where('status', 1)
+                                        ->get(['exam_center_shifts.*'])
+                                        ->toArray();   
+        }                  
+        */           
+        /*print_r($examCenters);
+        exit;*/                                    
+        return view('jobs.candidate_center_mapping', compact('jobId','examCenters','existedShiftInfo','exam_center_map_id','shift_for_id','shift_id','candidatesList'));
+        
+    }
+
+    public function save_candidate_center_mapping(Request $request, $jobId, $exam_center_map_id, $shift_for_id, $shift_id=""){
+
+        $postData = $request->post();
+        echo '<pre>';
+        print_r($postData);
+        exit;
+
+    }
+
 
     ///////////////////////////////// exam shift function end
     
