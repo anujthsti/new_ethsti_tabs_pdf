@@ -133,7 +133,7 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::post('save_exam_interview_shift/{jobId?}/{exam_center_map_id?}/{shift_for_id?}','save_exam_interview_shift')->name('save_exam_interview_shift');
         
         Route::get('candidate_center_mapping/{jobId?}/{exam_center_map_id?}/{shift_for_id?}/{shift_id?}','candidate_center_mapping')->name('candidate_center_mapping');
-        Route::post('save_candidate_center_mapping/{jobId?}/{exam_center_map_id?}/{shift_for_id?}/{shift_id?]','save_candidate_center_mapping')->name('save_candidate_center_mapping');
+        Route::post('save_candidate_center_mapping/{jobId?}/{exam_center_map_id?}/{shift_for_id?}/{shift_id?}','save_candidate_center_mapping')->name('save_candidate_center_mapping');
         
         
         // routes for exam center mapping end
@@ -236,6 +236,9 @@ Route::group(['prefix'=>'application','middleware' => 'candidatesession'], funct
         Route::get('final_submission_after_payment/{id}/{tab_id?}','final_submission_after_payment')->name('final_submission_after_payment');
         
         Route::post('save_final_submission_after_payment/{id}/{tab_id?}','save_final_submission_after_payment')->name('save_final_submission_after_payment');
+
+        Route::get('admit_card/{id}/{type_id?}','admit_card')->name('admit_card');
+        
         
     });
 

@@ -1139,6 +1139,9 @@ class JobsController extends Controller
         $postData = $request->post();
         $exam_int_date = $postData['exam_int_date'];
         $reporting_timeArr = $postData['reporting_time'];
+        $shiftArr = $postData['shift'];
+        $start_timeArr = $postData['start_time'];
+        $shift_timeArr = $postData['shift_time'];
         $exam_center_shift_ids = $postData['exam_center_shift_id'];
         //echo "<pre>";
         //print_r($reporting_timeArr);
@@ -1163,6 +1166,9 @@ class JobsController extends Controller
                 $dataArr = [];
                 $existedShiftInfo = []; 
                 $reporting_time = $reporting_timeArr[$index];
+                $shift = $shiftArr[$index];
+                $start_time = $start_timeArr[$index];
+                $shift_time = $shift_timeArr[$index];
                 
                 $exam_center_map_id = $postData['exam_center_map'];
                 
@@ -1171,6 +1177,9 @@ class JobsController extends Controller
                 $dataArr['is_exam_or_interview'] = $postData['is_exam_or_interview'];
                 $dataArr['reporting_date'] = $reportingDate;
                 $dataArr['reporting_time'] = $reporting_time;
+                $dataArr['shift'] = $shift;
+                $dataArr['start_time'] = $start_time;
+                $dataArr['shift_time'] = $shift_time;
                 //print_r($dataArr);
                 if(isset($exam_center_shift_ids[$index]) && !empty($exam_center_shift_ids[$index])){
                     $exam_center_shift_id = $exam_center_shift_ids[$index];
@@ -1199,8 +1208,10 @@ class JobsController extends Controller
     public function candidate_center_mapping($jobId="", $exam_center_map_id="", $shift_for_id="", $shift_id=""){
 
         $examCenters = array();
-        $existedShiftInfo = [];
+        $existedJobApplyIds = [];
         $candidatesList = [];
+        $existedShiftInfo = [];
+        
         $examCenters = ExamCenterMapping::join('exam_centers','exam_centers.id','=','exam_center_mapping.exam_center_id')
                                         ->where('exam_center_mapping.job_id', $jobId)
                                         ->where('exam_center_mapping.status', 1)
@@ -1218,6 +1229,7 @@ class JobsController extends Controller
                 $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
                                                     ->where('candidates_jobs_apply.job_id', $jobId)
                                                     ->where('candidates_jobs_apply.shortlisting_status','!=', 2)
+                                                    ->where('candidates_jobs_apply.is_final_submit_after_payment','!=', 1)
                                                     ->where('candidates_jobs_apply.status', 1)
                                                     ->where(function($query) use ($shift_for_id, $shift_id){
                                                         if($shift_for_id == 1){
@@ -1230,32 +1242,87 @@ class JobsController extends Controller
                                                     })
                                                     ->get(['register_candidates.full_name','register_candidates.email_id','register_candidates.correspondence_address','candidates_jobs_apply.id'])
                                                     ->toArray();
+
+                $existedJobApplyIds = CandidatesJobsApply::where('candidates_jobs_apply.status', 1)
+                                                    ->where(function($query) use ($shift_for_id, $shift_id){
+                                                        if($shift_for_id == 1){
+                                                            $query->where('exam_shift_id', '=', $shift_id);
+                                                        }else{
+                                                            $query->where('interview_shift_id', '=', $shift_id);
+                                                        }
+                                                    })
+                                                    ->get(['candidates_jobs_apply.id'])
+                                                    ->toArray();                                    
             }
 
         }   
-
-        /*                                
-        if(!empty($exam_center_map_id) && !empty($shift_for_id)){
-            $existedShiftInfo = ExamCenterShifts::where('exam_center_map_id', $exam_center_map_id)
-                                        ->where('is_exam_or_interview', $shift_for_id)
-                                        ->where('status', 1)
-                                        ->get(['exam_center_shifts.*'])
-                                        ->toArray();   
-        }                  
-        */           
-        /*print_r($examCenters);
-        exit;*/                                    
-        return view('jobs.candidate_center_mapping', compact('jobId','examCenters','existedShiftInfo','exam_center_map_id','shift_for_id','shift_id','candidatesList'));
+                          
+        return view('jobs.candidate_center_mapping', compact('jobId','examCenters','existedShiftInfo','exam_center_map_id','shift_for_id','shift_id','candidatesList','existedJobApplyIds'));
         
     }
 
     public function save_candidate_center_mapping(Request $request, $jobId, $exam_center_map_id, $shift_for_id, $shift_id=""){
 
         $postData = $request->post();
+        $jobApplyIds = [];
+        $updateArr = [];
+        if(isset($postData['candidates']) && !empty($postData['candidates'])){
+            $jobApplyIds = $postData['candidates'];
+        }
+        $updateOldArr = [];
+        $is_exam_or_interview = $postData['is_exam_or_interview'];
+        $exam_center_shift_id = $postData['exam_center_shifts'];
+        if($is_exam_or_interview == 1){
+            // if exam
+            $updateOldArr['exam_shift_id'] = null;
+            $updateArr['exam_shift_id'] = $exam_center_shift_id;
+        }else{
+            // interview
+            $updateOldArr['interview_shift_id'] = null;
+            $updateArr['interview_shift_id'] = $exam_center_shift_id;
+        }
+
+        if($shift_for_id == 1){
+            $existedJobApplyIds = CandidatesJobsApply::where('candidates_jobs_apply.status', 1)
+                                                     ->where('exam_shift_id', $shift_id)
+                                                     ->get(['candidates_jobs_apply.id'])
+                                                     ->toArray();   
+        }else{
+            $existedJobApplyIds = CandidatesJobsApply::where('candidates_jobs_apply.status', 1)
+                                                     ->where('interview_shift_id', $shift_id)
+                                                     ->get(['candidates_jobs_apply.id'])
+                                                     ->toArray();   
+        }
+
+        //print_r($existedJobApplyIds);exit;                                            
+        if(!empty($existedJobApplyIds)){                                            
+            $oldJobApplyIds = array_column($existedJobApplyIds, 'id'); 
+            // old unselected domain ids   
+            $deleteIds = $oldJobApplyIds;  
+            if(!empty($jobApplyIds)){
+                $deleteIds = array_diff($oldJobApplyIds, $jobApplyIds);  
+            }
+            //print_r($deleteIds);exit;  
+            
+            if(!empty($deleteIds) && !empty($updateOldArr)){
+                CandidatesJobsApply::where('job_id', $jobId)
+                                        ->whereIn('id', $deleteIds)
+                                        ->update($updateOldArr);
+            }
+        }
+                                            
+        if(!empty($jobApplyIds) && isset($postData['is_exam_or_interview']) && !empty($postData['is_exam_or_interview']) && !empty($updateArr)){
+            CandidatesJobsApply::where('job_id', $jobId)
+                                ->whereIn('id', $jobApplyIds)
+                                ->update($updateArr);
+        }
+        
+        return redirect()->back()->withInput();
+        /*
         echo '<pre>';
         print_r($postData);
         exit;
-
+        */
     }
 
 

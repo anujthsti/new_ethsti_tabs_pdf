@@ -11,7 +11,8 @@ if(isset($existedShiftInfo) && !empty($existedShiftInfo)){
     $reporting_time = array_column($existedShiftInfo, 'reporting_time');
 }
 */
-$form_action = route("save_candidate_center_mapping")."/".$jobId;
+$form_action = route("save_candidate_center_mapping", $jobId);
+
 if(!empty($exam_center_map_id)){
     $form_action .= "/".$exam_center_map_id;
 }
@@ -20,6 +21,11 @@ if(!empty($shift_for_id)){
 }
 if(!empty($shift_id)){
     $form_action .= "/".$shift_id;
+}
+
+$checkedJobApplyids = [];
+if(isset($existedJobApplyIds) && !empty($existedJobApplyIds)){
+    $checkedJobApplyids = array_column($existedJobApplyIds, 'id');
 }
 ?>
 <x-app-layout>
@@ -105,7 +111,7 @@ if(!empty($shift_id)){
                                     $selected = "selected=selected";
                                 }
                                 ?>
-                                <option value="{{ $shift['id'] }}" {{ $selected }}>{{ $shift['reporting_date'] }} -- {{ $shift['reporting_time'] }}</option>
+                                <option value="{{ $shift['id'] }}" {{ $selected }}>{{ $shift['shift'] }} -- {{ $shift['reporting_date'] }} -- {{ $shift['reporting_time'] }}</option>
                             @endforeach
                         </select>
                         @error('exam_center_shifts')
@@ -129,9 +135,16 @@ if(!empty($shift_id)){
                         </thead>     
                         <tbody id="shiftsDetailsBody">
                             @foreach($candidatesList as $index=>$list)
+                                <?php
+                                $checked = "";
+                                $jobApplyId = $list['id'];
+                                if(!empty($checkedJobApplyids) && in_array($jobApplyId, $checkedJobApplyids)){
+                                    $checked = "checked";
+                                }
+                                ?>
                                 <?php $srNo = $index + 1; ?>
                                 <tr>
-                                    <td><input type="checkbox" class="candidates_checkboxes" name="candidates[]" value="{{ $list['id'] }}" /></td>
+                                    <td><input type="checkbox" class="candidates_checkboxes" name="candidates[]" value="{{ $jobApplyId }}" <?php echo $checked; ?> /></td>
                                     <td>{{ $srNo }}</td>
                                     <td>{{ $list['full_name'] }}</td>
                                     <td>{{ $list['email_id'] }}</td>
@@ -143,7 +156,7 @@ if(!empty($shift_id)){
             <!-- shifts block end -->
             <div class="col-xs-12 col-sm-12 col-md-4 text-center">
                 </br>
-                <button type="submit" class="btn btn-success text-right">Submit</button>
+                <button type="submit" class="btn btn-primary text-right">Submit</button>
             </div>    
         
         </form>

@@ -136,6 +136,18 @@ class Helper {
         return $resultData;            
     }
 
+    public static function getCodeNameValueById($id){
+
+        $code_meta_name = "";
+        $resultData = CodeNames::where('code_names.id', $id)
+                                ->get('code_names.code_meta_name')
+                                ->toArray();
+        if(isset($resultData) && !empty($resultData)){                        
+            $code_meta_name = $resultData[0]['code_meta_name'];
+        }
+        return $code_meta_name;            
+    }
+
     // convert dabe format from dd/mm/yyyy to yyyy-mm-dd function start
     public static function convertDateDMYtoYMD($date){
         $newDate = str_replace('/', '-', $date);

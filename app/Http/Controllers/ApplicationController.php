@@ -37,6 +37,7 @@ use App\Models\FeeStatusTransactions;
 use App\Models\FeeCroneJob;
 use App\Models\FeeCroneJobTrans;
 use App\Models\RegistrationOTP;
+use App\Models\ExamCenterShifts;
 
 class ApplicationController extends Controller
 {
@@ -370,7 +371,7 @@ class ApplicationController extends Controller
                                                         ->orderBy('candidates_jobs_apply.id','desc')
                                                         ->where('candidates_jobs_apply.candidate_id', $candidate_id)
                                                         ->where('candidates_jobs_apply.status', 1)
-                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.is_basic_info_done','candidates_jobs_apply.is_qualification_exp_done','candidates_jobs_apply.is_phd_details_done','candidates_jobs_apply.is_document_upload_done','candidates_jobs_apply.is_final_submission_done','candidates_jobs_apply.is_payment_done','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_final_submit_after_payment','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required','jobs.job_validation_id'])
+                                                        ->get(['candidates_jobs_apply.id','candidates_jobs_apply.is_completed','candidates_jobs_apply.rn_no_id','candidates_jobs_apply.job_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.application_status','candidates_jobs_apply.is_basic_info_done','candidates_jobs_apply.is_qualification_exp_done','candidates_jobs_apply.is_phd_details_done','candidates_jobs_apply.is_document_upload_done','candidates_jobs_apply.is_final_submission_done','candidates_jobs_apply.is_payment_done','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_final_submit_after_payment','candidates_jobs_apply.exam_shift_id','candidates_jobs_apply.interview_shift_id','rn_nos.rn_no','jobs.post_id','jobs.job_type_id','jobs.is_payment_required','jobs.job_validation_id'])
                                                         ->toArray();
             $mastersDataArr = Helper::getCodeNames();    
             $postsMasterArr = Helper::getCodeNamesByCode($mastersDataArr,'code','post_master');
@@ -3089,5 +3090,44 @@ class ApplicationController extends Controller
             return 0;
         }    
     }
+
+    /******************************************* Admit Card function start ****************************************/
+    public function admit_card($candidateJobApplyEncID, $typeEnc){
+
+        $job_apply_id = Helper::decodeId($candidateJobApplyEncID);
+        $typeId = Helper::decodeId($typeEnc);
+        $candidateShiftInfo = [];
+        $candidateInfo = CandidatesJobsApply::join("register_candidates","register_candidates.id","=","candidates_jobs_apply.candidate_id")
+                                            ->join("jobs","jobs.id","=","candidates_jobs_apply.job_id")
+                                            ->join("candidates_common_documents","candidates_common_documents.candidate_job_apply_id","=","candidates_jobs_apply.id")
+                                            ->where('candidates_jobs_apply.id', $job_apply_id)
+                                            ->where('candidates_jobs_apply.status', 1)
+                                            ->where('jobs.status', 1)
+                                            ->where('register_candidates.status', 1)
+                                            ->get(['candidates_jobs_apply.id','register_candidates.full_name','register_candidates.father_name','register_candidates.dob','register_candidates.gender','candidates_jobs_apply.is_pwd','candidates_jobs_apply.category_id','jobs.post_id','jobs.post_domain_id','candidates_common_documents.candidate_photo','candidates_common_documents.candidate_sign','candidates_jobs_apply.exam_shift_id','candidates_jobs_apply.interview_shift_id'])
+                                            ->toArray();
+        $shiftId = "";
+        if(!empty($candidateInfo)){
+            if($typeId == 1){
+                $shiftId = $candidateInfo[0]['exam_shift_id'];
+            }else{
+                $shiftId = $candidateInfo[0]['interview_shift_id'];
+            }   
+        }                                 
+        if(!empty($shiftId)){
+            $candidateShiftInfo = ExamCenterShifts::join("exam_center_mapping","exam_center_mapping.id","=","exam_center_shifts.exam_center_map_id")
+                                                ->join("exam_centers","exam_centers.id","=","exam_center_mapping.exam_center_id")
+                                                ->where('exam_center_shifts.id', $shiftId)
+                                                ->get(['exam_center_shifts.*','exam_centers.centre_name','exam_centers.centre_address'])
+                                                ->toArray();    
+        }                                
+
+
+        /*echo "<pre>";
+        print_r($candidateInfo);
+        exit;*/                                    
+        return view("application.admit_card",compact("candidateInfo","job_apply_id","candidateJobApplyEncID","typeId","candidateShiftInfo"));
+    }    
+    /******************************************* Admit Card function end ****************************************/
 
 }

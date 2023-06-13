@@ -2,14 +2,18 @@
 $title = "Exam or Interview shifts";
 $center_map_id = $exam_center_map_id;
 $is_exam_or_interview = $shift_for_id;
+$shift = [];
 $exam_int_date = [];
 $reporting_time = [];
 
 if(isset($existedShiftInfo) && !empty($existedShiftInfo)){
     $center_map_id = $existedShiftInfo[0]['exam_center_map_id'];
     $is_exam_or_interview = $existedShiftInfo[0]['is_exam_or_interview'];
+    $shift = array_column($existedShiftInfo, 'shift');
     $exam_int_date = array_column($existedShiftInfo, 'reporting_date');
     $reporting_time = array_column($existedShiftInfo, 'reporting_time');
+    $start_time = array_column($existedShiftInfo, 'start_time');
+    $shift_time = array_column($existedShiftInfo, 'shift_time');
 }
 
 $form_action = route("save_exam_interview_shift")."/".$jobId;
@@ -99,8 +103,11 @@ if(!empty($is_exam_or_interview)){
                     <table class="table table-bordered table-hover table-sm table-responsive-lg" id="shifts_table" >
                         <thead class="bg-light">
                             <tr>
+                                <th>Shift</th>
                                 <th>Exam Date</th>
                                 <th>Reporting Time</th>
+                                <th>Start Time</th>
+                                <th>Shift Time</th>
                             </tr> 
                         </thead>     
                         <tbody id="shiftsDetailsBody">
@@ -129,31 +136,44 @@ if(!empty($is_exam_or_interview)){
 
         $(document).ready(function(){
             @if(isset($exam_int_date) && !empty($exam_int_date))
+                let shift = "";
                 let exam_date = "";
                 let reporting_time = "";
                 let exam_center_shift_id = "";
+                let start_time = "";
+                let shift_time = "";
                 @foreach($exam_int_date as $index=>$date_shift)
+                    shift = "";
                     exam_date = "";
                     reporting_time = "";
                     exam_center_shift_id = "";
+                    start_time = "";
+                    shift_time = "";
+
+                    shift = "<?php echo $shift[$index]; ?>";
                     exam_date = "<?php echo $date_shift; ?>";
                     reporting_time = "<?php echo $reporting_time[$index]; ?>";
                     exam_center_shift_id = "<?php echo $existedShiftInfo[$index]['id']; ?>";
-                    shift_row(exam_date, reporting_time, exam_center_shift_id);
+                    start_time = "<?php echo $start_time[$index]; ?>";
+                    shift_time = "<?php echo $shift_time[$index]; ?>";
+                    shift_row(shift, exam_date, reporting_time, exam_center_shift_id, start_time, shift_time);
                 @endforeach
             @else
                 shift_row();
             @endif
         });                        
 
-        function shift_row(exam_date="", reporting_time="", exam_center_shift_id=""){
+        function shift_row(shift="", exam_date="", reporting_time="", exam_center_shift_id="", start_time="", shift_time=""){
             let rowsHtml = "";
                 rowsHtml += "<tr>";
+                    rowsHtml += '<td><input required="" type="text" class="shift" name="shift[]" value="'+shift+'"></td>';
                     rowsHtml += '<td>';
                     rowsHtml += '<input type="hidden" class="exam_center_shift_id" name="exam_center_shift_id[]" value="'+exam_center_shift_id+'">';
                     rowsHtml += '<input required="" class="form-control exam_int_date" name="exam_int_date[]" type="date" value="'+exam_date+'" placeholder="DD-MM-YYYY">';
                     rowsHtml += '</td>';
                     rowsHtml += '<td><input required="" type="text" class="reporting_time" name="reporting_time[]" value="'+reporting_time+'"></td>';
+                    rowsHtml += '<td><input required="" type="text" class="start_time" name="start_time[]" value="'+start_time+'"></td>';
+                    rowsHtml += '<td><input required="" type="text" class="shift_time" name="shift_time[]" value="'+shift_time+'"></td>';
                 rowsHtml += "</tr>";
 
             $('#shiftsDetailsBody').append(rowsHtml);

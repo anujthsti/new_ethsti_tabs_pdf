@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 28, 2023 at 03:04 PM
+-- Generation Time: Jun 13, 2023 at 02:14 PM
 -- Server version: 10.4.16-MariaDB
 -- PHP Version: 7.4.12
 
@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `apply_job_hr_remarks`
+--
+
+CREATE TABLE `apply_job_hr_remarks` (
+  `id` int(11) NOT NULL,
+  `category` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `code` varchar(5) COLLATE utf8_bin DEFAULT NULL,
+  `remarks_desc` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `status` int(11) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `candidates_academics_details`
 --
 
@@ -39,8 +53,10 @@ CREATE TABLE `candidates_academics_details` (
   `degree_or_subject` varchar(255) DEFAULT NULL COMMENT 'Will store degree or subjects name',
   `board_or_university` varchar(255) DEFAULT NULL,
   `percentage` decimal(10,0) DEFAULT NULL,
-  `cgpa` decimal(10,0) DEFAULT NULL,
+  `cgpa` varchar(255) DEFAULT NULL,
   `division` varchar(255) DEFAULT NULL,
+  `phd_result` int(11) DEFAULT NULL COMMENT '1 for Degree Awarded,\r\n2 for Thesis Submitted',
+  `thesis_title` text DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - active, \r\n2 - inactive, \r\n3 - delete',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -154,6 +170,7 @@ CREATE TABLE `candidates_jobs_apply` (
   `domain_id` int(11) DEFAULT NULL,
   `appointment_method_id` int(11) DEFAULT NULL,
   `is_ex_serviceman` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for yes,\r\n0 for No',
+  `date_of_release` date DEFAULT NULL,
   `is_esm_reservation_avail` int(11) DEFAULT NULL COMMENT '1 for Yes,\r\n0 for No',
   `is_govt_servent` int(11) DEFAULT NULL COMMENT '1 for yes,\r\n0 for No',
   `type_of_employment` int(11) DEFAULT NULL COMMENT '1 for Permanent,\r\n2 for Temporary',
@@ -171,11 +188,39 @@ CREATE TABLE `candidates_jobs_apply` (
   `relative_name` varchar(255) DEFAULT NULL COMMENT 'relative or friend in thsti',
   `relative_designation` varchar(255) DEFAULT NULL,
   `relative_relationship` varchar(255) DEFAULT NULL COMMENT '1 for Yes,\r\n0 for No',
-  `data_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for completed',
-  `file_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for completed',
+  `is_basic_info_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_qualification_exp_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_phd_details_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_document_upload_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_final_submission_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_payment_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_final_submit_after_payment` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
   `payment_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for success,\r\n2 for Failed',
   `is_completed` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for No,\r\n1 for Yes',
+  `is_screened` int(11) DEFAULT 0 COMMENT ' 0 for No,\r\n1 for Yes',
+  `shortlisting_status` int(11) DEFAULT NULL COMMENT '1 - shortlisted,\r\n2 - rejected,\r\n3 - provisional shortlisted',
+  `hr_additional_remarks` text DEFAULT NULL,
+  `details_pdf_name` varchar(255) DEFAULT NULL,
+  `pay_receipt_pdf_name` varchar(255) DEFAULT NULL,
+  `is_after_payment_mail_sent` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 - sent,\r\n0 - pending',
+  `exam_shift_id` int(11) DEFAULT NULL,
+  `interview_shift_id` int(11) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_job_hr_remarks`
+--
+
+CREATE TABLE `candidates_job_hr_remarks` (
+  `id` int(11) NOT NULL,
+  `candidate_job_apply_id` int(11) NOT NULL,
+  `remarks_code_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n0 for inactive',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -193,6 +238,10 @@ CREATE TABLE `candidates_phd_research_details` (
   `candidate_job_apply_id` int(11) DEFAULT NULL,
   `patent_information` text DEFAULT NULL,
   `is_have_patents` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `no_patents_filed_national` int(11) DEFAULT NULL,
+  `no_patents_granted_national` int(11) DEFAULT NULL,
+  `no_patents_filed_international` int(11) DEFAULT NULL,
+  `no_patents_granted_international` int(11) DEFAULT NULL,
   `research_statement` text DEFAULT NULL,
   `is_submitted_research_statement` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
   `funding_agency` varchar(255) DEFAULT NULL,
@@ -206,6 +255,11 @@ CREATE TABLE `candidates_phd_research_details` (
   `exam_name` text DEFAULT NULL,
   `exam_score` varchar(255) DEFAULT NULL,
   `exam_qualified_val_up_to` date DEFAULT NULL,
+  `no_of_pub` int(11) DEFAULT NULL,
+  `no_of_first_author_pub` int(11) DEFAULT NULL,
+  `no_of_cors_author_pub` int(11) DEFAULT NULL,
+  `no_of_pub_impact_fact` int(11) DEFAULT NULL,
+  `no_of_citations` int(11) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -285,6 +339,75 @@ CREATE TABLE `code_names` (
   `status` int(11) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_candidate_shift`
+--
+
+CREATE TABLE `exam_candidate_shift` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `exam_center_shift_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_centers`
+--
+
+CREATE TABLE `exam_centers` (
+  `id` int(11) NOT NULL,
+  `centre_name` text DEFAULT NULL,
+  `centre_address` text DEFAULT NULL,
+  `centre_location` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - Active,\r\n2 - Inactive',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_center_mapping`
+--
+
+CREATE TABLE `exam_center_mapping` (
+  `id` int(11) NOT NULL,
+  `rn_no_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `exam_center_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - active,\r\n2 - inactive,\r\n3 - deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_center_shifts`
+--
+
+CREATE TABLE `exam_center_shifts` (
+  `id` int(11) NOT NULL,
+  `exam_center_map_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `is_exam_or_interview` tinyint(4) DEFAULT NULL COMMENT '1 for Exam,\r\n2 for Interview',
+  `shift` varchar(255) DEFAULT NULL,
+  `reporting_date` date DEFAULT NULL,
+  `reporting_time` varchar(255) DEFAULT NULL,
+  `start_time` varchar(255) DEFAULT NULL,
+  `shift_time` varchar(255) DEFAULT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -673,6 +796,7 @@ CREATE TABLE `register_candidates` (
   `dob` date DEFAULT NULL,
   `gender` int(11) DEFAULT NULL,
   `nationality` varchar(255) DEFAULT NULL,
+  `nationality_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1 for India,\r\n2 for Foreigner',
   `correspondence_address` varchar(900) NOT NULL,
   `cors_state_id` int(11) DEFAULT NULL,
   `cors_city` varchar(255) DEFAULT NULL,
@@ -682,6 +806,21 @@ CREATE TABLE `register_candidates` (
   `perm_city` varchar(255) DEFAULT NULL,
   `perm_pincode` varchar(255) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `registration_otp`
+--
+
+CREATE TABLE `registration_otp` (
+  `id` int(11) NOT NULL,
+  `email_id` varchar(900) NOT NULL,
+  `otp` varchar(10) NOT NULL,
+  `status` int(11) NOT NULL COMMENT '1 for success,\r\n0 for fail',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -746,6 +885,12 @@ CREATE TABLE `users` (
 --
 
 --
+-- Indexes for table `apply_job_hr_remarks`
+--
+ALTER TABLE `apply_job_hr_remarks`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `candidates_academics_details`
 --
 ALTER TABLE `candidates_academics_details`
@@ -782,6 +927,12 @@ ALTER TABLE `candidates_jobs_apply`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `candidates_job_hr_remarks`
+--
+ALTER TABLE `candidates_job_hr_remarks`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `candidates_phd_research_details`
 --
 ALTER TABLE `candidates_phd_research_details`
@@ -811,6 +962,30 @@ ALTER TABLE `code_master`
 ALTER TABLE `code_names`
   ADD PRIMARY KEY (`id`),
   ADD KEY `code_master_id` (`code_id`);
+
+--
+-- Indexes for table `exam_candidate_shift`
+--
+ALTER TABLE `exam_candidate_shift`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_centers`
+--
+ALTER TABLE `exam_centers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_center_mapping`
+--
+ALTER TABLE `exam_center_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_center_shifts`
+--
+ALTER TABLE `exam_center_shifts`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `failed_jobs`
@@ -952,6 +1127,12 @@ ALTER TABLE `register_candidates`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `registration_otp`
+--
+ALTER TABLE `registration_otp`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `rn_nos`
 --
 ALTER TABLE `rn_nos`
@@ -973,6 +1154,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `apply_job_hr_remarks`
+--
+ALTER TABLE `apply_job_hr_remarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `candidates_academics_details`
@@ -1011,6 +1198,12 @@ ALTER TABLE `candidates_jobs_apply`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `candidates_job_hr_remarks`
+--
+ALTER TABLE `candidates_job_hr_remarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `candidates_phd_research_details`
 --
 ALTER TABLE `candidates_phd_research_details`
@@ -1038,6 +1231,30 @@ ALTER TABLE `code_master`
 -- AUTO_INCREMENT for table `code_names`
 --
 ALTER TABLE `code_names`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_candidate_shift`
+--
+ALTER TABLE `exam_candidate_shift`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_centers`
+--
+ALTER TABLE `exam_centers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_center_mapping`
+--
+ALTER TABLE `exam_center_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_center_shifts`
+--
+ALTER TABLE `exam_center_shifts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -1164,6 +1381,12 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `register_candidates`
 --
 ALTER TABLE `register_candidates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `registration_otp`
+--
+ALTER TABLE `registration_otp`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

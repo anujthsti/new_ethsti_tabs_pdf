@@ -3,6 +3,8 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
 
   $candidateJobApplyArr = $candidateJobApplyDetail[0];
   $is_final_submit_after_payment = $candidateJobApplyArr['is_final_submit_after_payment'];
+  $exam_shift_id = $candidateJobApplyArr['exam_shift_id'];
+  $interview_shift_id = $candidateJobApplyArr['interview_shift_id'];
   $candidateJobFormUrl = route('edit_candidate_applied_job_details', $candidateJobApplyEncID);
   // basic information url start
   $basicInformationRouteUrl = "#";
@@ -164,4 +166,28 @@ if(isset($candidateJobApplyDetail) && !empty($candidateJobApplyDetail)){
     <li class="<?php echo $finalSubmissionClass; ?>">
         <a href="<?php echo $finalSubmissionRouteUrl; ?>">Final Submission</a>
     </li>
+    <?php
+    if(isset($exam_shift_id) && !empty($exam_shift_id)){
+        $examTypeEnc = Helper::encodeId(1);
+        $examAdmitCardRoute = route("admit_card", $candidateJobApplyEncID);
+        $examAdmitCardRoute .= "/".$examTypeEnc;
+        ?>
+        <li class="importantStep">
+            <a target="_blank" href="<?php echo $examAdmitCardRoute; ?>">Exam Admit Card</a>
+        </li>
+        <?php
+    }
+    ?>
+    <?php
+    if(isset($interview_shift_id) && !empty($interview_shift_id)){
+        $interviewTypeEnc = Helper::encodeId(2);
+        $interviewAdmitCardRoute = route("admit_card", $candidateJobApplyEncID);
+        $interviewAdmitCardRoute .= "/".$interviewTypeEnc;
+        ?>
+        <li class="importantStep">
+            <a target="_blank" href="<?php echo $interviewAdmitCardRoute; ?>">Interview Admit Card</a>
+        </li>
+        <?php
+    }
+    ?>
 </ul>

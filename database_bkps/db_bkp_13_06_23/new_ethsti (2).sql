@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2023 at 02:47 PM
+-- Generation Time: Jun 13, 2023 at 02:14 PM
 -- Server version: 10.4.16-MariaDB
 -- PHP Version: 7.4.12
 
@@ -24,6 +24,52 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `apply_job_hr_remarks`
+--
+
+CREATE TABLE `apply_job_hr_remarks` (
+  `id` int(11) NOT NULL,
+  `category` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `code` varchar(5) COLLATE utf8_bin DEFAULT NULL,
+  `remarks_desc` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `status` int(11) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `apply_job_hr_remarks`
+--
+
+INSERT INTO `apply_job_hr_remarks` (`id`, `category`, `code`, `remarks_desc`, `status`) VALUES
+(1, 'GENERAL', 'R1', 'Overaged', 1),
+(2, 'GENERAL', 'R2', 'Not possessing essential / relevant qualification', 1),
+(3, 'SPECIFIC', 'S1', 'PG diploma is of one year instead of two years', 1),
+(4, 'SPECIFIC', 'S2', 'Less than 9 years of post qualification supervisory experience in the relevant functional area', 1),
+(5, 'PROVISIONAL', 'P1', 'OBC certificate to be provided in the Govt. of India format and issued by an appropriate authority on or after 1.4.2019', 1),
+(6, 'PROVISIONAL', 'P2', 'SC/ST/PwBD certificate to be provided in the Govt. of India format', 1),
+(7, 'GENERAL', 'R3', 'Not possessing relevant experience', 1),
+(8, 'GENERAL', 'R4', 'Not possessing required period of post qualification experience / less than required experience', 1),
+(9, 'GENERAL', 'R5', 'Incomplete application/Relevant document not uploaded', 1),
+(10, 'GENERAL', 'R6', 'The candidate does not belong to the category for which the vacancy is reserved', 1),
+(11, 'GENERAL', 'R7', 'PwBD certificate not in the relevant format', 1),
+(12, 'GENERAL', 'R8', 'Payment not received', 1),
+(13, 'PROVISIONAL', 'P3', 'Experience certificate from all the employers to be provided duly indicating the period of employment in each grade/post within the same organisation', 1),
+(14, 'PROVISIONAL', 'P4', 'Discharge certificate / NOC to be provided to obtain relaxation entitled for Ex-servicemen', 1),
+(15, 'PROVISIONAL', 'P5', 'All the documents to be provided', 1),
+(16, 'PROVISIONAL', 'P6', 'PG Diploma Certificate/other proof indicating that the duration of the diploma is of two years should be provided (one year diploma will not be considered as the essential qualification)', 1),
+(17, 'PROVISIONAL', 'P7', 'Diploma certificate/other proof indicating that the duration of the diploma is of one year should be provided (diplomas of duration  less than one year will not be considered as essential qualification)', 1),
+(18, 'PROVISIONAL', 'P8', 'Forwarding letter/NOC for deputation to be provided from the present employer', 1),
+(19, 'PROVISIONAL', 'P9', 'Document from the Institution/University certifying that the PG Degree/Diploma is in Finance/Accounts', 1),
+(20, 'GENERAL', 'R9', 'Duplicate application', 1),
+(21, 'PROVISIONAL', 'P10', 'NOC from current employer to be provided', 1),
+(22, 'SPECIFIC', 'S3', 'Not possessing requisite experience in the relevant grade for deputation', 1),
+(23, 'PROVISIONAL', 'P11', 'Degree mark sheet showing that at least one of the subjects is related to CS/IT to be provided', 1),
+(24, 'SPECIFIC', 'S4', 'Final year marksheet issued on or before 1st July 2020 to be provided ', 1),
+(25, 'SPECIFIC', 'S5', 'Valid GATE/NET-LS/GPAT score card to be provided', 1),
+(26, 'SPECIFIC', 'S6', 'Fellowship award letter to be provided', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `candidates_academics_details`
 --
 
@@ -35,11 +81,14 @@ CREATE TABLE `candidates_academics_details` (
   `education_id` int(11) DEFAULT NULL COMMENT 'Education master primary key from code_master',
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
+  `duration_of_course` int(11) DEFAULT NULL COMMENT 'in years',
   `degree_or_subject` varchar(255) DEFAULT NULL COMMENT 'Will store degree or subjects name',
   `board_or_university` varchar(255) DEFAULT NULL,
   `percentage` decimal(10,0) DEFAULT NULL,
-  `cgpa` decimal(10,0) DEFAULT NULL,
+  `cgpa` varchar(255) DEFAULT NULL,
   `division` varchar(255) DEFAULT NULL,
+  `phd_result` int(11) DEFAULT NULL COMMENT '1 for Degree Awarded,\r\n2 for Thesis Submitted',
+  `thesis_title` text DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - active, \r\n2 - inactive, \r\n3 - delete',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -49,9 +98,83 @@ CREATE TABLE `candidates_academics_details` (
 -- Dumping data for table `candidates_academics_details`
 --
 
-INSERT INTO `candidates_academics_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `education_id`, `month`, `year`, `degree_or_subject`, `board_or_university`, `percentage`, `cgpa`, `division`, `status`, `created_at`, `updated_at`) VALUES
-(3, 1, 2, 1, 15, 3, 2010, 'yrgfyg', 'rftgr', '80', '8', 'I', 1, '2023-03-28 07:25:36', '2023-03-29 07:03:35'),
-(4, 1, 2, 1, 16, 5, 2014, 'drft', 'ertrt', '72', '9', 'I', 1, '2023-03-28 07:25:36', '2023-03-29 07:03:35');
+INSERT INTO `candidates_academics_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `education_id`, `month`, `year`, `duration_of_course`, `degree_or_subject`, `board_or_university`, `percentage`, `cgpa`, `division`, `phd_result`, `thesis_title`, `status`, `created_at`, `updated_at`) VALUES
+(3, 1, 2, 1, 15, 3, 2010, 1, 'yrgfyg', 'rftgr', '80', '8', 'I', NULL, NULL, 1, '2023-03-28 07:25:36', '2023-06-05 06:03:12'),
+(4, 1, 2, 1, 16, 5, 2014, 3, 'drft', 'ertrt', '72', '9', 'I', NULL, NULL, 1, '2023-03-28 07:25:36', '2023-06-05 06:03:12'),
+(5, 2, 2, 2, 15, 2, 2010, 2, 'jdhgj', 'hgdjhgj', '70', '7', 'I', NULL, NULL, 1, '2023-05-12 12:13:24', '2023-05-14 23:38:45'),
+(6, 2, 2, 2, 16, 3, 2014, 2, 'jhgjd', 'dhgjdgh', '70', '8', 'I', NULL, NULL, 1, '2023-05-12 12:13:24', '2023-05-14 23:38:45'),
+(7, 2, 2, 2, 18, 2, 2015, 2, 'dfds', 'sdas', NULL, NULL, 'I', 1, NULL, 1, '2023-05-12 12:13:24', '2023-05-14 23:38:45'),
+(8, 1, 2, 1, 18, 6, 2018, 4, 'thsti', 'thsti', NULL, NULL, 'I', 1, 'Test Thesis Title', 1, '2023-05-15 12:18:46', '2023-06-05 06:03:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_academics_documents`
+--
+
+CREATE TABLE `candidates_academics_documents` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `candidate_job_apply_id` int(11) DEFAULT NULL,
+  `education_id` int(11) DEFAULT NULL,
+  `folder_name` varchar(255) DEFAULT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `candidates_academics_documents`
+--
+
+INSERT INTO `candidates_academics_documents` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `education_id`, `folder_name`, `file_name`, `status`, `created_at`, `updated_at`) VALUES
+(6, 2, 2, 2, 15, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-15 00:58:02', '2023-05-15 00:58:02'),
+(7, 2, 2, 2, 16, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-15 00:58:02', '2023-05-15 00:58:02'),
+(8, 2, 2, 2, 18, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-15 00:58:02', '2023-05-15 00:58:02'),
+(9, 1, 2, 1, 15, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-16 05:08:12', '2023-05-16 05:09:31'),
+(10, 1, 2, 1, 16, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-16 05:08:12', '2023-05-16 05:09:31'),
+(11, 1, 2, 1, 18, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-16 05:08:12', '2023-05-16 05:09:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_common_documents`
+--
+
+CREATE TABLE `candidates_common_documents` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `candidate_job_apply_id` int(11) DEFAULT NULL,
+  `folder_name` varchar(255) DEFAULT NULL,
+  `category_certificate` varchar(255) DEFAULT NULL,
+  `esm_certificate` varchar(255) DEFAULT NULL,
+  `pwd_certificate` varchar(255) DEFAULT NULL,
+  `candidate_photo` varchar(255) DEFAULT NULL,
+  `candidate_sign` varchar(255) DEFAULT NULL,
+  `fellowship_certificate` varchar(255) DEFAULT NULL,
+  `exam_qualified_certificate` varchar(255) DEFAULT NULL,
+  `id_card` varchar(255) DEFAULT NULL,
+  `age_proof` varchar(255) DEFAULT NULL,
+  `noc_certificate` varchar(255) DEFAULT NULL,
+  `stmt_proposal` varchar(255) DEFAULT NULL,
+  `candidate_cv` varchar(255) DEFAULT NULL,
+  `listpublication` varchar(255) DEFAULT NULL,
+  `publication` varchar(255) DEFAULT NULL,
+  `project_proposal` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `candidates_common_documents`
+--
+
+INSERT INTO `candidates_common_documents` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `folder_name`, `category_certificate`, `esm_certificate`, `pwd_certificate`, `candidate_photo`, `candidate_sign`, `fellowship_certificate`, `exam_qualified_certificate`, `id_card`, `age_proof`, `noc_certificate`, `stmt_proposal`, `candidate_cv`, `listpublication`, `publication`, `project_proposal`, `status`, `created_at`, `updated_at`) VALUES
+(5, 1, 2, 1, NULL, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 'eSignInstruction.pdf', 'img-100-100.jpg', 'sign_anuj.jpg', NULL, NULL, 'thsti-pay-slip.pdf', 'thsti-pay-slip.pdf', 'Payment_Receipt.pdf', 'eSignInstruction.pdf', '110137586765_ePRANCARDVIEW.pdf', '110137586765_ePRANWelComeKit.pdf', 'Payment_Receipt.pdf', 'Payment_Receipt.pdf', 1, '2023-06-07 00:29:01', '2023-06-07 00:37:04');
 
 -- --------------------------------------------------------
 
@@ -65,6 +188,7 @@ CREATE TABLE `candidates_experience_details` (
   `job_id` int(11) NOT NULL,
   `candidate_job_apply_id` int(11) DEFAULT NULL COMMENT 'primary key of candidates_jobs_apply table',
   `organization_name` varchar(900) DEFAULT NULL,
+  `nature_of_duties` text DEFAULT NULL,
   `designation` varchar(255) DEFAULT NULL,
   `from_date` timestamp NULL DEFAULT NULL,
   `to_date` timestamp NULL DEFAULT NULL,
@@ -80,9 +204,38 @@ CREATE TABLE `candidates_experience_details` (
 -- Dumping data for table `candidates_experience_details`
 --
 
-INSERT INTO `candidates_experience_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `organization_name`, `designation`, `from_date`, `to_date`, `total_experience`, `pay_level`, `gross_pay`, `status`, `created_at`, `updated_at`) VALUES
-(2, 1, 2, 1, 'Digitech Software Solutions', 'Programmer', '2016-02-01 18:30:00', '2019-03-06 18:30:00', '03 Year, 01 Months, 5 Days', '3', '20000', 1, '2023-03-29 06:42:47', '2023-03-29 07:03:35'),
-(3, 1, 2, 1, 'Teq Mavens', 'Sr. Developer', '2019-03-09 18:30:00', '2023-03-28 18:30:00', '04 Year, 00 Months, 19 Days', '5', '30000', 1, '2023-03-29 08:29:59', '2023-03-29 07:03:35');
+INSERT INTO `candidates_experience_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `organization_name`, `nature_of_duties`, `designation`, `from_date`, `to_date`, `total_experience`, `pay_level`, `gross_pay`, `status`, `created_at`, `updated_at`) VALUES
+(2, 1, 2, 1, 'Digitech Software Solutions', 'php development, websites development', 'Programmer', '2020-12-31 18:30:00', '2023-05-31 18:30:00', '02 Year, 05 Months, 0 Days', '6', '35400', 1, '2023-03-29 06:42:47', '2023-06-05 06:03:12'),
+(3, 1, 2, 1, 'Teq Mavens', 'cakephp development, websites development', 'Sr. Developer', '2019-03-09 18:30:00', '2020-12-30 18:30:00', '01 Year, 09 Months, 21 Days', '5', '30000', 1, '2023-03-29 08:29:59', '2023-06-05 06:03:12'),
+(4, 1, 2, 1, 'THSTI', 'Programming', 'Programmer', '2017-01-31 18:30:00', '2019-03-07 18:30:00', '02 Year, 01 Months, 7 Days', '6', '20000', 1, '2023-05-15 12:20:37', '2023-06-05 06:03:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_experience_documents`
+--
+
+CREATE TABLE `candidates_experience_documents` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `candidate_job_apply_id` int(11) DEFAULT NULL,
+  `candidate_experience_detail_id` int(11) DEFAULT NULL COMMENT 'primary key of candidates_experience_details table',
+  `folder_name` varchar(255) DEFAULT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `candidates_experience_documents`
+--
+
+INSERT INTO `candidates_experience_documents` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `candidate_experience_detail_id`, `folder_name`, `file_name`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 1, 3, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-04-06 00:33:17', '2023-05-16 05:08:12'),
+(2, 1, 2, 1, 2, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-04-06 00:46:52', '2023-05-16 05:08:12'),
+(3, 1, 2, 1, 4, NULL, '16806894193503-II-PA-I-IMMUNOLOGY-RESULT-DR.-AWASTHI.pdf', 1, '2023-05-16 05:10:15', '2023-05-16 05:11:02');
 
 -- --------------------------------------------------------
 
@@ -98,20 +251,41 @@ CREATE TABLE `candidates_jobs_apply` (
   `domain_id` int(11) DEFAULT NULL,
   `appointment_method_id` int(11) DEFAULT NULL,
   `is_ex_serviceman` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for yes,\r\n0 for No',
+  `date_of_release` date DEFAULT NULL,
+  `is_esm_reservation_avail` int(11) DEFAULT NULL COMMENT '1 for Yes,\r\n0 for No',
+  `is_govt_servent` int(11) DEFAULT NULL COMMENT '1 for yes,\r\n0 for No',
+  `type_of_employment` int(11) DEFAULT NULL COMMENT '1 for Permanent,\r\n2 for Temporary',
+  `type_of_employer` int(11) DEFAULT NULL COMMENT 'type_of_employer id from masters',
   `is_pwd` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for yes,\r\n0 for No',
-  `category_id` int(11) DEFAULT NULL COMMENT 'cast_category from code_names master',
+  `category_id` int(11) DEFAULT NULL COMMENT 'caste_category from code_names master',
+  `marital_status` int(11) DEFAULT NULL COMMENT '1 - Single,\r\n2 - Married,\r\n3 - Divorced',
   `application_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for completed,\r\n2 for ---',
   `trainee_category_id` int(11) DEFAULT NULL COMMENT 'trainee_category from codes master',
   `institute_name` varchar(255) DEFAULT NULL,
   `is_experience` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
   `total_experience` varchar(255) DEFAULT NULL,
+  `age_calculated` varchar(255) DEFAULT NULL,
   `is_publication` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
   `relative_name` varchar(255) DEFAULT NULL COMMENT 'relative or friend in thsti',
   `relative_designation` varchar(255) DEFAULT NULL,
   `relative_relationship` varchar(255) DEFAULT NULL COMMENT '1 for Yes,\r\n0 for No',
-  `data_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for completed',
-  `file_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for completed',
-  `payment_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for success,\r\n2 for Failed\r\n1 for completed',
+  `is_basic_info_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_qualification_exp_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_phd_details_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_document_upload_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_final_submission_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_payment_done` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `is_final_submit_after_payment` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `payment_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for pending,\r\n1 for success,\r\n2 for Failed',
+  `is_completed` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 for No,\r\n1 for Yes',
+  `is_screened` int(11) DEFAULT 0 COMMENT ' 0 for No,\r\n1 for Yes',
+  `shortlisting_status` int(11) DEFAULT NULL COMMENT '1 - shortlisted,\r\n2 - rejected,\r\n3 - provisional shortlisted',
+  `hr_additional_remarks` text DEFAULT NULL,
+  `details_pdf_name` varchar(255) DEFAULT NULL,
+  `pay_receipt_pdf_name` varchar(255) DEFAULT NULL,
+  `is_after_payment_mail_sent` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1 - sent,\r\n0 - pending',
+  `exam_shift_id` int(11) DEFAULT NULL,
+  `interview_shift_id` int(11) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -121,8 +295,82 @@ CREATE TABLE `candidates_jobs_apply` (
 -- Dumping data for table `candidates_jobs_apply`
 --
 
-INSERT INTO `candidates_jobs_apply` (`id`, `candidate_id`, `rn_no_id`, `job_id`, `domain_id`, `appointment_method_id`, `is_ex_serviceman`, `is_pwd`, `category_id`, `application_status`, `trainee_category_id`, `institute_name`, `is_experience`, `total_experience`, `is_publication`, `relative_name`, `relative_designation`, `relative_relationship`, `data_status`, `file_status`, `payment_status`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 10, 2, 29, 31, 0, 0, 37, 0, NULL, NULL, 1, '7 YEARS,1 MONTHS,24 DAYS', 1, 'Satyam Kumar', 'Programmer', 'Friend', 0, 0, 0, 1, '2023-03-14 04:55:38', '2023-03-29 07:03:35');
+INSERT INTO `candidates_jobs_apply` (`id`, `candidate_id`, `rn_no_id`, `job_id`, `domain_id`, `appointment_method_id`, `is_ex_serviceman`, `date_of_release`, `is_esm_reservation_avail`, `is_govt_servent`, `type_of_employment`, `type_of_employer`, `is_pwd`, `category_id`, `marital_status`, `application_status`, `trainee_category_id`, `institute_name`, `is_experience`, `total_experience`, `age_calculated`, `is_publication`, `relative_name`, `relative_designation`, `relative_relationship`, `is_basic_info_done`, `is_qualification_exp_done`, `is_phd_details_done`, `is_document_upload_done`, `is_final_submission_done`, `is_payment_done`, `is_final_submit_after_payment`, `payment_status`, `is_completed`, `is_screened`, `shortlisting_status`, `hr_additional_remarks`, `details_pdf_name`, `pay_receipt_pdf_name`, `is_after_payment_mail_sent`, `exam_shift_id`, `interview_shift_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 10, 2, 29, 31, 1, '2023-06-08', 0, 1, 1, 118, 1, 37, 2, 0, NULL, NULL, 1, '6 YEARS,3 MONTHS,28 DAYS', '31 Year, 02 Months, 30 Days', 0, 'Satyam Kumar', 'Programmer', 'Friend', 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 3, 'Candidate provisional shortlisted', 'details_1684910014_1_1.pdf', 'pay_receipt_1684910015_1_1.pdf', 1, 1, 4, 1, '2023-03-14 04:55:38', '2023-06-12 23:36:08'),
+(2, 2, 10, 2, 29, 31, 0, NULL, 0, 0, NULL, NULL, 0, 37, 1, 0, NULL, NULL, 0, NULL, '00 Year, 02 Months, 0 Days', 0, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, NULL, NULL, NULL, 0, 2, 5, 1, '2023-05-12 01:14:56', '2023-06-13 00:45:50'),
+(3, 3, 10, 2, 29, 31, 0, NULL, 0, 0, NULL, NULL, 0, 37, 1, 0, NULL, NULL, 0, NULL, '26 Year, 09 Months, 4 Days', 0, NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 3, NULL, NULL, NULL, 0, 1, 4, 1, '2023-05-18 04:30:13', '2023-06-12 23:36:08'),
+(5, 5, 10, 2, 29, 31, 0, NULL, 0, 0, NULL, NULL, 0, 37, 1, 0, NULL, NULL, 0, NULL, '21 Year, 09 Months, 3 Days', 0, NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, NULL, NULL, NULL, 0, 2, 5, 1, '2023-05-19 04:17:10', '2023-06-13 00:45:50');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_job_hr_remarks`
+--
+
+CREATE TABLE `candidates_job_hr_remarks` (
+  `id` int(11) NOT NULL,
+  `candidate_job_apply_id` int(11) NOT NULL,
+  `remarks_code_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n0 for inactive',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `candidates_job_hr_remarks`
+--
+
+INSERT INTO `candidates_job_hr_remarks` (`id`, `candidate_job_apply_id`, `remarks_code_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 1, '2023-05-04 10:50:43', '2023-05-04 10:50:43'),
+(2, 1, 7, 1, '2023-05-04 10:50:43', '2023-05-04 10:50:43'),
+(3, 1, 8, 1, '2023-05-04 10:50:43', '2023-05-04 10:50:43');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `candidates_phd_research_details`
+--
+
+CREATE TABLE `candidates_phd_research_details` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `candidate_job_apply_id` int(11) DEFAULT NULL,
+  `patent_information` text DEFAULT NULL,
+  `is_have_patents` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `no_patents_filed_national` int(11) DEFAULT NULL,
+  `no_patents_granted_national` int(11) DEFAULT NULL,
+  `no_patents_filed_international` int(11) DEFAULT NULL,
+  `no_patents_granted_international` int(11) DEFAULT NULL,
+  `research_statement` text DEFAULT NULL,
+  `is_submitted_research_statement` int(11) NOT NULL DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `funding_agency` varchar(255) DEFAULT NULL,
+  `rank` varchar(255) DEFAULT NULL,
+  `admission_test` varchar(255) DEFAULT NULL,
+  `fellowship_valid_up_to` date DEFAULT NULL,
+  `is_fellowship_activated` int(11) DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `active_institute_name` varchar(900) DEFAULT NULL,
+  `activation_date` date DEFAULT NULL,
+  `is_exam_qualified` int(11) DEFAULT 0 COMMENT '1 for Yes,\r\n0 for No',
+  `exam_name` text DEFAULT NULL,
+  `exam_score` varchar(255) DEFAULT NULL,
+  `exam_qualified_val_up_to` date DEFAULT NULL,
+  `no_of_pub` int(11) DEFAULT NULL,
+  `no_of_first_author_pub` int(11) DEFAULT NULL,
+  `no_of_cors_author_pub` int(11) DEFAULT NULL,
+  `no_of_pub_impact_fact` int(11) DEFAULT NULL,
+  `no_of_citations` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for delete',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `candidates_phd_research_details`
+--
+
+INSERT INTO `candidates_phd_research_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `patent_information`, `is_have_patents`, `no_patents_filed_national`, `no_patents_granted_national`, `no_patents_filed_international`, `no_patents_granted_international`, `research_statement`, `is_submitted_research_statement`, `funding_agency`, `rank`, `admission_test`, `fellowship_valid_up_to`, `is_fellowship_activated`, `active_institute_name`, `activation_date`, `is_exam_qualified`, `exam_name`, `exam_score`, `exam_qualified_val_up_to`, `no_of_pub`, `no_of_first_author_pub`, `no_of_cors_author_pub`, `no_of_pub_impact_fact`, `no_of_citations`, `status`, `created_at`, `updated_at`) VALUES
+(41, 1, 2, 1, 'patent informations', 0, 5, 3, 5, 1, 'statement or proposals', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, NULL, 10, 5, 5, 5, 8, 1, '2023-06-06 01:26:53', '2023-06-09 00:44:43');
 
 -- --------------------------------------------------------
 
@@ -152,8 +400,9 @@ CREATE TABLE `candidates_publications_details` (
 --
 
 INSERT INTO `candidates_publications_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `publication_number`, `authors`, `article_title`, `journal_name`, `year_volume`, `doi`, `pubmed_pmid`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, 1, 1, 'Author 1', 'Article 1', 'Journal 1', '2010', 'asd-2012', '120-5210', 1, '2023-03-29 10:17:55', '2023-03-29 07:03:35'),
-(2, 1, 2, 1, 2, 'Author 2', 'Article 2', 'Journal 2', '2012', 'dfre-2014', '456-7895', 1, '2023-03-29 10:17:55', '2023-03-29 07:03:35');
+(3, 1, 2, 1, 1, 'dfsdf', 'ewrc', 'dfwsedf', '2010', 'asd-2012', '120-5210', 3, '2023-05-16 06:19:42', '2023-05-16 00:59:31'),
+(11, 1, 2, 1, 1, 'dgfds', 'dfsf', 'dsfdf', '2010', 'asd-2012', '120-5210', 1, '2023-05-16 06:29:31', '2023-05-17 01:10:43'),
+(12, 1, 2, 1, 2, 'fdsf', 'rfgeg', 'ftfe', '2010', 'asd-2012', '120-5210', 1, '2023-05-16 07:08:33', '2023-05-17 01:10:43');
 
 -- --------------------------------------------------------
 
@@ -182,8 +431,10 @@ CREATE TABLE `candidates_refree_details` (
 --
 
 INSERT INTO `candidates_refree_details` (`id`, `candidate_id`, `job_id`, `candidate_job_apply_id`, `refree_name`, `designation`, `organisation`, `email_id`, `phone_no`, `mobile_no`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, 1, 'Anoop', 'MD', 'AMAZL', 'anoop@amazl.in', '9898989898', '9898989898', 1, '2023-03-29 12:33:35', '2023-03-29 12:33:35'),
-(2, 1, 2, 1, 'Subhanshu', 'Developer', 'AMAZL', 'sdfd@gmail.com', '8989898989', '8989898989', 1, '2023-03-29 12:33:35', '2023-03-29 12:33:35');
+(1, 1, 2, 1, 'Anoop', 'MD', 'AMAZL', 'anoop@amazl.in', '9898989898', '9898989898', 1, '2023-03-29 12:33:35', '2023-06-05 06:03:12'),
+(2, 1, 2, 1, 'Subhanshu', 'Developer', 'AMAZL', 'sdfd@gmail.com', '8989898989', '8989898989', 1, '2023-03-29 12:33:35', '2023-06-05 06:03:12'),
+(3, 2, 2, 2, 'dhgjhg', 'hdgj', 'THSTI', 'sdfd@gmail.com', '8989898989', '8989898989', 1, '2023-05-12 12:13:24', '2023-05-14 23:38:45'),
+(4, 1, 2, 1, 'asdfedw', 'aerwr', 'THSTI', 'dfd@gmail.com', '7878787878', '7878787878', 1, '2023-05-15 12:18:46', '2023-06-05 06:03:12');
 
 -- --------------------------------------------------------
 
@@ -214,13 +465,14 @@ INSERT INTO `code_master` (`id`, `code_name`, `code`, `status`, `created_at`, `u
 (9, 'Domain Area', 'domain_area', 1, '2023-03-02 04:17:34', '2023-03-02 04:17:34'),
 (10, 'Method of Appointment', 'method_of_appointment', 1, '2023-03-02 23:16:12', '2023-03-02 23:16:12'),
 (11, 'Salutation', 'salutation', 1, '2023-03-03 00:28:23', '2023-03-03 00:28:23'),
-(12, 'Cast Categories', 'cast_categories', 1, '2023-03-05 23:33:46', '2023-03-05 23:33:46'),
+(12, 'Caste Categories', 'cast_categories', 1, '2023-03-05 23:33:46', '2023-04-11 05:43:30'),
 (13, 'Trainee Category', 'trainee_category', 1, '2023-03-06 00:16:35', '2023-03-06 00:16:35'),
 (14, 'States', 'states', 1, '2023-03-06 01:22:39', '2023-03-06 01:22:39'),
 (15, 'Post Master', 'post_master', 1, '2023-03-06 05:58:26', '2023-03-06 05:58:26'),
 (16, 'RN No. Type', 'rn_no_type', 1, '2023-03-09 01:37:49', '2023-03-09 01:37:55'),
 (17, 'Gender', 'gender', 1, '2023-03-10 04:44:20', '2023-03-10 04:44:20'),
-(18, 'THS RN Types', 'ths_rn_types', 1, '2023-03-26 23:38:40', '2023-03-26 23:38:40');
+(18, 'THS RN Types', 'ths_rn_types', 1, '2023-03-26 23:38:40', '2023-03-26 23:38:40'),
+(19, 'Type of employer', 'type_of_employer', 1, '2023-04-26 03:50:12', '2023-04-26 03:50:12');
 
 -- --------------------------------------------------------
 
@@ -358,7 +610,108 @@ INSERT INTO `code_names` (`id`, `code_id`, `code_meta_name`, `code`, `status`, `
 (114, 6, 'Other', 'other', 1, '2023-03-16 03:14:35', '2023-03-16 03:14:35'),
 (115, 18, 'Rolling', 'rolling', 1, '2023-03-26 23:38:54', '2023-03-26 23:38:54'),
 (116, 18, 'Clinical', 'clinical', 1, '2023-03-26 23:39:04', '2023-03-26 23:39:04'),
-(117, 18, 'Other', 'other', 1, '2023-03-26 23:39:11', '2023-03-26 23:39:11');
+(117, 18, 'Other', 'other', 1, '2023-03-26 23:39:11', '2023-03-26 23:39:11'),
+(118, 19, 'Center Govt.', 'center_govt.', 1, '2023-04-26 03:52:28', '2023-04-26 03:52:28'),
+(119, 19, 'State Govt.', 'state_govt.', 1, '2023-04-26 03:52:53', '2023-04-26 03:52:53'),
+(120, 19, 'Autonomous Body', 'autonomous_body', 1, '2023-04-26 04:11:07', '2023-04-26 04:11:07'),
+(121, 19, 'PSE/PSU', 'pse/psu', 1, '2023-04-26 04:11:33', '2023-04-26 04:11:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_candidate_shift`
+--
+
+CREATE TABLE `exam_candidate_shift` (
+  `id` int(11) NOT NULL,
+  `candidate_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `exam_center_shift_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_centers`
+--
+
+CREATE TABLE `exam_centers` (
+  `id` int(11) NOT NULL,
+  `centre_name` text DEFAULT NULL,
+  `centre_address` text DEFAULT NULL,
+  `centre_location` varchar(255) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - Active,\r\n2 - Inactive',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `exam_centers`
+--
+
+INSERT INTO `exam_centers` (`id`, `centre_name`, `centre_address`, `centre_location`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'THSTI Faridabad', 'NCR Biotech Science Cluster, 3rd Milestone, Faridabad – Gurugram Expressway, PO box #04,', 'Faridabad', 1, '2023-05-25 06:43:46', '2023-05-25 06:43:46'),
+(2, 'ION Digital Center Faridabad', 'Plot No. 17, Sector - 20 B, NH 44, near Bata Metro Station, New Industrial Township, Faridabad, Haryana 121001', 'Faridabad', 1, '2023-05-25 06:43:46', '2023-05-25 06:43:46');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_center_mapping`
+--
+
+CREATE TABLE `exam_center_mapping` (
+  `id` int(11) NOT NULL,
+  `rn_no_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `exam_center_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 - active,\r\n2 - inactive,\r\n3 - deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `exam_center_mapping`
+--
+
+INSERT INTO `exam_center_mapping` (`id`, `rn_no_id`, `job_id`, `exam_center_id`, `status`, `created_at`, `updated_at`) VALUES
+(5, 10, 2, 2, 1, '2023-05-26 09:44:16', '2023-05-26 05:25:05'),
+(6, 10, 2, 1, 3, '2023-05-26 09:44:16', '2023-05-26 05:23:20'),
+(7, 10, 2, 1, 1, '2023-05-26 10:55:05', '2023-05-26 10:55:05');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_center_shifts`
+--
+
+CREATE TABLE `exam_center_shifts` (
+  `id` int(11) NOT NULL,
+  `exam_center_map_id` int(11) DEFAULT NULL,
+  `job_id` int(11) DEFAULT NULL,
+  `is_exam_or_interview` tinyint(4) DEFAULT NULL COMMENT '1 for Exam,\r\n2 for Interview',
+  `shift` varchar(255) DEFAULT NULL,
+  `reporting_date` date DEFAULT NULL,
+  `reporting_time` varchar(255) DEFAULT NULL,
+  `start_time` varchar(255) DEFAULT NULL,
+  `shift_time` varchar(255) DEFAULT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1 for active,\r\n2 for inactive,\r\n3 for deleted',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `exam_center_shifts`
+--
+
+INSERT INTO `exam_center_shifts` (`id`, `exam_center_map_id`, `job_id`, `is_exam_or_interview`, `shift`, `reporting_date`, `reporting_time`, `start_time`, `shift_time`, `status`, `created_at`, `updated_at`) VALUES
+(1, 5, 2, 1, 'A', '2023-06-24', '9 AM', '10 AM', '10 AM - 12 AM', 1, '2023-06-12 00:02:30', '2023-06-13 05:10:48'),
+(2, 5, 2, 1, 'B', '2023-06-24', '4 PM', '5 PM', '5 PM - 6 PM', 1, '2023-06-12 00:02:30', '2023-06-13 05:10:48'),
+(3, 5, 2, 1, NULL, '2023-06-29', '9 AM', NULL, NULL, 3, '2023-06-12 01:29:38', '2023-06-12 01:30:44'),
+(4, 5, 2, 2, 'A', '2023-06-30', '9 AM', '10 AM', '10 AM - 12 AM', 1, '2023-06-12 01:35:01', '2023-06-13 01:07:59'),
+(5, 5, 2, 2, 'B', '2023-06-30', '3 PM', '4 PM', '4 PM - 6 PM', 1, '2023-06-12 01:35:01', '2023-06-13 01:07:59');
 
 -- --------------------------------------------------------
 
@@ -379,6 +732,114 @@ CREATE TABLE `failed_jobs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `fee_crone_job`
+--
+
+CREATE TABLE `fee_crone_job` (
+  `id` int(11) NOT NULL,
+  `status` int(11) DEFAULT NULL COMMENT '1 for completed,\r\n2 for initiated',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `fee_crone_job`
+--
+
+INSERT INTO `fee_crone_job` (`id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, '2023-04-19 22:44:53', '2023-04-19 22:44:54'),
+(2, 1, '2023-04-21 03:04:07', '2023-04-21 03:04:09');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fee_crone_job_trans`
+--
+
+CREATE TABLE `fee_crone_job_trans` (
+  `id` int(11) NOT NULL,
+  `fee_crone_job_id` int(11) DEFAULT NULL,
+  `status_code` varchar(255) DEFAULT NULL,
+  `msg_body` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `fee_crone_job_trans`
+--
+
+INSERT INTO `fee_crone_job_trans` (`id`, `fee_crone_job_id`, `status_code`, `msg_body`, `created_at`, `updated_at`) VALUES
+(1, 1, '200', '0130|THSTI|THSTI_1_1_20230419062851|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|Invalid checksum|NA|NA|NA|NA|NA|N|2A1A4B77E171DB8F3C96AFB43108B1E76FB53073CDDD8061E73A6E38383ED1C1', '2023-04-19 22:44:54', '2023-04-19 22:44:54'),
+(2, 2, '200', '0130|THSTI|THSTI_1_1_20230419062851|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|Invalid checksum|NA|NA|NA|NA|NA|N|2A1A4B77E171DB8F3C96AFB43108B1E76FB53073CDDD8061E73A6E38383ED1C1', '2023-04-21 03:04:09', '2023-04-21 03:04:09'),
+(3, 2, '200', '0130|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|NA|Invalid message|NA|NA|NA|NA|NA|N|2146206332', '2023-04-21 03:04:09', '2023-04-21 03:04:09');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fee_status_transactions`
+--
+
+CREATE TABLE `fee_status_transactions` (
+  `id` int(11) NOT NULL,
+  `job_apply_id` int(11) DEFAULT NULL,
+  `pay_status_code` varchar(255) DEFAULT NULL,
+  `code_description` varchar(255) DEFAULT NULL,
+  `is_by_crone_job` int(11) DEFAULT NULL,
+  `msg_json` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fee_transactions`
+--
+
+CREATE TABLE `fee_transactions` (
+  `id` int(11) NOT NULL,
+  `job_apply_id` int(11) DEFAULT NULL,
+  `merchant_id` varchar(255) DEFAULT NULL,
+  `customer_id` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `mobile` varchar(15) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `checksum` text DEFAULT NULL,
+  `msg` text DEFAULT NULL,
+  `currency_type` varchar(255) DEFAULT NULL,
+  `txn_amount` decimal(10,2) DEFAULT NULL,
+  `txn_reference_no` varchar(255) DEFAULT NULL,
+  `txn_charges` decimal(10,2) DEFAULT NULL,
+  `txn_date` datetime DEFAULT NULL,
+  `bank_ref_no` varchar(255) DEFAULT NULL,
+  `bank_id` varchar(255) DEFAULT NULL,
+  `pay_status` varchar(255) DEFAULT NULL,
+  `error_status` varchar(255) DEFAULT NULL,
+  `error_description` varchar(255) DEFAULT NULL,
+  `checksum_res` text DEFAULT NULL,
+  `msg_res` text DEFAULT NULL,
+  `sms_res` varchar(255) DEFAULT NULL,
+  `sms_id` int(11) DEFAULT NULL,
+  `sms_status` varchar(20) DEFAULT NULL,
+  `method` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `fee_transactions`
+--
+
+INSERT INTO `fee_transactions` (`id`, `job_apply_id`, `merchant_id`, `customer_id`, `email`, `mobile`, `name`, `checksum`, `msg`, `currency_type`, `txn_amount`, `txn_reference_no`, `txn_charges`, `txn_date`, `bank_ref_no`, `bank_id`, `pay_status`, `error_status`, `error_description`, `checksum_res`, `msg_res`, `sms_res`, `sms_id`, `sms_status`, `method`, `created_at`, `updated_at`) VALUES
+(1, 1, 'THSTI', 'THSTI_1_1_20230419062851', 'kambojanuj1992@gmail.com', '9517886722', 'Anuj Kamboj', 'F9783D1ECF39B57125078D7330DB3B3B734E559E827BFF674CDCB6F9A0570ACE', 'THSTI|THSTI_1_1_20230419062851|NA|1000|NA|NA|NA|INR|NA|R|thsti|NA|NA|F|kambojanuj1992@gmail.com|9517886722|Anuj Kamboj|1|NA|NA|NA|NA|F9783D1ECF39B57125078D7330DB3B3B734E559E827BFF674CDCB6F9A0570ACE', NULL, '1000.00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-04-19 00:58:53', '2023-04-19 00:58:53'),
+(2, 1, 'THSTI', 'THSTI_1_JobFee_1_20230421061518', 'kambojanuj1992@gmail.com', '9517886722', 'Anuj Kamboj', '5BBA17971D4B98BF0CC40A6F2B7A1D5F9DBA40F04A793E81F18167C8AA4FA773', 'THSTI|THSTI_1_JobFee_1_20230421061518|NA|1000|NA|NA|NA|INR|NA|R|thsti|NA|NA|F|kambojanuj1992@gmail.com|9517886722|Anuj Kamboj|1|NA|NA|NA|NA|5BBA17971D4B98BF0CC40A6F2B7A1D5F9DBA40F04A793E81F18167C8AA4FA773', NULL, '1000.00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-04-21 00:45:20', '2023-04-21 00:45:20'),
+(3, 1, 'THSTI', 'THSTI_1_JobFee_1_20230424055904', 'kambojanuj1992@gmail.com', '9517886722', 'Anuj Kamboj', 'FB683A661DC141FC4CF67351E4A800F99BA562C592DBF40B349008AA9BA681BF', 'THSTI|THSTI_1_JobFee_1_20230424055904|NA|1|NA|NA|NA|INR|NA|R|thsti|NA|NA|F|kambojanuj1992@gmail.com|9517886722|Anuj Kamboj|1|NA|NA|NA|NA|FB683A661DC141FC4CF67351E4A800F99BA562C592DBF40B349008AA9BA681BF', NULL, '1.00', 'YCPH1857324726', NULL, '2023-04-25 14:54:59', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-04-24 00:29:52', '2023-05-03 06:27:35'),
+(4, 1, 'THSTI', 'THSTI_1_JobFee_1_20230516120114', 'kambojanuj1992@gmail.com', '9517886722', 'Anuj Kamboj', 'A98E8AF494447346BFB840FC49088AAC95420AE111449ADE082E2D7D8F405556', 'THSTI|THSTI_1_JobFee_1_20230516120114|NA|1|NA|NA|NA|INR|NA|R|thsti|NA|NA|F|kambojanuj1992@gmail.com|9517886722|Anuj Kamboj|1|NA|NA|NA|NA|A98E8AF494447346BFB840FC49088AAC95420AE111449ADE082E2D7D8F405556', NULL, '1.00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-05-16 06:32:16', '2023-05-16 06:32:16');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `form_configuration`
 --
 
@@ -395,7 +856,8 @@ CREATE TABLE `form_configuration` (
 --
 
 INSERT INTO `form_configuration` (`id`, `post_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, 105, 1, '2023-03-09 00:56:28', '2023-03-10 06:09:50');
+(1, 105, 1, '2023-03-09 00:56:28', '2023-03-10 06:09:50'),
+(2, 99, 1, '2023-04-09 23:39:39', '2023-04-09 23:39:39');
 
 -- --------------------------------------------------------
 
@@ -529,7 +991,45 @@ INSERT INTO `form_fields_configuration` (`id`, `form_config_id`, `form_tab_field
 (142, 1, 59, 2, 1, '2023-03-22 04:34:05', '2023-03-22 04:34:05'),
 (143, 1, 61, 2, 1, '2023-03-22 04:34:05', '2023-03-22 04:34:05'),
 (144, 1, 62, 2, 1, '2023-03-22 04:34:05', '2023-03-22 04:34:05'),
-(145, 1, 63, 2, 1, '2023-03-22 04:34:05', '2023-03-22 04:34:05');
+(145, 1, 63, 2, 1, '2023-03-22 04:34:05', '2023-03-22 04:34:05'),
+(146, 1, 14, 1, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(147, 1, 64, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(148, 1, 65, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(149, 1, 66, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(150, 1, 67, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(151, 1, 68, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(152, 1, 69, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(153, 1, 70, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(154, 1, 71, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(155, 1, 72, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(156, 1, 73, 2, 1, '2023-04-03 12:11:58', '2023-04-03 12:11:58'),
+(157, 2, 1, 1, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(158, 2, 2, 1, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(159, 2, 1, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(160, 2, 2, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(161, 2, 3, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(162, 2, 4, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(163, 2, 7, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(164, 2, 8, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(165, 2, 9, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(166, 2, 5, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(167, 2, 6, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(168, 2, 10, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(169, 2, 11, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(170, 2, 12, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(171, 2, 13, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(172, 2, 14, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(173, 2, 15, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(174, 2, 16, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(175, 2, 17, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(176, 2, 18, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(177, 2, 19, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(178, 2, 20, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(179, 2, 21, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(180, 2, 22, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(181, 2, 23, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(182, 2, 24, 2, 1, '2023-04-10 05:09:39', '2023-04-10 05:09:39'),
+(183, 1, 77, 2, 1, '2023-04-26 06:54:06', '2023-04-26 06:54:06');
 
 -- --------------------------------------------------------
 
@@ -706,7 +1206,8 @@ INSERT INTO `form_tab_fields` (`id`, `field_name`, `field_slug`, `form_tab_id`, 
 (73, 'ID Card', 'idcard', 14, 10, 1, '2023-02-23 06:30:22', '2023-02-23 06:30:22'),
 (74, 'DD Amount', 'ddamount', 15, 1, 1, '2023-02-23 06:30:33', '2023-02-23 06:30:33'),
 (75, 'DD Date', 'dddate', 15, 2, 1, '2023-02-23 06:30:43', '2023-02-23 06:30:43'),
-(76, 'DD No', 'ddno', 15, 3, 1, '2023-02-23 06:30:54', '2023-02-23 06:30:54');
+(76, 'DD No', 'ddno', 15, 3, 1, '2023-02-23 06:30:54', '2023-02-23 06:30:54'),
+(77, 'Is Govt Servent', 'isgovtservent', 2, 18, 1, '2023-04-26 00:59:22', '2023-04-26 00:59:22');
 
 -- --------------------------------------------------------
 
@@ -718,6 +1219,8 @@ CREATE TABLE `jobs` (
   `id` int(11) NOT NULL,
   `rn_no_id` int(11) NOT NULL,
   `post_id` int(11) NOT NULL,
+  `job_validation_id` int(11) DEFAULT NULL,
+  `job_configuration_id` int(11) DEFAULT NULL,
   `job_type_id` int(11) DEFAULT NULL,
   `center_id` int(11) NOT NULL,
   `payment_mode_id` int(11) DEFAULT NULL,
@@ -743,9 +1246,9 @@ CREATE TABLE `jobs` (
 -- Dumping data for table `jobs`
 --
 
-INSERT INTO `jobs` (`id`, `rn_no_id`, `post_id`, `job_type_id`, `center_id`, `payment_mode_id`, `post_domain_id`, `apply_start_date`, `apply_end_date`, `hard_copy_submission_date`, `no_of_posts`, `age_limit`, `age_limit_as_on_date`, `phd_document`, `announcement`, `alt_text`, `email_id`, `is_payment_required`, `is_permanent`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 99, 2, 5, 7, NULL, '2023-02-17', '2023-02-28', NULL, 5, 30, NULL, 'Payment_Receipt.pdf', 'test announcement text updated', 'alt text', 'kambojanuj@thsti.res.in', 1, 2, 1, '2023-02-10 03:42:09', '2023-03-13 22:53:38'),
-(2, 10, 105, 1, 4, 6, NULL, '2023-02-24', '2023-03-10', NULL, 2, 30, NULL, NULL, 'test announcement', NULL, 'kambojanuj@thsti.res.in', 1, 1, 1, '2023-02-20 05:11:47', '2023-03-07 05:10:37');
+INSERT INTO `jobs` (`id`, `rn_no_id`, `post_id`, `job_validation_id`, `job_configuration_id`, `job_type_id`, `center_id`, `payment_mode_id`, `post_domain_id`, `apply_start_date`, `apply_end_date`, `hard_copy_submission_date`, `no_of_posts`, `age_limit`, `age_limit_as_on_date`, `phd_document`, `announcement`, `alt_text`, `email_id`, `is_payment_required`, `is_permanent`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 99, 6, 2, 2, 5, 7, NULL, '2023-02-15', '2023-05-31', NULL, 5, 30, NULL, 'Payment_Receipt.pdf', 'test announcement text updated', 'Walk-in', 'kambojanuj@thsti.res.in', 1, 2, 1, '2023-02-10 03:42:09', '2023-05-24 09:32:52'),
+(2, 10, 105, 8, 1, 1, 4, 6, NULL, '2023-02-24', '2023-06-01', NULL, 2, 30, '2023-05-08', NULL, 'test announcement', NULL, 'kambojanuj@thsti.res.in', 1, 1, 1, '2023-02-20 05:11:47', '2023-05-24 09:33:16');
 
 -- --------------------------------------------------------
 
@@ -784,9 +1287,19 @@ INSERT INTO `job_age_limit_validation_trans` (`id`, `post_id`, `job_validation_i
 (13, 105, 4, 9, 3, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
 (14, 105, 4, 10, 5, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
 (15, 105, 4, 11, 5, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(16, 105, 5, 9, 3, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(17, 105, 5, 10, 5, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(18, 105, 5, 11, 5, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12');
+(16, 105, 5, 9, 3, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(17, 105, 5, 10, 5, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(18, 105, 5, 11, 5, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(19, 99, 6, 9, 3, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(20, 99, 6, 10, 5, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(21, 99, 6, 11, 5, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(22, 105, 7, 9, 3, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(23, 105, 7, 10, 5, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(24, 105, 7, 11, 5, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(25, 105, 8, 9, 3, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(26, 105, 8, 10, 5, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(27, 105, 8, 11, 5, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(28, 105, 8, 12, 3, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19');
 
 -- --------------------------------------------------------
 
@@ -810,25 +1323,46 @@ CREATE TABLE `job_application_fee_trans` (
 --
 
 INSERT INTO `job_application_fee_trans` (`id`, `post_id`, `job_validation_id`, `fee_category_id`, `fee`, `status`, `created_at`, `updated_at`) VALUES
-(1, 99, 1, 19, 1000, 3, '2023-03-09 05:55:10', '2023-03-09 00:33:13'),
-(2, 99, 1, 20, 500, 3, '2023-03-09 05:55:10', '2023-03-09 00:33:13'),
-(3, 99, 1, 21, 800, 3, '2023-03-09 05:55:10', '2023-03-09 00:33:13'),
-(4, 99, 2, 19, 1000, 3, '2023-03-09 06:03:13', '2023-03-15 03:51:42'),
-(5, 99, 2, 20, 500, 3, '2023-03-09 06:03:13', '2023-03-15 03:51:42'),
-(6, 99, 2, 21, 800, 3, '2023-03-09 06:03:13', '2023-03-15 03:51:42'),
-(7, 99, 2, 22, 200, 3, '2023-03-09 06:03:13', '2023-03-15 03:51:42'),
-(8, 105, 3, 19, 1000, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
-(9, 105, 3, 20, 500, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
-(10, 105, 3, 21, 800, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
-(11, 105, 3, 22, 200, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
-(12, 105, 4, 19, 1000, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(13, 105, 4, 20, 500, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(14, 105, 4, 21, 800, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(15, 105, 4, 22, 200, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(16, 105, 5, 19, 1000, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(17, 105, 5, 20, 500, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(18, 105, 5, 21, 800, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(19, 105, 5, 22, 200, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12');
+(1, 99, 1, 19, 1, 3, '2023-03-09 05:55:10', '2023-04-24 05:58:54'),
+(2, 99, 1, 20, 1, 3, '2023-03-09 05:55:10', '2023-04-24 05:58:54'),
+(3, 99, 1, 21, 1, 3, '2023-03-09 05:55:10', '2023-04-24 05:58:54'),
+(4, 99, 2, 19, 1, 3, '2023-03-09 06:03:13', '2023-04-24 05:58:54'),
+(5, 99, 2, 20, 1, 3, '2023-03-09 06:03:13', '2023-04-24 05:58:54'),
+(6, 99, 2, 21, 1, 3, '2023-03-09 06:03:13', '2023-04-24 05:58:54'),
+(7, 99, 2, 22, 1, 3, '2023-03-09 06:03:13', '2023-04-24 05:58:54'),
+(8, 105, 3, 19, 1, 3, '2023-03-15 09:21:42', '2023-04-24 05:58:54'),
+(9, 105, 3, 20, 1, 3, '2023-03-15 09:21:42', '2023-04-24 05:58:54'),
+(10, 105, 3, 21, 1, 3, '2023-03-15 09:21:42', '2023-04-24 05:58:54'),
+(11, 105, 3, 22, 1, 3, '2023-03-15 09:21:42', '2023-04-24 05:58:54'),
+(12, 105, 4, 19, 1, 3, '2023-03-16 09:54:34', '2023-04-24 05:58:54'),
+(13, 105, 4, 20, 1, 3, '2023-03-16 09:54:34', '2023-04-24 05:58:54'),
+(14, 105, 4, 21, 1, 3, '2023-03-16 09:54:34', '2023-04-24 05:58:54'),
+(15, 105, 4, 22, 1, 3, '2023-03-16 09:54:34', '2023-04-24 05:58:54'),
+(16, 105, 5, 19, 1, 3, '2023-03-21 05:10:12', '2023-04-24 05:58:54'),
+(17, 105, 5, 20, 1, 3, '2023-03-21 05:10:12', '2023-04-24 05:58:54'),
+(18, 105, 5, 21, 1, 3, '2023-03-21 05:10:12', '2023-04-24 05:58:54'),
+(19, 105, 5, 22, 1, 3, '2023-03-21 05:10:12', '2023-04-24 05:58:54'),
+(20, 99, 6, 19, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(21, 99, 6, 20, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(22, 99, 6, 21, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(23, 99, 6, 22, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(24, 99, 6, 23, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(25, 99, 6, 24, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(26, 99, 6, 25, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(27, 99, 6, 26, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(28, 99, 6, 27, 1, 1, '2023-04-11 06:21:41', '2023-04-24 05:58:54'),
+(29, 105, 7, 19, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(30, 105, 7, 20, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(31, 105, 7, 21, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(32, 105, 7, 22, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(33, 105, 7, 23, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(34, 105, 7, 24, 1, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(35, 105, 8, 19, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(36, 105, 8, 20, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(37, 105, 8, 21, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(38, 105, 8, 22, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(39, 105, 8, 23, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(40, 105, 8, 24, 1, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19');
 
 -- --------------------------------------------------------
 
@@ -883,8 +1417,15 @@ INSERT INTO `job_min_education_trans` (`id`, `post_id`, `job_validation_id`, `ed
 (4, 105, 3, 16, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
 (5, 105, 4, 15, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
 (6, 105, 4, 16, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(7, 105, 5, 15, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12'),
-(8, 105, 5, 16, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12');
+(7, 105, 5, 15, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(8, 105, 5, 16, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(9, 99, 6, 14, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(10, 99, 6, 15, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(11, 99, 6, 16, 1, '2023-04-11 06:21:41', '2023-04-11 06:21:41'),
+(12, 105, 7, 15, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(13, 105, 7, 16, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(14, 105, 8, 15, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19'),
+(15, 105, 8, 16, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19');
 
 -- --------------------------------------------------------
 
@@ -913,7 +1454,9 @@ INSERT INTO `job_min_experience_trans` (`id`, `post_id`, `job_validation_id`, `e
 (3, 99, 2, 16, 2, 3, '2023-03-09 06:03:13', '2023-03-15 03:51:42'),
 (4, 105, 3, 16, 2, 3, '2023-03-15 09:21:42', '2023-03-16 04:24:34'),
 (5, 105, 4, 16, 2, 3, '2023-03-16 09:54:34', '2023-03-20 23:40:12'),
-(6, 105, 5, 16, 2, 1, '2023-03-21 05:10:12', '2023-03-21 05:10:12');
+(6, 105, 5, 16, 2, 3, '2023-03-21 05:10:12', '2023-04-12 05:19:30'),
+(7, 105, 7, 16, 2, 3, '2023-04-12 10:49:30', '2023-05-08 23:58:19'),
+(8, 105, 8, 16, 2, 1, '2023-05-09 05:28:19', '2023-05-09 05:28:19');
 
 -- --------------------------------------------------------
 
@@ -944,7 +1487,10 @@ INSERT INTO `job_validation` (`id`, `post_id`, `is_age_validate`, `is_exp_tab`, 
 (2, 99, 0, 1, 0, 0, 0, 0, 3, '2023-03-09 00:33:13', '2023-03-15 03:51:42'),
 (3, 105, 0, 1, 0, 0, 0, 0, 3, '2023-03-15 03:51:42', '2023-03-16 04:24:34'),
 (4, 105, 0, 1, 0, 0, 0, 0, 3, '2023-03-16 04:24:34', '2023-03-20 23:40:12'),
-(5, 105, 0, 1, 1, 1, 1, 1, 1, '2023-03-20 23:40:12', '2023-03-20 23:40:12');
+(5, 105, 0, 1, 1, 1, 1, 1, 3, '2023-03-20 23:40:12', '2023-04-12 05:19:30'),
+(6, 99, 0, 1, 0, 0, 0, 0, 1, '2023-04-11 00:51:41', '2023-04-11 00:51:41'),
+(7, 105, 0, 1, 1, 1, 1, 1, 3, '2023-04-12 05:19:30', '2023-05-08 23:58:19'),
+(8, 105, 0, 1, 1, 1, 1, 1, 1, '2023-05-08 23:58:19', '2023-05-08 23:58:19');
 
 -- --------------------------------------------------------
 
@@ -1016,6 +1562,7 @@ CREATE TABLE `register_candidates` (
   `dob` date DEFAULT NULL,
   `gender` int(11) DEFAULT NULL,
   `nationality` varchar(255) DEFAULT NULL,
+  `nationality_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1 for India,\r\n2 for Foreigner',
   `correspondence_address` varchar(900) NOT NULL,
   `cors_state_id` int(11) DEFAULT NULL,
   `cors_city` varchar(255) DEFAULT NULL,
@@ -1033,8 +1580,34 @@ CREATE TABLE `register_candidates` (
 -- Dumping data for table `register_candidates`
 --
 
-INSERT INTO `register_candidates` (`id`, `email_id`, `mobile_no`, `salutation`, `full_name`, `father_name`, `mother_name`, `dob`, `gender`, `nationality`, `correspondence_address`, `cors_state_id`, `cors_city`, `cors_pincode`, `permanent_address`, `perm_state_id`, `perm_city`, `perm_pincode`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'kambojanuj1992@gmail.com', '9517886722', 35, 'Anuj Kamboj', 'Kamal Kumar Kamboj', 'Saroj Devi', '1992-03-02', 111, 'India', '#86 Sec 19', 72, 'Panchkula', '134113', '#86 Sec 19', 72, 'Panchkula', '134113', 1, '2023-03-14 04:55:38', '2023-03-29 07:03:35');
+INSERT INTO `register_candidates` (`id`, `email_id`, `mobile_no`, `salutation`, `full_name`, `father_name`, `mother_name`, `dob`, `gender`, `nationality`, `nationality_type`, `correspondence_address`, `cors_state_id`, `cors_city`, `cors_pincode`, `permanent_address`, `perm_state_id`, `perm_city`, `perm_pincode`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'kambojanuj1992@gmail.com', '9517886722', 35, 'Anuj Kamboj', 'Kamal Kumar Kamboj', 'Saroj Devi', '1992-03-02', 111, NULL, 1, '#86 Sec 19 , near govt. primary school', 72, 'Panchkula', '134113', '#86 Sec 19 , near govt. primary school', 72, 'Panchkula', '134113', 1, '2023-03-14 04:55:38', '2023-06-09 00:44:43'),
+(2, 'asdf@gmail.com', '9898989898', 35, 'asdf', 'fgda', 'werewrw', '2023-05-10', 111, 'fdfsa', 2, 'fdsfa', 76, 'dfsd', '123456', 'fdsfa', 76, 'dfsd', '123456', 1, '2023-05-12 01:14:56', '2023-05-14 23:38:45'),
+(3, 'qwer@gmail.com', '4545454545', 35, 'Test', 'gdegsfr', 'dgfdeg', '1996-06-06', 111, NULL, 1, 'fewfewr', 73, 'rfwedf', '134113', 'fewfewr', 73, 'rfwedf', '134113', 1, '2023-05-18 04:30:13', '2023-05-18 04:30:13'),
+(5, '1992kambojanuj@gmail.com', '4545454545', 35, 'fwedsf', 'dfgreg', 'sgfdref', '2001-06-07', 111, NULL, 1, 'dfrefre', 64, 'ferfgr', '123456', 'dfrefre', 64, 'ferfgr', '123456', 1, '2023-05-19 04:17:10', '2023-05-19 04:18:44');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `registration_otp`
+--
+
+CREATE TABLE `registration_otp` (
+  `id` int(11) NOT NULL,
+  `email_id` varchar(900) NOT NULL,
+  `otp` varchar(10) NOT NULL,
+  `status` int(11) NOT NULL COMMENT '1 for success,\r\n0 for fail',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `registration_otp`
+--
+
+INSERT INTO `registration_otp` (`id`, `email_id`, `otp`, `status`, `created_at`, `updated_at`) VALUES
+(1, '1992kambojanuj@gmail.com', '909000', 1, '2023-05-19 01:20:00', '2023-05-19 01:20:00'),
+(2, '1992kambojanuj@gmail.com', '134174', 1, '2023-05-19 01:49:57', '2023-05-19 01:49:57');
 
 -- --------------------------------------------------------
 
@@ -1062,12 +1635,14 @@ CREATE TABLE `rn_nos` (
 --
 
 INSERT INTO `rn_nos` (`id`, `rn_no`, `rn_type_id`, `ths_rn_type_id`, `sequence_no`, `rn_document`, `year`, `month`, `cycle`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'THSTI/RN/36/2023', 109, 3, 36, NULL, 2023, NULL, NULL, 1, '2023-01-31 05:54:04', '2023-02-01 01:30:05'),
-(10, 'THSTI/RN/37/2023', 109, 3, 37, 'SchemeInfo.pdf', 2023, NULL, NULL, 1, '2023-02-07 01:01:29', '2023-03-01 00:12:26'),
-(12, 'THSTI/12/36/THSTI', 109, 3, NULL, NULL, 2023, NULL, NULL, 3, '2023-03-01 00:16:58', '2023-03-01 00:16:58'),
+(1, 'THSTI/RN/36/2023', 109, 117, 36, NULL, 2023, NULL, NULL, 1, '2023-01-31 05:54:04', '2023-02-01 01:30:05'),
+(10, 'THSTI/RN/37/2023', 109, 117, 37, 'SchemeInfo.pdf', 2023, NULL, NULL, 1, '2023-02-07 01:01:29', '2023-03-01 00:12:26'),
+(12, 'THSTI/12/36/THSTI', 109, 117, NULL, NULL, 2023, NULL, NULL, 3, '2023-03-01 00:16:58', '2023-03-01 00:16:58'),
 (17, 'THS/RN/01/2023/03-I', 109, 115, 1, NULL, 2023, 3, 1, 1, '2023-03-27 04:33:14', '2023-03-27 04:33:14'),
 (18, 'THS/RN/02/2023/03-I', 109, 116, 2, NULL, 2023, 3, 1, 1, '2023-03-27 04:33:36', '2023-03-27 04:33:36'),
-(21, 'THS-C/RN/01/2023', 110, 115, 1, NULL, 2023, 3, 0, 1, '2023-03-27 05:59:29', '2023-03-27 05:59:29');
+(21, 'THS-C/RN/01/2023', 110, 115, 1, NULL, 2023, 3, 0, 1, '2023-03-27 05:59:29', '2023-03-27 05:59:29'),
+(22, 'THS/RN/01/2023/04-I', 109, 115, 1, NULL, 2023, 4, 1, 1, '2023-04-06 04:02:43', '2023-04-06 04:02:43'),
+(23, 'THS/RN/02/2023', 109, 117, 2, NULL, 2023, NULL, NULL, 1, '2023-04-06 04:03:33', '2023-04-06 04:03:33');
 
 -- --------------------------------------------------------
 
@@ -1123,9 +1698,27 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `re
 --
 
 --
+-- Indexes for table `apply_job_hr_remarks`
+--
+ALTER TABLE `apply_job_hr_remarks`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `candidates_academics_details`
 --
 ALTER TABLE `candidates_academics_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `candidates_academics_documents`
+--
+ALTER TABLE `candidates_academics_documents`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `candidates_common_documents`
+--
+ALTER TABLE `candidates_common_documents`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1135,9 +1728,27 @@ ALTER TABLE `candidates_experience_details`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `candidates_experience_documents`
+--
+ALTER TABLE `candidates_experience_documents`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `candidates_jobs_apply`
 --
 ALTER TABLE `candidates_jobs_apply`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `candidates_job_hr_remarks`
+--
+ALTER TABLE `candidates_job_hr_remarks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `candidates_phd_research_details`
+--
+ALTER TABLE `candidates_phd_research_details`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1166,11 +1777,59 @@ ALTER TABLE `code_names`
   ADD KEY `code_master_id` (`code_id`);
 
 --
+-- Indexes for table `exam_candidate_shift`
+--
+ALTER TABLE `exam_candidate_shift`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_centers`
+--
+ALTER TABLE `exam_centers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_center_mapping`
+--
+ALTER TABLE `exam_center_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `exam_center_shifts`
+--
+ALTER TABLE `exam_center_shifts`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`);
+
+--
+-- Indexes for table `fee_crone_job`
+--
+ALTER TABLE `fee_crone_job`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `fee_crone_job_trans`
+--
+ALTER TABLE `fee_crone_job_trans`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `fee_status_transactions`
+--
+ALTER TABLE `fee_status_transactions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `fee_transactions`
+--
+ALTER TABLE `fee_transactions`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `form_configuration`
@@ -1281,6 +1940,12 @@ ALTER TABLE `register_candidates`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `registration_otp`
+--
+ALTER TABLE `registration_otp`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `rn_nos`
 --
 ALTER TABLE `rn_nos`
@@ -1304,46 +1969,106 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `apply_job_hr_remarks`
+--
+ALTER TABLE `apply_job_hr_remarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
 -- AUTO_INCREMENT for table `candidates_academics_details`
 --
 ALTER TABLE `candidates_academics_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `candidates_academics_documents`
+--
+ALTER TABLE `candidates_academics_documents`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `candidates_common_documents`
+--
+ALTER TABLE `candidates_common_documents`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `candidates_experience_details`
 --
 ALTER TABLE `candidates_experience_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `candidates_experience_documents`
+--
+ALTER TABLE `candidates_experience_documents`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `candidates_jobs_apply`
 --
 ALTER TABLE `candidates_jobs_apply`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `candidates_job_hr_remarks`
+--
+ALTER TABLE `candidates_job_hr_remarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `candidates_phd_research_details`
+--
+ALTER TABLE `candidates_phd_research_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `candidates_publications_details`
 --
 ALTER TABLE `candidates_publications_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `candidates_refree_details`
 --
 ALTER TABLE `candidates_refree_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `code_master`
 --
 ALTER TABLE `code_master`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `code_names`
 --
 ALTER TABLE `code_names`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=118;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+
+--
+-- AUTO_INCREMENT for table `exam_candidate_shift`
+--
+ALTER TABLE `exam_candidate_shift`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `exam_centers`
+--
+ALTER TABLE `exam_centers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `exam_center_mapping`
+--
+ALTER TABLE `exam_center_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `exam_center_shifts`
+--
+ALTER TABLE `exam_center_shifts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -1352,16 +2077,40 @@ ALTER TABLE `failed_jobs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `fee_crone_job`
+--
+ALTER TABLE `fee_crone_job`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `fee_crone_job_trans`
+--
+ALTER TABLE `fee_crone_job_trans`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `fee_status_transactions`
+--
+ALTER TABLE `fee_status_transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `fee_transactions`
+--
+ALTER TABLE `fee_transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `form_configuration`
 --
 ALTER TABLE `form_configuration`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `form_fields_configuration`
 --
 ALTER TABLE `form_fields_configuration`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT for table `form_field_options`
@@ -1385,7 +2134,7 @@ ALTER TABLE `form_tabs`
 -- AUTO_INCREMENT for table `form_tab_fields`
 --
 ALTER TABLE `form_tab_fields`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `jobs`
@@ -1397,13 +2146,13 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `job_age_limit_validation_trans`
 --
 ALTER TABLE `job_age_limit_validation_trans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `job_application_fee_trans`
 --
 ALTER TABLE `job_application_fee_trans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `job_domain_area`
@@ -1415,19 +2164,19 @@ ALTER TABLE `job_domain_area`
 -- AUTO_INCREMENT for table `job_min_education_trans`
 --
 ALTER TABLE `job_min_education_trans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `job_min_experience_trans`
 --
 ALTER TABLE `job_min_experience_trans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `job_validation`
 --
 ALTER TABLE `job_validation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -1445,13 +2194,19 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `register_candidates`
 --
 ALTER TABLE `register_candidates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `registration_otp`
+--
+ALTER TABLE `registration_otp`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `rn_nos`
 --
 ALTER TABLE `rn_nos`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `rn_type_details`
