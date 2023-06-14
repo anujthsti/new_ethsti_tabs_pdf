@@ -995,6 +995,10 @@ class JobsController extends Controller
                                 ->get(['jobs.id','code_names.code_meta_name'])
                                 ->toArray();
 
+            if(!empty($posts_list) && count($posts_list) == 1){
+                $jobId = $posts_list[0]['id'];
+            }
+                                
             $examCenters = ExamCenters::orderBy('centre_name','asc')->get(['exam_centers.*'])->toArray();
 
             if(!empty($jobId)){

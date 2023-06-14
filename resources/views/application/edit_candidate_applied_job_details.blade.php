@@ -138,7 +138,7 @@ if (request()->routeIs('companies.*')) {
       var isvalid = true;
       var datavalid = true;			 	  	 	 			   	  	 	 	 	 
       $('#domain_area_id').trigger('change');	 	 
-      $('input[type="text"]:visible,input[type="date"]:visible, input[type="email"]:visible, input[type="radio"]:visible, input[type="file"]:visible, select:visible, textarea:visible').each(function(){												  	 
+      $('input[type="text"]:not(".cgpa"):visible,input[type="date"]:visible, input[type="email"]:visible, input[type="radio"]:visible, input[type="file"]:visible, select:visible, textarea:visible').each(function(){												  	 
           if($(this).val()==''){	
               isvalid=false;		 	 	 	  		
               $(this).css({"border":"2px solid red"});		 
