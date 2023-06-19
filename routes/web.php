@@ -77,6 +77,14 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::post('save_code_name/{id?}', 'save_code_name')->name('save_code_name');
         Route::delete('destroy_code_name/{id}', 'destroy_code_name')->name('destroy_code_name');
         // routes for manage codes names end
+
+        // route for shortlisted results start
+        Route::get('manage_shortlisted_results', 'manage_shortlisted_results')->name('manage_shortlisted_results');
+        Route::get('add_shortlisted_results', 'add_shortlisted_results')->name('add_shortlisted_results');
+        Route::get('edit_shortlisted_results/{id}', 'add_shortlisted_results')->name('edit_shortlisted_results');
+        Route::post('save_shortlisted_results/{id?}', 'save_shortlisted_results')->name('save_shortlisted_results');
+        Route::delete('delete_shortlisted_results/{id}', 'delete_shortlisted_results')->name('delete_shortlisted_results');
+        // route for shortlisted results end
         
     });
     // Code Jobs route start

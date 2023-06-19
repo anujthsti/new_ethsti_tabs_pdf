@@ -8,7 +8,7 @@ use Helper;
 //use DB;
 use App\Models\CodeMaster;
 use App\Models\CodeNames;
-
+use App\Models\ShortlistedResults;
 
 class MasterController extends Controller
 {
@@ -165,4 +165,13 @@ class MasterController extends Controller
 
     /********************** CodeNames functions end ***********************/    
     
+    /********************** Shortlisted Results start *********************/
+    public function manage_shortlisted_results(){
+
+        $shortlistedResults = ShortlistedResults::orderBy('id','desc')->get();
+        return view("shortlist_result/manage_shortlisted_results",compact('shortlistedResults'));
+    }
+
+    /********************** Shortlisted Results end *********************/
+
 }
