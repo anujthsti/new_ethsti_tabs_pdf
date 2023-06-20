@@ -395,9 +395,13 @@ class JobsController extends Controller
         $html = "";
         if(isset($postData['rnnoId']) && !empty($postData['rnnoId'])){
             $rnNoId = $postData['rnnoId'];
-            $jobs = Jobs::where('rn_no_id',$rnNoId)
+            /*$jobs = Jobs::where('rn_no_id',$rnNoId)
                     ->select('id','job_title')
-                    ->get();  
+                    ->get(); 
+            */         
+            $jobs = Jobs::join('code_names','code_names.id','=','jobs.post_id')
+                    ->where('rn_no_id', $rnNoId)
+                    ->get(['jobs.id','code_names.code_meta_name as job_title']);        
             if(!empty($jobs)){   
                 $html = '<option value="">Select Job</option>';          
                 foreach($jobs as $job){

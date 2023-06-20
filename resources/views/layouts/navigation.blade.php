@@ -74,6 +74,10 @@
                             <li class="nav-item <?php if(request()->routeIs('manage_exam_centers_mapping')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_exam_centers_mapping') }}">Exam Centers Mapping</a>
                             </li>
+                            <li class="nav-item <?php if(request()->routeIs('manage_shortlisted_results')){ ?>active<?php } ?>">
+                                <a class="nav-link" href="{{ route('manage_shortlisted_results') }}">Shortlisted Results</a>
+                            </li>
+                            
                             <?php /* ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -270,6 +270,7 @@ return [
 
     'candidates_docs_path' => 'public/upload/candidates_documents',
     'candidates_details_pdf_doc_path' => 'public/upload/pdf_docs',
-    'sender_email_address' => 'kambojanuj@thsti.res.in'
+    'sender_email_address' => 'kambojanuj@thsti.res.in',
+    'shortlisted_result_doc_path' => 'public/upload/shortlisted_results'
 
 ];

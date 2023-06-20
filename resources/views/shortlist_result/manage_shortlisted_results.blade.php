@@ -39,21 +39,31 @@
             <!-- table header html end -->
             <tbody>
                 <!-- table rows for loop start -->
-                <?php /* ?>
-                @foreach ($code_names as $code_name)
+                
+                @foreach ($shortlistedResults as $result)
                     <?php
                     // Use openssl_encrypt() function to encrypt the data
-                    $encId = Helper::encodeId($code_name->id);
+                    $encId = Helper::encodeId($result['id']);
+                    $upload_file = $result['upload_file'];
+                    $post_id = $result['post_id'];
+                    $postName = "";
+                    if(isset($postsArr) && !empty($postsArr)){
+                        $postsIds = array_column($postsArr,'id');
+                        $postKey = array_search($post_id, $postsIds);
+                        $postName = $postsArr[$postKey]['code_meta_name'];
+                    }
                     ?>
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $code_name->code_name }}</td>
-                        <td>{{ $code_name->code_meta_name }}</td>
-                        <td>{{ $code_name->code }}</td>
+                        <td>{{ $result['rn_no'] }}</td>
+                        <td>{{ $postName }}</td>
+                        <td>{{ $result['shortlisted_title'] }}</td>
+                        <td>{{ $result['date_of_interview'] }}</td>
+                        <td>{{ $upload_file }}</td>
                         <td>
                             <!-- action html start -->
-                            <form action="{{ route('destroy_code_name',$encId) }}" method="Post">
-                                <a class="btn btn-primary" href="{{ route('edit_code_name',$encId) }}"><i class="fa fa-pencil"></i></a>
+                            <form action="{{ route('delete_shortlisted_results',$encId) }}" method="Post">
+                                <a class="btn btn-primary" href="{{ route('edit_shortlisted_results',$encId) }}"><i class="fa fa-pencil"></i></a>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger text-right"><i class="fa fa-trash"></i></button>
@@ -63,7 +73,7 @@
                     </tr>
                 @endforeach
                 <!-- table rows for loop end -->
-                <?php */ ?>
+                
             </tbody>
         </table>
         <!-- table html end -->

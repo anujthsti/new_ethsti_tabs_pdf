@@ -84,6 +84,8 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::get('edit_shortlisted_results/{id}', 'add_shortlisted_results')->name('edit_shortlisted_results');
         Route::post('save_shortlisted_results/{id?}', 'save_shortlisted_results')->name('save_shortlisted_results');
         Route::delete('delete_shortlisted_results/{id}', 'delete_shortlisted_results')->name('delete_shortlisted_results');
+        Route::post('get_posts_by_rnno', 'get_posts_by_rnno')->name('get_posts_by_rnno');
+        
         // route for shortlisted results end
         
     });
