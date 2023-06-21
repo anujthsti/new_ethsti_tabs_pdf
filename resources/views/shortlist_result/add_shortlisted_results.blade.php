@@ -78,7 +78,7 @@ if(isset($shortlistedResults) && !empty($shortlistedResults)){
                 <div class="col-xs-12 col-sm-12 col-md-4">
                     <div class="form-group">
                         <label class="form-label">Position</label>
-                        <select id="job_id" name="job_id" class="form-control select2">
+                        <select id="job_id" name="job_id" class="form-control">
                             
                         </select>
                         @error('job_id')
@@ -150,22 +150,33 @@ if(isset($shortlistedResults) && !empty($shortlistedResults)){
             }
         });
 
+        @if(!empty($rn_no_id) && !empty($job_id))
+            let rnNoId = '<?php echo $rn_no_id; ?>';
+            let jobId = '<?php echo $job_id; ?>';
+            postsByRNNo(rnNoId, jobId);
+        @endif
+
+
         $("#rn_no").change(function(){
             let rn_no_id = $(this).val();
             if(rn_no_id != ""){
-                $.ajax({
-                        type:'POST',
-                        url:"{{ route('get_posts_by_rnno') }}",
-                        data:{rn_no_id:rn_no_id},
-                        success:function(data){
-                            let rnnoHtml = data;
-                            $("#job_id").html(rnnoHtml);
-                        }
-                    });
+                postsByRNNo(rn_no_id);
             }else{
                 alert("Please select RN No.");
             }
         });
+
+        function postsByRNNo(rn_no_id, job_id=""){
+            $.ajax({
+                        type:'POST',
+                        url:"{{ route('get_posts_by_rnno') }}",
+                        data:{rn_no_id:rn_no_id, job_id:job_id},
+                        success:function(data){
+                            let rnnoHtml = data;
+                            $("#job_id").html(rnnoHtml);
+                        }
+            });
+        }
 
 
     </script>

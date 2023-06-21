@@ -59,7 +59,18 @@
                         <td>{{ $postName }}</td>
                         <td>{{ $result['shortlisted_title'] }}</td>
                         <td>{{ $result['date_of_interview'] }}</td>
-                        <td>{{ $upload_file }}</td>
+                        <td>
+                            <?php
+                            $destinationParentFolderPath = config('app.shortlisted_result_doc_path');
+                            $file_url = $destinationParentFolderPath."/".$upload_file;
+                            if(!empty($upload_file)){
+                                $file_url = url($file_url);
+                            ?>
+                            <a class="btn btn-primary" target="_blank" href="{{ $file_url }}">
+                                <i class="fa fa-file-pdf"></i>
+                            </a>
+                            <?php } ?>
+                        </td>
                         <td>
                             <!-- action html start -->
                             <form action="{{ route('delete_shortlisted_results',$encId) }}" method="Post">

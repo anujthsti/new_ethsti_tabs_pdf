@@ -204,6 +204,10 @@ class MasterController extends Controller
         
         $postData = $request->post();
         $rn_no_id = $postData['rn_no_id'];
+        $job_id = "";
+        if(isset($postData['job_id']) && !empty($postData['job_id'])){
+            $job_id = $postData['job_id'];
+        }
         $postsArr = [];
         if(isset($rn_no_id) && !empty($rn_no_id)){
             $postsArr = Jobs::join('code_names','code_names.id','=','jobs.post_id')
@@ -213,7 +217,11 @@ class MasterController extends Controller
         }
         $html = '<option value="">Select Job</option>';   
         foreach($postsArr as $post){
-            $html .= '<option value="'.$post['id'].'">'.$post['code_meta_name'].'</option>';
+            $selected = "";
+            if($post['id'] == $job_id){
+                $selected = "selected";
+            }
+            $html .= '<option value="'.$post['id'].'" '.$selected.'>'.$post['code_meta_name'].'</option>';
         }
         echo $html;
     }
