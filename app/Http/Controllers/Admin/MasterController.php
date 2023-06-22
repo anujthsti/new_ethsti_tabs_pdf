@@ -11,6 +11,7 @@ use App\Models\CodeNames;
 use App\Models\ShortlistedResults;
 use App\Models\Rn_no;
 use App\Models\Jobs;
+use App\Models\Results;
 
 class MasterController extends Controller
 {
@@ -177,7 +178,7 @@ class MasterController extends Controller
                                                 ->get(['rn_nos.rn_no','shortlisted_results.*','jobs.post_id'])
                                                 ->toArray();
         $postMasterId = 15;                                        
-        $postsArr = CodeNames::where('code_id','postMasterId')->get(['code_names.*'])->toArray();
+        $postsArr = CodeNames::where('code_id',$postMasterId)->get(['code_names.*'])->toArray();
                                                 
         return view("shortlist_result/manage_shortlisted_results",compact('shortlistedResults','postsArr'));
     }
@@ -185,8 +186,8 @@ class MasterController extends Controller
     public function delete_shortlisted_results($encodedId)
     {
         $id = Helper::decodeId($encodedId);
-        $rnno = ShortlistedResults::where('id', $id)->update(['status' => 3]);
-        return redirect()->route('manage_shortlisted_results')->with('success','Code Name has been deleted successfully');
+        ShortlistedResults::where('id', $id)->update(['status' => 3]);
+        return redirect()->route('manage_shortlisted_results')->with('success','Shortlisted result has been deleted successfully');
     }
 
     public function add_shortlisted_results($encodedId=""){
@@ -229,59 +230,203 @@ class MasterController extends Controller
 
     public function save_shortlisted_results(Request $request, $encodedId=""){
 
-        $requiredValidation = config("validations.required");
-        $request->validate([
-            'rn_no_id' => $requiredValidation,
-            'job_id' => $requiredValidation,
-            'shortlisted_title' => $requiredValidation,
-            'date_of_interview' => $requiredValidation,
-            'alternate_text' => $requiredValidation,
-            'upload_file' => $requiredValidation,
-            'announcement' => $requiredValidation
-        ]);
-        $fileName = "";
-        if(!empty($request->file('upload_file'))){
-            $fileData = $request->file('upload_file');
-            $destinationParentFolderPath = config('app.shortlisted_result_doc_path');
-            $destinationPath = $destinationParentFolderPath;
-            $maxFileSizeKB = 1000*1024;// 200 KB
-            $fileExtentionArr = ['pdf'];// should be array
-            $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
-            if($fileUploadRetArr['status'] == 1){
-                $fileName = $fileData->getClientOriginalName();
-                $isDocsUploaded = 1;
-            }else{
-                $errorMsg = $fileUploadRetArr['msg'];
-                array_push($errorMsgArr,$errorMsg);
-                $isFileUploadError = 1;
-                return redirect()->back()->withInput()->with('file_error',$errorMsg);
+        try{
+            $requiredValidation = config("validations.required");
+            $request->validate([
+                'rn_no_id' => $requiredValidation,
+                'job_id' => $requiredValidation,
+                'shortlisted_title' => $requiredValidation,
+                'date_of_interview' => $requiredValidation,
+                'alternate_text' => $requiredValidation,
+                'upload_file' => $requiredValidation,
+                'announcement' => $requiredValidation
+            ]);
+            $fileName = "";
+            $errorMsgArr = [];
+            if(!empty($request->file('upload_file'))){
+                $fileData = $request->file('upload_file');
+                $destinationParentFolderPath = config('app.shortlisted_result_doc_path');
+                $destinationPath = $destinationParentFolderPath;
+                $maxFileSizeKB = 1000*1024;// 200 KB
+                $fileExtentionArr = ['pdf'];// should be array
+                $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
+                if($fileUploadRetArr['status'] == 1){
+                    $fileName = $fileData->getClientOriginalName();
+                    $isDocsUploaded = 1;
+                }else{
+                    $errorMsg = $fileUploadRetArr['msg'];
+                    array_push($errorMsgArr,$errorMsg);
+                    $isFileUploadError = 1;
+                    return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                }
             }
-        }
 
-        if(!empty($encodedId)){
-            $id = Helper::decodeId($encodedId);
-            $shortListedResult = ShortlistedResults::find($id);
-            $insertData = $request->all();
-            if(!empty($fileName)){
-                $insertData['upload_file'] = $fileName;
+            if(!empty($encodedId)){
+                $id = Helper::decodeId($encodedId);
+                $shortListedResult = ShortlistedResults::find($id);
+                $insertData = $request->all();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                $shortListedResult->fill($insertData);
+                
+                $shortListedResult->save();
+                $successMsg = "Result has been updated successfully";
+            }else{
+                $insertData = $request->post();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                ShortlistedResults::create($insertData);
+                $successMsg = "Result has been created successfully";
+
             }
-            $shortListedResult->fill($insertData);
             
-            $shortListedResult->save();
-            $successMsg = "Result has been updated successfully";
-        }else{
-            $insertData = $request->post();
-            if(!empty($fileName)){
-                $insertData['upload_file'] = $fileName;
-            }
-            ShortlistedResults::create($insertData);
-            $successMsg = "Result has been created successfully";
-        }
-        
-        return redirect()->route('manage_shortlisted_results')->with('success',$successMsg);
+            return redirect()->route('manage_shortlisted_results')->with('success',$successMsg);
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            //$errorMsg = "Something went wrong. Please contact administrator.";
+            //DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+        }    
 
     }
     
     /********************** Shortlisted Results end *********************/
+
+    /********************** Results start *********************/
+    public function manage_results(){
+
+        $results = Results::join('rn_nos','rn_nos.id','=','results.rn_no_id')
+                                                ->join('jobs','jobs.id','=','results.job_id')
+                                                ->orderBy('results.id','desc')
+                                                ->where('results.status',1)
+                                                ->get(['rn_nos.rn_no','results.*','jobs.post_id'])
+                                                ->toArray();
+        $postMasterId = 15;                                        
+        $postsArr = CodeNames::where('code_id',$postMasterId)->get(['code_names.*'])->toArray();
+                                                
+        return view("results/manage_results",compact('results','postsArr'));
+    }
+
+    public function delete_results($encodedId)
+    {
+        $id = Helper::decodeId($encodedId);
+        Results::where('id', $id)->update(['status' => 3]);
+        return redirect()->route('manage_results')->with('success','Result has been deleted successfully');
+    }
+
+    public function add_results($encodedId=""){
+
+        $rnNos = Rn_no::orderBy('id','desc')->get()->toArray();
+        $results = [];
+        if(!empty($encodedId)){
+            $id = Helper::decodeId($encodedId);
+            $results = Results::where('id', $id)->get()->toArray();
+        }
+        return view("results/add_results", compact('rnNos', 'results', 'encodedId'));
+    }
+
+    public function save_results(Request $request, $encodedId=""){
+
+        try{
+
+            $requiredValidation = config("validations.required");
+            $request->validate([
+                'rn_no_id' => $requiredValidation,
+                'job_id' => $requiredValidation,
+                'result_title' => $requiredValidation,
+                'showing_till_date' => $requiredValidation,
+                'alternate_text' => $requiredValidation,
+                'upload_file' => $requiredValidation,
+                'announcement' => $requiredValidation,
+                'email' => $requiredValidation
+            ]);
+            $fileName = "";
+            $errorMsgArr = [];
+            if(!empty($request->file('upload_file'))){
+                $fileData = $request->file('upload_file');
+                $destinationParentFolderPath = config('app.result_doc_path');
+                $destinationPath = $destinationParentFolderPath;
+                $maxFileSizeKB = 10000*1024;// 200 KB
+                $fileExtentionArr = ['pdf'];// should be array
+                $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
+                if($fileUploadRetArr['status'] == 1){
+                    $fileName = $fileData->getClientOriginalName();
+                    $isDocsUploaded = 1;
+                }else{
+                    $errorMsg = $fileUploadRetArr['msg'];
+                    array_push($errorMsgArr,$errorMsg);
+                    $isFileUploadError = 1;
+                    return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                }
+            }
+
+            if(!empty($encodedId)){
+                $id = Helper::decodeId($encodedId);
+                $result = Results::find($id);
+                $insertData = $request->all();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                $result->fill($insertData);
+                
+                $result->save();
+                $successMsg = "Result has been updated successfully";
+            }else{
+                $insertData = $request->post();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                Results::create($insertData);
+                $successMsg = "Result has been created successfully";
+                
+                ////////////////// send email start
+                $rn_no_id = $insertData['rn_no_id'];
+                $rnNoDetail = Rn_no::where('id',$rn_no_id)->get(['rn_nos.*'])->toArray();
+                $to_email = $insertData['email'];
+                $to_name = "";
+                $rn_no = $rnNoDetail[0]['rn_no'];
+                $subject = "Website Notification-Result-".$rnNoDetail[0]['rn_no'];
+                $title = "THSTI";
+                $mailTemplate = "emails.result_upload_email_template";
+                $result_title = $insertData['result_title'];
+                $showing_till_date = $insertData['showing_till_date'];
+                $alternate_text = $insertData['alternate_text'];
+                $announcement = $insertData['announcement'];
+
+                $destinationParentFolderPath = config('app.result_doc_path');
+                $file_url = $destinationParentFolderPath."/".$fileName;
+                if(!empty($file_url)){
+                    $file_url = url($file_url);
+                }
+                $dataArr = [
+                    'rn_no' => $rn_no,
+                    'result_title' => $result_title,
+                    'showing_till_date' => $showing_till_date,
+                    'alternate_text' => $alternate_text,
+                    'announcement' => $announcement,
+                    'file_url' => $file_url
+                ];
+                //print_r($dataArr);exit;
+                $sender_email_address = config('app.sender_email_address');
+                $emailStatus = Helper::send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address);
+                ////////////////// send email end
+            }
+            
+            return redirect()->route('manage_results')->with('success',$successMsg);
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            //$errorMsg = "Something went wrong. Please contact administrator.";
+            //DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+        } 
+    }
+    
+    /********************** Results end *********************/
 
 }

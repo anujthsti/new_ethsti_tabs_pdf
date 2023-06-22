@@ -77,6 +77,9 @@
                             <li class="nav-item <?php if(request()->routeIs('manage_shortlisted_results')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_shortlisted_results') }}">Shortlisted Results</a>
                             </li>
+                            <li class="nav-item <?php if(request()->routeIs('manage_results')){ ?>active<?php } ?>">
+                                <a class="nav-link" href="{{ route('manage_results') }}">Results</a>
+                            </li>
                             
                             <?php /* ?>
                             <li class="nav-item dropdown">

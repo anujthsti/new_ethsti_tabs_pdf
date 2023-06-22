@@ -85,8 +85,15 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::post('save_shortlisted_results/{id?}', 'save_shortlisted_results')->name('save_shortlisted_results');
         Route::delete('delete_shortlisted_results/{id}', 'delete_shortlisted_results')->name('delete_shortlisted_results');
         Route::post('get_posts_by_rnno', 'get_posts_by_rnno')->name('get_posts_by_rnno');
-        
         // route for shortlisted results end
+
+        // route for results start
+        Route::get('manage_results', 'manage_results')->name('manage_results');
+        Route::get('add_results', 'add_results')->name('add_results');
+        Route::get('edit_results/{id}', 'add_results')->name('edit_results');
+        Route::post('save_results/{id?}', 'save_results')->name('save_results');
+        Route::delete('delete_results/{id}', 'delete_results')->name('delete_results');
+        // route for results end
         
     });
     // Code Jobs route start

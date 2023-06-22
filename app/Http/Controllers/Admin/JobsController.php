@@ -1237,7 +1237,7 @@ class JobsController extends Controller
                 $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
                                                     ->where('candidates_jobs_apply.job_id', $jobId)
                                                     ->where('candidates_jobs_apply.shortlisting_status','!=', 2)
-                                                    ->where('candidates_jobs_apply.is_final_submit_after_payment','!=', 1)
+                                                    //->where('candidates_jobs_apply.is_final_submit_after_payment','!=', 1)
                                                     ->where('candidates_jobs_apply.status', 1)
                                                     ->where(function($query) use ($shift_for_id, $shift_id){
                                                         if($shift_for_id == 1){

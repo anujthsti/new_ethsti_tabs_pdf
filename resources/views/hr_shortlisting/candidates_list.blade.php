@@ -127,7 +127,11 @@
             <?php 
             if(isset($rnNoTypeEncId) && !empty($rnNoTypeEncId) && isset($thsRNTypeEncId) && !empty($thsRNTypeEncId) && isset($jobEncId) && !empty($jobEncId) && isset($rn_no_EncId) && !empty($rn_no_EncId)){ 
                 $listingPageUrl = route('candidate_list')."/".$rnNoTypeEncId."/".$thsRNTypeEncId."/".$rn_no_EncId."/".$jobEncId;
-                $exportUrl = route('candidates_export_to_excel')."/".$rn_no_EncId."/".$jobEncId;
+                $concatFilterId = "";
+                if(isset($filterId) && !empty($filterId)){
+                    $concatFilterId = "/".$filterId;
+                }
+                $exportUrl = route('candidates_export_to_excel')."/".$rn_no_EncId."/".$jobEncId.$concatFilterId;
             ?>      
             <div class="row" style="margin: 20px 0px;">
                 <a class="btn btn-primary btnFilter" href="<?php echo $listingPageUrl; ?>">All Record</a>

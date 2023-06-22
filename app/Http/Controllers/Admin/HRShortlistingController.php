@@ -287,7 +287,7 @@ class HRShortlistingController extends Controller
 
     }
 
-    public function candidates_export_to_excel($rn_no_EncId="", $jobEncId=""){
+    public function candidates_export_to_excel($rn_no_EncId="", $jobEncId="", $filterId=""){
 
         $rn_nos = Rn_no::orderBy('id','desc')->get();
         $positionsArr = [];
@@ -304,11 +304,37 @@ class HRShortlistingController extends Controller
                 $jobId = Helper::decodeId($jobEncId);
                 $selectArray = ['register_candidates.*','candidates_jobs_apply.id as candidate_job_apply_id','candidates_jobs_apply.domain_id','candidates_jobs_apply.category_id','candidates_jobs_apply.application_status','candidates_jobs_apply.total_experience','candidates_jobs_apply.payment_status','candidates_jobs_apply.is_completed','candidates_jobs_apply.age_calculated'];
 
-                
+                /*
                 $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
                                                         ->where('candidates_jobs_apply.job_id', $jobId)
                                                         ->where('candidates_jobs_apply.status', 1)
                                                         ->get($selectArray)->toArray();
+                */
+                // If shortlisted filter
+                if(isset($filterId) && !empty($filterId)){
+                    if($filterId == 1 || $filterId == 2 || $filterId == 3){
+                        // 1 for shortlistd, 2 for rejected, 3 provisional shortlisted
+                        $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                                ->where('candidates_jobs_apply.job_id', $jobId)
+                                                                ->where('candidates_jobs_apply.shortlisting_status', $filterId)
+                                                                ->where('candidates_jobs_apply.status', 1)
+                                                                ->get($selectArray);
+                    }
+                    else if($filterId == 4){
+                        // for screened records filter
+                        $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                                ->where('candidates_jobs_apply.job_id', $jobId)
+                                                                ->where('candidates_jobs_apply.is_screened', 1)
+                                                                ->where('candidates_jobs_apply.status', 1)
+                                                                ->get($selectArray);
+                    }
+                }
+                else{
+                    $candidatesList = CandidatesJobsApply::join('register_candidates','register_candidates.id','=','candidates_jobs_apply.candidate_id')
+                                                        ->where('candidates_jobs_apply.job_id', $jobId)
+                                                        ->where('candidates_jobs_apply.status', 1)
+                                                        ->get($selectArray);
+                }                                        
                 
                 // get all code_names join with code_master
                 if(!empty($candidatesList)){
