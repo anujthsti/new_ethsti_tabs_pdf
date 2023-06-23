@@ -11,6 +11,14 @@
   </footer>
 
   <script>
+    <?php
+    $url = 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+    if (strpos($url,'login') === false) {
+    ?>
+    var scale = window.innerWidth / 1280;
+    $('head').append('<meta name="viewport" content="width=1280, initial-scale=' + scale + ', maximum-scale=' + scale + ', user-scalable=0">');
+    <?php } ?>  
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

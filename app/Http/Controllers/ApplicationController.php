@@ -942,7 +942,7 @@ class ApplicationController extends Controller
             }
 
             return $jobApplyArr;
-    }
+    } 
 
     // add or update candidate academic details
     public function update_candidate_academic_details($postData, $candidate_id, $candidateJobApplyID){
@@ -953,6 +953,8 @@ class ApplicationController extends Controller
             $job_id = $postData['job_id'];
             DB::beginTransaction();
             if(isset($postData['exam_pass']) && !empty($postData['exam_pass'])){
+                $academic_pk_ids = $postData['academic_id'];
+                
                 $exam_pass = $postData['exam_pass'];
                 $mn_pass = $postData['mn_pass'];
                 $yr_pass = $postData['yr_pass'];
@@ -973,43 +975,51 @@ class ApplicationController extends Controller
                 $academicDetails = CandidatesAcademicsDetails::where('candidate_id', $candidate_id)
                                                              ->where('job_id', $job_id)
                                                              ->where('status', 1)
-                                                             ->get(['education_id'])
+                                                             ->get(['id','education_id'])
                                                              ->toArray();
                 $newIds = [];
                 $commonIds = [];                                             
                 if(!empty($academicDetails)){
-                    $academicIds = array_column($academicDetails, 'education_id');                                            
+                    $ids = array_column($academicDetails, 'id'); 
+                    //$academicIds = array_column($academicDetails, 'education_id');                                            
                     // new IDs to insert
-                    $newIds = array_diff($exam_pass, $academicIds);   
+                    //$newIds = array_diff($exam_pass, $academicIds);   
                     //echo count($newTabItems);exit;
                     // old IDs to delete    
-                    $oldIds = array_diff($academicIds, $exam_pass);  
+                    $oldIds = array_diff($ids, $academic_pk_ids);  
+                    //print_r($oldIds);exit;
                     // Ids to Update
-                    $commonIds = array_intersect($exam_pass, $academicIds);  
+                    //$commonIds = array_intersect($exam_pass, $academicIds);  
 
                     // delete old Ids start
                     if(!empty($oldIds)){
                         CandidatesAcademicsDetails::where('candidate_id', $candidate_id)
                                                   ->where('job_id', $job_id)
                                                   ->where('status', 1)
-                                                  ->whereIn('education_id', $oldIds)
+                                                  ->whereIn('id', $oldIds)
                                                   ->update(['status' => 3]);
                     }
                     // delete old Ids end
 
-                }else{
+                }
+                /*else{
                     $newIds = $exam_pass;
-                }                                             
+                }*/                                             
                 // create batch of new IDs to insert
                 // for fields ids
                 $batchInsertArr = [];
                 $batchUpdateArr = [];
                 foreach($exam_pass as $key=>$education_id){
                     $academicArr = [];
+                    
                     $academicArr['candidate_id'] = $candidate_id;
                     $academicArr['job_id'] = $job_id;
                     $academicArr['education_id'] = $education_id;
                     $academicArr['candidate_job_apply_id'] = $candidateJobApplyID;
+                    $existing_pk_id = "";
+                    if(isset($academic_pk_ids[$key]) && !empty($academic_pk_ids[$key])){
+                        $existing_pk_id = $academic_pk_ids[$key];
+                    }
                     // for month value
                     if(isset($mn_pass[$key]) && !empty($mn_pass[$key])){
                         $academicArr['month'] = $mn_pass[$key];
@@ -1058,10 +1068,13 @@ class ApplicationController extends Controller
                     
 
                     // push in batch insert array
+                    /*
                     if(!empty($newIds) && in_array($education_id, $newIds)){
                         array_push($batchInsertArr, $academicArr);
                     }
+                    */
                     // push in batch update array
+                    /*
                     if(!empty($commonIds) && in_array($education_id, $commonIds)){
                         CandidatesAcademicsDetails::where('candidate_id', $candidate_id)
                                                   ->where('job_id', $job_id)
@@ -1070,12 +1083,25 @@ class ApplicationController extends Controller
                                                   ->where('education_id', $education_id)
                                                   ->update($academicArr);
                     }
+                    */
+                    if(!empty($existing_pk_id)){
+                        CandidatesAcademicsDetails::where('candidate_id', $candidate_id)
+                                                  ->where('job_id', $job_id)
+                                                  ->where('candidate_job_apply_id', $candidateJobApplyID)
+                                                  ->where('status', 1)
+                                                  ->where('id', $existing_pk_id)
+                                                  ->update($academicArr);
+                    }else{
+                        CandidatesAcademicsDetails::create($academicArr);
+                    }
+                    
                 }
                 // batch insert
+                /*
                 if(!empty($batchInsertArr)){
                     CandidatesAcademicsDetails::insert($batchInsertArr);
                 }
-                
+                */
 
             }
             DB::commit();
@@ -1107,6 +1133,7 @@ class ApplicationController extends Controller
             exit;*/
             DB::beginTransaction();
             if(isset($postData['exp_from']) && !empty($postData['exp_from'])){
+                $exp_ids = $postData['exp_ids'];
                 $exp_from = $postData['exp_from'];
                 $exp_to = $postData['exp_to'];
                 $exp_total = $postData['exp_total'];
@@ -1119,34 +1146,40 @@ class ApplicationController extends Controller
                 $experienceDetails = CandidatesExperienceDetails::where('candidate_id', $candidate_id)
                                                              ->where('candidate_job_apply_id', $candidateJobApplyID)
                                                              ->where('status', 1)
-                                                             ->get(['organization_name'])
+                                                             ->get(['id','organization_name'])
                                                              ->toArray();
                                                              
                 $newExp = [];
                 $commonExp = [];                                             
                 if(!empty($experienceDetails)){
-                    $existingOrganizationNames = array_column($experienceDetails, 'organization_name');  
+                    $ids = array_column($experienceDetails, 'id');  
                     // new organization experience to insert
-                    $newExp = array_diff($exp_org_name, $existingOrganizationNames);   
+                    //$newExp = array_diff($exp_org_name, $ids);   
                     //echo count($newTabItems);exit;
                     // old organization experience to delete    
-                    $oldExp = array_diff($existingOrganizationNames, $exp_org_name);  
+                    $oldExp = array_diff($ids, $exp_ids);  
                     // organization experience to Update
-                    $commonExp = array_intersect($exp_org_name, $existingOrganizationNames);  
-
+                    //$commonExp = array_intersect($exp_org_name, $ids); 
+                    /*
+                    echo "<pre>";
+                    print_r($ids);
+                    print_r($oldExp);
+                    exit;
+                    */
                     // delete old experience start
-                    if(!empty($oldIds)){
+                    if(!empty($oldExp)){
                         CandidatesExperienceDetails::where('candidate_id', $candidate_id)
                                                   ->where('candidate_job_apply_id', $candidateJobApplyID)
                                                   ->where('status', 1)
-                                                  ->whereIn('organization_name', $oldExp)
+                                                  ->whereIn('id', $oldExp)
                                                   ->update(['status' => 3]);
                     }
                     // delete old experience end
 
-                }else{
+                }
+                /*else{
                     $newExp = $exp_org_name;
-                }      
+                }*/      
                                                     
                 // create batch of new organization experience to insert
                 // for fields organization experience
@@ -1159,6 +1192,13 @@ class ApplicationController extends Controller
                     $experienceArr['organization_name'] = $organization;
                     $experienceArr['candidate_job_apply_id'] = $candidateJobApplyID;
                     
+                    
+                    // for ids value
+                    $exp_pk_id = "";
+                    if(isset($exp_ids[$key]) && !empty($exp_ids[$key])){
+                        $exp_pk_id = $exp_ids[$key];
+                    }
+
                     // for from_date value
                     if(isset($exp_from[$key]) && !empty($exp_from[$key])){
                         $experienceArr['from_date'] = $exp_from[$key];
@@ -1195,34 +1235,38 @@ class ApplicationController extends Controller
                     }
                     
                     // push in batch insert array
+                    /*
                     if(!empty($newExp) && in_array($organization, $newExp)){
                         array_push($batchInsertArr, $experienceArr);
                     }
-                    
+                    */
                     // push in batch update array
-                    if(!empty($commonExp) && in_array($organization, $commonExp)){
+                    if(!empty($exp_pk_id)){
                         
                         CandidatesExperienceDetails::where('candidate_id', $candidate_id)
                                                   ->where('job_id', $job_id)
                                                   ->where('candidate_job_apply_id', $candidateJobApplyID)
                                                   ->where('status', 1)
-                                                  ->where('organization_name', $organization)
+                                                  ->where('id', $exp_pk_id)
                                                   ->update($experienceArr);
+                    }else{
+                        CandidatesExperienceDetails::create($experienceArr);
                     }
+                    
                 }
                 // batch insert
-                
+                /*
                 if(!empty($batchInsertArr)){
                     CandidatesExperienceDetails::insert($batchInsertArr);
                 }
-                
+                */
             }
             DB::commit();
 
             $retData['status'] = 'success';
             $retData['msg'] = 'Data inserted successfully';
             return $retData;
-
+            
         }catch(\Exception $e){
             $errorMsg = $e->getMessage();
             DB::rollback();

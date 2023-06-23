@@ -54,10 +54,10 @@
                 
                 <tr>
                     <td colspan="3" align="left" valign="top">
-                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <table width="100%" border="1" cellspacing="0" cellpadding="0">
                             <tr>
                                 <td align="left" valign="top">
-                                    <table width="100%" border="0" cellspacing="1" cellpadding="4">
+                                    <table width="100%" border="1" cellspacing="1" cellpadding="4">
                                         <tr>
                                             <td width="<?php echo $tdWidth; ?>">FULL NAME</td>		
                                             <td colspan="5" ><?php echo $full_name; ?></td>

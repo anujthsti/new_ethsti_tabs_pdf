@@ -596,7 +596,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                         @enderror           
                     </div>
                     <div class="form-group col-12" align="center">	            
-                        <input class="btn btn-success col-1" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();"/>
+                        <input class="btn btn-success col-lg-2 col-md-2 col-sm-3" id="update" name="update" type="submit" value="Update" onclick="disableSubmitButton();"/>
                     </div>                
                 </div>  
 
@@ -784,7 +784,7 @@ if(isset($jobValidations[0]['is_publication_tab'])){
         */
 
         //form submit
-        $('#online-form').submit(function(){			
+        $('#online-form').submit(function(e){			
             
             var isvalid='';
             var datavalid='';			 	  	 	 			   	  	 	 	 	 	 	 	 
@@ -795,8 +795,10 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 {	
                     isvalid=false;		 	 	 	  		
                     $(this).css({"border":"2px solid red"});		 
-                    $(this).focus();		
-                    return false;			 
+                    $(this).focus();	
+                    e.preventDefault();		
+                    return false;	
+                    	 
                 }
                 else		 
                 {			 				  			
@@ -812,8 +814,10 @@ if(isset($jobValidations[0]['is_publication_tab'])){
                 {
                     datavalid=false;		 	 	 	  		
                     $('#security_code').css({"border":"2px solid red"});		 
-                    $('#security_code').focus();		
+                    $('#security_code').focus();
+                    e.preventDefault();		
                     return false;
+                    
                 }		 
                 else
                 {  datavalid=true;  }
@@ -829,9 +833,14 @@ if(isset($jobValidations[0]['is_publication_tab'])){
             {
                 var ans=confirm("Do you want to submit?");	
                 if(ans)
-                {  return true;  }
+                {  
+                    return true;  
+                }
                 else
-                {  return false; }
+                {  
+                    e.preventDefault();
+                    return false; 
+                }
             }    
         });
         

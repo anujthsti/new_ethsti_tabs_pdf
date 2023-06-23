@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'application/payment_response',
         'application/pay_receipt',
-        'application/croneCheckCandidatePaymentStatus'
+        'application/croneCheckCandidatePaymentStatus',
+        'application/final_submission_after_payment'
     ];
 }

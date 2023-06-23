@@ -199,10 +199,10 @@ $page_title = "Candidate Details";
         <form method="post" name="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
             @csrf
             <input type="text" name="final_submit" value="1" style="display:none;">
-            <table border="0" align="center" cellpadding="0" cellspacing="0" id="print_form_id" class="table-sm">
+            <table border="0" align="center" cellpadding="0" cellspacing="0" id="print_form_id" class="table-responsive-sm table11-sm11">
                 <!-- header -->
                 @include('hr_shortlisting.candidate_submitted_detail_header')
-                
+                 
                 @include('hr_shortlisting.candidate_submitted_personal_details')
                 
                 <!-- Academic details start -->
@@ -245,7 +245,7 @@ $page_title = "Candidate Details";
                 <?php  
                 $submitBtnTitle = "Proceed to Pay Now";
                 if(isset($final_submission_after_payment) && $final_submission_after_payment == 1){
-                    $submitBtnTitle = "Final Submition";
+                    $submitBtnTitle = "Final Submission";
                 ?>
                 <!-- payment transaction details start -->
                 @include('hr_shortlisting.candidate_payment_detail')
@@ -381,3 +381,6 @@ $page_title = "Candidate Details";
         });
  
     </script>
+
+
+@include('application.footer')

@@ -1,6 +1,7 @@
 <!-- experience block -->
 @if(!empty($fieldsArray) && in_array('nameoftheorganisation', $fieldsArray)) 
 <?php
+$expIds = [];
 $exp_check = old('exp_check');
 $exp_grand_total = old('exp_grand_total');
 $exp_from = old('exp_from');
@@ -25,6 +26,7 @@ if(!empty($fieldsArray) && in_array('exp_from', $fieldsArray)){
 
 if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
     //$exp_grand_total = array_column($academicDetails, 'education_id');
+    $expIds = array_column($candidateExperienceDetails, 'id');
     $exp_from = array_column($candidateExperienceDetails, 'from_date');
     $exp_to = array_column($candidateExperienceDetails, 'to_date');
     $exp_total = array_column($candidateExperienceDetails, 'total_experience');
@@ -111,8 +113,8 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
               </table>                    
               @if(!empty($fieldsArray) && in_array('totalexperience', $fieldsArray)) 
               <div class="form-group row col-12" align="left">
-                <label for="exp_grand_total" class="col-2">Total Experience: </label>
-                <input readonly="readonly" type="text" name="exp_grand_total" id="exp_grand_total" class="form-control col-2" placeholder="Click here to get total experience.." value="<?php echo $exp_grand_total; ?>" /> 
+                <label for="exp_grand_total" class="col-md-2 col-sm-12">Total Experience: </label>
+                <input readonly="readonly" type="text" name="exp_grand_total" id="exp_grand_total" class="form-control col-md-2 col-sm-12" placeholder="Click here to get total experience.." value="<?php echo $exp_grand_total; ?>" /> 
                 <input class="form-control-plaintext" id="required_exp" type="hidden" style="width:50px" readonly="readonly" />
                 <span id='exp_error' class="text-danger" ></span><input type="hidden" id="exp_error_check"  class="form-control" style="width:50px" />
               </div> 	
@@ -147,6 +149,7 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
             @foreach($exp_from as $key=>$from_date)
                 //.exp_from, .exp_to, .exp_total, .exp_org_name, .exp_prev_desig, .exp_gp, .exp_gross
                 experienceArr = [];
+                experienceArr['exp_id'] = "";
                 experienceArr['exp_from'] = "";
                 experienceArr['exp_to'] = "";
                 experienceArr['exp_total'] = "";
@@ -159,6 +162,11 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                 exp_from = exp_from.replace(" 00:00:00", "");
                 experienceArr['exp_from'] = exp_from; 
                 exp_to_date = "";
+
+                @if(isset($expIds[$key]) && !empty($expIds[$key]))
+                    experienceArr['exp_id'] = '<?php echo $expIds[$key]; ?>';
+                @endif
+
                 @if(isset($exp_to[$key]) && !empty($exp_to[$key]))
                     exp_to_date = '<?php echo $exp_to[$key]; ?>';
                     exp_to_date = exp_to_date.replace(" 00:00:00", "");
@@ -175,7 +183,7 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                     experienceArr['exp_prev_desig'] = '<?php echo $exp_prev_desig[$key]; ?>'; 
                 @endif
                 @if(isset($exp_gp[$key]) && !empty($exp_gp[$key]))
-                    experienceArr['exp_gp'] = <?php echo $exp_gp[$key]; ?>; 
+                    experienceArr['exp_gp'] = '<?php echo $exp_gp[$key]; ?>'; 
                 @endif
                 @if(isset($exp_gross[$key]) && !empty($exp_gross[$key]))
                     experienceArr['exp_gross'] = <?php echo $exp_gross[$key]; ?>; 
@@ -264,7 +272,14 @@ if(isset($candidateExperienceDetails) && !empty($candidateExperienceDetails)){
                 if(typeof experienceArr['exp_to'] != "undefined"){
                     exp_to = experienceArr['exp_to'];
                 }
-                html += '<td><input name="exp_from[]" value="'+exp_from+'" type="date" style="width:200px;" class="exp_from exp_common form-control calculate_experience"/></td>';
+                let exp_id = "";
+                if(typeof experienceArr['exp_id'] !== "undefined"){
+                    exp_id = experienceArr['exp_id'];
+                } 
+                html += '<td>';
+                    html += '<input name="exp_ids[]" type="text" value="'+exp_id+'" style="display:none;">';
+                    html += '<input name="exp_from[]" value="'+exp_from+'" type="date" style="width:200px;" class="exp_from exp_common form-control calculate_experience"/>';
+                html += '</td>';
                 html += '<td><input name="exp_to[]" value="'+exp_to+'" type="date" style="width:200px;" class="exp_to exp_common form-control calculate_experience"/></td>';
             @endif  
             // is_present_working

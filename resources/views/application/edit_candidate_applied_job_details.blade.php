@@ -84,10 +84,16 @@ if (request()->routeIs('companies.*')) {
                 <!-- include candidate academic details section -->
                 @include('application.candidate_academic_details')
                 <!-- include candidate experience details section -->
+                <br>
+                <hr>
                 @include('application.candidate_experience_details')
                 <!-- include candidate fellowship details section -->
+                <br>
+                <hr>
                 @include('application.candidate_fellowship')
                 <!-- include candidate refree details section -->
+                <br>
+                <hr>
                 @include('application.candidate_refree')
                 <?php
             }

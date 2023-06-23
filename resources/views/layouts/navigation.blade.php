@@ -33,9 +33,11 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav mr-auto">
+                            <!--
                             <li class="nav-item <?php if(request()->routeIs('dashboard')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
                             </li>
+                            -->
                             <li class="nav-item <?php if(request()->routeIs('manage_rnno')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_rnno') }}">RN No.</a>
                             </li>
@@ -69,7 +71,7 @@
                                 </div>
                             </li>
                             <li class="nav-item <?php if(request()->routeIs('candidate_list')){ ?>active<?php } ?>">
-                                <a class="nav-link" href="{{ route('candidate_list') }}">Shortlist</a>
+                                <a class="nav-link" href="{{ route('candidate_list') }}">HR Shortlist</a>
                             </li>
                             <li class="nav-item <?php if(request()->routeIs('manage_exam_centers_mapping')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_exam_centers_mapping') }}">Exam Centers Mapping</a>

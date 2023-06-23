@@ -98,12 +98,12 @@ if(isset($rnno) && !empty($rnno)){
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-4" id="rn_no" style="display:none;">
+                <div class="col-xs-12 col-sm-12 col-md-4" id="rn_no" style="display:block;">
                     <div class="form-group">
                         <label class="form-label">RN No.:</label>
-                        <input type="text" name="rn_no" id="rn_no_field" class="form-control" placeholder="RN No." value="<?php echo $rn_no; ?>" readonly>
-                        <input type="text" name="sequenceCode" id="sequenceCode" value="" placeholder="Sequence Code" class="displayNone">
-                        <input type="text" name="cycle" id="cycle" value="" placeholder="Cycle" class="displayNone">
+                        <input type="text" name="rn_no" id="rn_no_field" class="form-control" placeholder="RN No." value="<?php echo $rn_no; ?>">
+                        <input type="text" name="sequenceCode" id="sequenceCode" value="" placeholder="Sequence Code" class="displayNone222">
+                        <input type="text" name="cycle" id="cycle" value="" placeholder="Cycle" class="displayNone222">
                         @error('rn_no')
                         <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                         @enderror

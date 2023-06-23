@@ -1,5 +1,6 @@
 <?php
 $educationMaster = Helper::getCodeNamesByCode($codeNamesArr,'code','education');
+$academicIds = [];
 $exam_pass = old('exam_pass');
 $mn_pass = old('mn_pass');
 $yr_pass = old('yr_pass');
@@ -12,6 +13,7 @@ $duration_of_course = old('duration_of_course');
 $phd_result = old('phd_result');
 $thesis_title = old('thesis_title');
 if(isset($academicDetails) && !empty($academicDetails)){
+    $academicIds = array_column($academicDetails, 'id');
     $minJobEduRequired = array_column($academicDetails, 'education_id');
     $exam_pass = $minJobEduRequired;
     $mn_pass = array_column($academicDetails, 'month');
@@ -40,7 +42,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
                 @if(!empty($fieldsArray) && in_array('yearofpassing', $fieldsArray)) 
                 <th colspan="2">Month & Year of Passing </th>
                 @endif
-                <th>Total duration of course (in years)</th>
+                <th>Course duration (in years)</th>
                 @if(!empty($fieldsArray) && in_array('nameofthedegreesubjects', $fieldsArray)) 
                 <th>Name of the degree/Subjects </th>
                 @endif
@@ -80,6 +82,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
             @foreach($minJobEduRequired as $key=>$minEducationID)
                 minEducationID = <?php echo $minEducationID; ?>; 
                 academicArr = [];
+                academicArr['academicIds'] = "";
                 academicArr['mn_pass'] = "";
                 academicArr['yr_pass'] = "";
                 academicArr['subjects'] = "";
@@ -91,6 +94,9 @@ if(isset($academicDetails) && !empty($academicDetails)){
                 academicArr['phd_result'] = "";
                 academicArr['thesis_title'] = "";
 
+                @if(isset($academicIds[$key]) && !empty($academicIds[$key]))
+                    academicArr['academic_id'] = <?php echo $academicIds[$key]; ?>; 
+                @endif
                 @if(isset($mn_pass[$key]) && !empty($mn_pass[$key]))
                     academicArr['mn_pass'] = <?php echo $mn_pass[$key]; ?>; 
                 @endif
@@ -153,10 +159,12 @@ if(isset($academicDetails) && !empty($academicDetails)){
         let noOfRows = $('#academicDetailsBody tr').length;
         let minRows = 1;
         //console.log('noOfRows: '+noOfRows);
+        /*
         let minReqEduRows = <?php echo count($minJobEduRequired); ?>;
         if(minReqEduRows > 1){
             minRows = minReqEduRows;
         }
+        */
         if(noOfRows > minRows){ 
             // remove row
             $('#academicDetailsBody tr:last').remove(); 
@@ -226,8 +234,12 @@ if(isset($academicDetails) && !empty($academicDetails)){
         rowHtml += "<tr>";
             // name of exam column start
             if(formFieldsArr['isExamNameField'] == 1){
+                let academic_id = "";
+                if (typeof academicArr['academic_id'] !== 'undefined') {
+                    academic_id = academicArr['academic_id'];
+                }
                 let retEduDropdownHtml = getEducationDropdown(minEducationID);
-                rowHtml += '<td>'+retEduDropdownHtml+'</td>';
+                rowHtml += '<td><input type="text" name="academic_id[]" value="'+academic_id+'" style="display:none;">'+retEduDropdownHtml+'</td>';
             }
             // name of exam column end
             // year of passing column start
@@ -477,7 +489,7 @@ if(isset($academicDetails) && !empty($academicDetails)){
             required = 'required=""';
         }
         let html = '<div class="form-group">';
-            html += '<select name="division[]" class="division form-control" style="width:200px;" '+required+' >'; 
+            html += '<select name="division[]" class="division form-control" style="width:100px;" '+required+' >'; 
                 // array of divisions with keys and values
                 let arrValues = {I:"1ST", II:"2ND", III:"3RD", PASS:"PASS"};    
                 let selected = "";

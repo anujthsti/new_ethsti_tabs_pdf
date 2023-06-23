@@ -183,6 +183,9 @@ ul#wizardStatus li.importantStep:before{
 background-color: red;
 }
 
+.yr_pass {
+  width: 80px !important;
+}
 
 /*********************** loader css start ***************************/
 /* Center the loader */
