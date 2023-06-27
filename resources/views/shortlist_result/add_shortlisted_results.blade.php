@@ -8,6 +8,7 @@ $date_of_interview = old('date_of_interview');
 $alternate_text = old('alternate_text');
 $upload_file = old('upload_file');
 $announcement = old('announcement');
+$emails_to = config('app.to_emails_on_results');
 if(isset($shortlistedResults) && !empty($shortlistedResults)){
     $title = "Edit Shortlisted Result";
     $resultArr = $shortlistedResults[0];
@@ -21,6 +22,7 @@ if(isset($shortlistedResults) && !empty($shortlistedResults)){
     $alternate_text = $resultArr['alternate_text'];
     $upload_file = $resultArr['upload_file'];
     $announcement = $resultArr['announcement'];
+    $announcement = $resultArr['emails_to'];
 }
 
 ?>
@@ -134,7 +136,16 @@ if(isset($shortlistedResults) && !empty($shortlistedResults)){
                 
             </div>
             <div class="row">
-                
+            
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="form-label">Emails To</label>
+                        <input type="text" name="emails_to" class="form-control" value="<?php echo $emails_to; ?>">
+                        @error('emails_to')
+                        <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
                 <div class="col-xs-12 col-sm-12 col-md-4 text-left">
                     </br>
                     <button type="submit" class="btn btn-primary text-right">Save</button>

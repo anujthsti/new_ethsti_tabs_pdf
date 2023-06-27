@@ -8,7 +8,7 @@ $showing_till_date = old('showing_till_date');
 $alternate_text = old('alternate_text');
 $upload_file = old('upload_file');
 $announcement = old('announcement');
-$email = old('email');
+$email = config('app.to_emails_on_results');
 if(isset($shortlistedResults) && !empty($shortlistedResults)){
     $title = "Edit Shortlisted Result";
     $resultArr = $shortlistedResults[0];

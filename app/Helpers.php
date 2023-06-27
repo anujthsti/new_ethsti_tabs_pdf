@@ -599,10 +599,15 @@ class Helper {
     }
 
     // send email
-    public static function send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address){
+    public static function send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address, $cc_email=""){
         
-        Mail::send($mailTemplate, $dataArr, function($message) use ($to_name, $to_email, $subject, $title, $sender_email_address) {
-            $message->to($to_email, $to_name)->subject($subject)->from($sender_email_address,$title);
+        Mail::send($mailTemplate, $dataArr, function($message) use ($to_name, $to_email, $subject, $title, $sender_email_address, $cc_email) {
+            if(empty($cc_email)){
+                $message->to($to_email, $to_name)->subject($subject)->from($sender_email_address,$title);
+            }else{
+                $toEmails = explode(",", $to_email);
+                $message->to($to_email)->cc($cc_email)->subject($subject)->from($sender_email_address,$title);
+            }
         });
         $status = 1;
         if( count(Mail::failures()) > 0 ) {

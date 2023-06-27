@@ -18,11 +18,11 @@ class RnnoController extends Controller
     public function __construct(){
         //$unique = config("validations.unique");
         // get all code_names join with code_master
-        $this->codeNamesArr = Helper::getCodeNames();
+        //$this->codeNamesArr = Helper::getCodeNames();
         // filter rn no. types by code from array
-        $this->rn_no_types = Helper::getCodeNamesByCode($this->codeNamesArr,'code','rn_no_type');
+        //$this->rn_no_types = Helper::getCodeNamesByCode($this->codeNamesArr,'code','rn_no_type');
         // filter THS RN types by code from array
-        $this->ths_rn_types = Helper::getCodeNamesByCode($this->codeNamesArr,'code','ths_rn_types');
+        //$this->ths_rn_types = Helper::getCodeNamesByCode($this->codeNamesArr,'code','ths_rn_types');
         
     }
         
@@ -39,13 +39,14 @@ class RnnoController extends Controller
     */
     public function add_rnno($encodedId="")
     {
+        
         $rnno = [];
         if(!empty($encodedId)){
             $id = Helper::decodeId($encodedId);
             $rnno = Rn_no::find($id);
         }
-        $rn_no_types = $this->rn_no_types;
-        $ths_rn_types = $this->ths_rn_types;
+        $rn_no_types = Helper::getCodeNamesByMasterCode("rn_no_type");
+        $ths_rn_types = Helper::getCodeNamesByMasterCode("ths_rn_types");
         /*
         echo "<pre>";
         print_r($rn_no_types);
@@ -185,14 +186,19 @@ class RnnoController extends Controller
         if(isset($postData['sequenceCode']) && !empty($postData['sequenceCode'])){
             $postNewArray['sequence_no'] = (int)$postData['sequenceCode'];
         }
+        if(isset($postData['emails_to']) && !empty($postData['emails_to'])){
+            $postNewArray['emails_to'] = $postData['emails_to'];
+        }
+        
         $postNewArray['year'] = (int)date('Y');
         $postNewArray['rn_no'] = $postData['rn_no'];
-
+        $fileName = "";
+        $destinationPath = "public/upload/rn_document";
+                
         // file upload section start
         if(!empty($request->file('rn_file'))){
             try{
                 $fileData = $request->file('rn_file');
-                $destinationPath = "upload/rn_document";
                 $maxFileSizeKB = 5*1024*1024;// in KB
                 $fileExtentionArr = ['pdf'];// should be array
                 $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
@@ -225,6 +231,30 @@ class RnnoController extends Controller
             */
             Rn_no::create($postNewArray);
             $successMsg = "RN No. has been created successfully";
+            // send e-mail
+            if(isset($postData['emails_to']) && !empty($postData['emails_to'])){
+                //$to_email = "sysadmin@thsti.res.in,santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+                $to_email = $postData['emails_to'];//"satyamkumar@thsti.res.in,support@thsti.res.in";//"santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+                $cc_email = config("app.cc_emails_on_create_rnno");//"kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in";//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in";
+                $rn_no = $postData['rn_no'];
+                $subject = "Website Advertisement No ".$rn_no." - to be published on Website";
+                $title = "THSTI";
+                $mailTemplate = "emails.after_rn_no_create";
+                $user = auth()->user(); 
+                $user_name = $user->name;
+                $rn_link = "";
+                if(!empty($fileName)){
+                    $filePath = $destinationPath . '/' . $fileName;
+                    $rn_link = url($filePath);
+                }
+                $dataArr = [
+                    'rn_no' => $rn_no,
+                    'rn_link' => $rn_link,
+                    'user_name' => $user_name
+                ];
+                $sender_email_address = config('app.sender_email_address');
+                $emailStatus = Helper::send_mail($to_email, "", $subject, $title, $mailTemplate,$dataArr, $sender_email_address, $cc_email);
+            }
         }
         return redirect()->route('manage_rnno')->with('success','RN No. has been created successfully.');
     }

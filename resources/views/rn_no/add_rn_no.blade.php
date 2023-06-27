@@ -4,6 +4,8 @@ $rn_no = old('rn_no');
 $rn_type = old('rn_type');
 $ths_types = old('ths_rn_types');
 $fileName = "";
+//$emails_to = "sysadmin@thsti.res.in,santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+$emails_to = config('app.to_emails_on_create_rnno');//"satyamkumar@thsti.res.in,support@thsti.res.in";
 $form_action = route('save_rnno');
 if(isset($rnno) && !empty($rnno)){
     $title = "Edit RN No.";
@@ -113,8 +115,19 @@ if(isset($rnno) && !empty($rnno)){
                 <div class="col-xs-12 col-sm-12 col-md-4 text-left">
                     </br>
                     <a href="javascript:void(0)" onClick="generateNewRnNo();" class="btn btn-success text-right">Generate New RN No</a>
-                    <button type="submit" class="btn btn-primary text-right">Save</button>
                 </div>    
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label class="form-label">Emails To:</label>
+                        <input type="text" name="emails_to" class="form-control" placeholder="Emails To" value="<?php echo $emails_to; ?>">
+                    </div>
+                </div>        
+                <div class="col-xs-12 col-sm-12 col-md-4 text-left">
+                    <br>
+                    <button type="submit" class="btn btn-primary text-right">Save</button>
+                </div>                
             </div>
         </form>
     </div>

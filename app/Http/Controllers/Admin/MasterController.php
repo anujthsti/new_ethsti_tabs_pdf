@@ -243,10 +243,10 @@ class MasterController extends Controller
             ]);
             $fileName = "";
             $errorMsgArr = [];
+            $destinationParentFolderPath = config('app.shortlisted_result_doc_path');
+            $destinationPath = $destinationParentFolderPath;
             if(!empty($request->file('upload_file'))){
                 $fileData = $request->file('upload_file');
-                $destinationParentFolderPath = config('app.shortlisted_result_doc_path');
-                $destinationPath = $destinationParentFolderPath;
                 $maxFileSizeKB = 1000*1024;// 200 KB
                 $fileExtentionArr = ['pdf'];// should be array
                 $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
@@ -268,6 +268,7 @@ class MasterController extends Controller
                 if(!empty($fileName)){
                     $insertData['upload_file'] = $fileName;
                 }
+                
                 $shortListedResult->fill($insertData);
                 
                 $shortListedResult->save();
@@ -277,8 +278,34 @@ class MasterController extends Controller
                 if(!empty($fileName)){
                     $insertData['upload_file'] = $fileName;
                 }
+                
                 ShortlistedResults::create($insertData);
                 $successMsg = "Result has been created successfully";
+                $shortlisted_title = $insertData['shortlisted_title'];
+                // send e-mail
+                
+                if(isset($insertData['emails_to']) && !empty($insertData['emails_to'])){
+                    //$to_email = "sysadmin@thsti.res.in,santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+                    $to_email = $insertData['emails_to'];//"satyamkumar@thsti.res.in,support@thsti.res.in";//"santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+                    $cc_email = config("app.cc_emails_on_results");//"kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in";//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in";
+                    $subject = "Shortlisted Result for ".$shortlisted_title." - to be published on Website";
+                    $title = "THSTI";
+                    $mailTemplate = "emails.after_shortlist_result";
+                    $user = auth()->user(); 
+                    $user_name = $user->name;
+                    $file_link = "";
+                    if(!empty($fileName)){
+                        $filePath = $destinationPath . '/' . $fileName;
+                        $file_link = url($filePath);
+                    }
+                    $dataArr = [
+                        'job_title' => $shortlisted_title,
+                        'file_link' => $file_link,
+                        'user_name' => $user_name
+                    ];
+                    $sender_email_address = config('app.sender_email_address');
+                    $emailStatus = Helper::send_mail($to_email, "", $subject, $title, $mailTemplate,$dataArr, $sender_email_address, $cc_email);
+                }
 
             }
             
@@ -290,7 +317,7 @@ class MasterController extends Controller
             // log error in file
             Helper::logErrorInFile($e);
             return redirect()->back()->withInput()->with('error_msg',$errorMsg);
-        }    
+        }  
 
     }
     
@@ -386,33 +413,32 @@ class MasterController extends Controller
                 ////////////////// send email start
                 $rn_no_id = $insertData['rn_no_id'];
                 $rnNoDetail = Rn_no::where('id',$rn_no_id)->get(['rn_nos.*'])->toArray();
-                $to_email = $insertData['email'];
+                $to_email = $insertData['email'];//"satyamkumar@thsti.res.in,support@thsti.res.in";//"santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+                $cc_email = config("app.cc_emails_on_results");//"kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in";//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in";
+                    
                 $to_name = "";
                 $rn_no = $rnNoDetail[0]['rn_no'];
-                $subject = "Website Notification-Result-".$rnNoDetail[0]['rn_no'];
+                $result_title = $insertData['result_title'];
+                $subject = "Upload Result for $result_title of RN No $rn_no - to be published on Website";
                 $title = "THSTI";
                 $mailTemplate = "emails.result_upload_email_template";
-                $result_title = $insertData['result_title'];
-                $showing_till_date = $insertData['showing_till_date'];
-                $alternate_text = $insertData['alternate_text'];
-                $announcement = $insertData['announcement'];
-
+                
                 $destinationParentFolderPath = config('app.result_doc_path');
                 $file_url = $destinationParentFolderPath."/".$fileName;
                 if(!empty($file_url)){
                     $file_url = url($file_url);
                 }
+                $user = auth()->user(); 
+                $user_name = $user->name;
                 $dataArr = [
                     'rn_no' => $rn_no,
                     'result_title' => $result_title,
-                    'showing_till_date' => $showing_till_date,
-                    'alternate_text' => $alternate_text,
-                    'announcement' => $announcement,
-                    'file_url' => $file_url
+                    'file_url' => $file_url,
+                    'user_name' => $user_name
                 ];
                 //print_r($dataArr);exit;
                 $sender_email_address = config('app.sender_email_address');
-                $emailStatus = Helper::send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address);
+                $emailStatus = Helper::send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address, $cc_email);
                 ////////////////// send email end
             }
             
