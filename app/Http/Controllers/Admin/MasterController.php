@@ -12,6 +12,7 @@ use App\Models\ShortlistedResults;
 use App\Models\Rn_no;
 use App\Models\Jobs;
 use App\Models\Results;
+use App\Models\Syllabus;
 
 class MasterController extends Controller
 {
@@ -454,5 +455,105 @@ class MasterController extends Controller
     }
     
     /********************** Results end *********************/
+
+    /********************** Syllabus functions start *********************/
+    public function manage_syllabus(){
+
+        $syllabus = Syllabus::join('rn_nos','rn_nos.id','=','syllabus.rn_no_id')
+                                                ->join('jobs','jobs.id','=','syllabus.job_id')
+                                                ->orderBy('syllabus.id','desc')
+                                                ->where('syllabus.status',1)
+                                                ->get(['rn_nos.rn_no','syllabus.*','jobs.post_id'])
+                                                ->toArray();
+        $postMasterId = 15;                                        
+        $postsArr = CodeNames::where('code_id',$postMasterId)->get(['code_names.*'])->toArray();
+                                                
+        return view("syllabus/manage_syllabus",compact('syllabus','postsArr'));
+    }
+
+    public function delete_syllabus($encodedId)
+    {
+        $id = Helper::decodeId($encodedId);
+        Syllabus::where('id', $id)->update(['status' => 3]);
+        return redirect()->route('manage_syllabus')->with('success','Syllabus has been deleted successfully');
+    }
+
+    public function add_syllabus($encodedId=""){
+
+        $rnNos = Rn_no::orderBy('id','desc')->get()->toArray();
+        $syllabus = [];
+        if(!empty($encodedId)){
+            $id = Helper::decodeId($encodedId);
+            $syllabus = Syllabus::where('id', $id)->get()->toArray();
+        }
+        return view("syllabus/add_syllabus", compact('rnNos', 'syllabus', 'encodedId'));
+    }
+
+    public function save_syllabus(Request $request, $encodedId=""){
+
+        try{
+
+            $requiredValidation = config("validations.required");
+            $request->validate([
+                'rn_no_id' => $requiredValidation,
+                'job_id' => $requiredValidation,
+                'syllabus_title' => $requiredValidation,
+                'showing_till_date' => $requiredValidation,
+                'alternate_text' => $requiredValidation,
+                'upload_file' => $requiredValidation
+            ]);
+            $fileName = "";
+            $errorMsgArr = [];
+            if(!empty($request->file('upload_file'))){
+                $fileData = $request->file('upload_file');
+                $destinationParentFolderPath = config('app.syllabus_doc_path');
+                $destinationPath = $destinationParentFolderPath;
+                $maxFileSizeKB = 10000*1024;// 200 KB
+                $fileExtentionArr = ['pdf'];// should be array
+                $fileUploadRetArr = Helper::upload($fileData,$destinationPath,$maxFileSizeKB,$fileExtentionArr);
+                if($fileUploadRetArr['status'] == 1){
+                    $fileName = $fileData->getClientOriginalName();
+                    $isDocsUploaded = 1;
+                }else{
+                    $errorMsg = $fileUploadRetArr['msg'];
+                    array_push($errorMsgArr,$errorMsg);
+                    $isFileUploadError = 1;
+                    return redirect()->back()->withInput()->with('file_error',$errorMsg);
+                }
+            }
+
+            if(!empty($encodedId)){
+                $id = Helper::decodeId($encodedId);
+                $syllabus = Syllabus::find($id);
+                $insertData = $request->all();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                $syllabus->fill($insertData);
+                
+                $syllabus->save();
+                $successMsg = "Syllabus has been updated successfully";
+            }else{
+                $insertData = $request->post();
+                if(!empty($fileName)){
+                    $insertData['upload_file'] = $fileName;
+                }
+                Syllabus::create($insertData);
+                $successMsg = "Syllabus has been created successfully";
+                
+            }
+            
+            return redirect()->route('manage_syllabus')->with('success',$successMsg);
+        }catch(\Exception $e){
+            $errorMsg = $e->getMessage();
+            //$errorMsg = "Something went wrong. Please contact administrator.";
+            //DB::rollback();
+            // log error in file
+            Helper::logErrorInFile($e);
+            return redirect()->back()->withInput()->with('error_msg',$errorMsg);
+        } 
+    }
+    
+    /********************** Syllabus functions end *********************/
 
 }

@@ -270,9 +270,10 @@ return [
 
     'candidates_docs_path' => 'public/upload/candidates_documents',
     'candidates_details_pdf_doc_path' => 'public/upload/pdf_docs',
-    'sender_email_address' => 'kambojanuj@thsti.res.in',
+    'sender_email_address' => "satyamkumar@thsti.res.in",//'kambojanuj@thsti.res.in',
     'shortlisted_result_doc_path' => 'public/upload/shortlisted_results',
     'result_doc_path' => 'public/upload/results',
+    'syllabus_doc_path' => 'public/upload/syllabus',
 
     'to_emails_on_create_rnno' => "satyamkumar@thsti.res.in,support@thsti.res.in",//"sysadmin@thsti.res.in,santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in"
     'cc_emails_on_create_rnno' => "kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in",//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in"

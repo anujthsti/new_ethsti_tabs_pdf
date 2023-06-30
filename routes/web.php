@@ -95,6 +95,14 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::delete('delete_results/{id}', 'delete_results')->name('delete_results');
         // route for results end
         
+        // route for syllabus start
+        Route::get('manage_syllabus', 'manage_syllabus')->name('manage_syllabus');
+        Route::get('add_syllabus', 'add_syllabus')->name('add_syllabus');
+        Route::get('edit_syllabus/{id}', 'add_syllabus')->name('edit_syllabus');
+        Route::post('save_syllabus/{id?}', 'save_syllabus')->name('save_syllabus');
+        Route::delete('delete_syllabus/{id}', 'delete_syllabus')->name('delete_syllabus');
+        // route for syllabus end
+        
     });
     // Code Jobs route start
     Route::controller(JobsController::class)->group(function () {

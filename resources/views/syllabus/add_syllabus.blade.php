@@ -1,28 +1,25 @@
 <?php
-$title = "Add Result";
-$form_action = route('save_results');
+$title = "Add Syllabus";
+$form_action = route('save_syllabus');
 $rn_no_id = old('rn_no_id');
 $job_id = old('job_id');
-$result_title = old('result_title');
+$syllabus_title = old('syllabus_title');
 $showing_till_date = old('showing_till_date');
 $alternate_text = old('alternate_text');
 $upload_file = old('upload_file');
-$announcement = old('announcement');
-$email = config('app.to_emails_on_results');
-if(isset($results) && !empty($results)){
-    $title = "Edit Result";
-    $resultArr = $results[0];
+if(isset($syllabus) && !empty($syllabus)){
+    $title = "Edit Shortlisted Result";
+    $resultArr = $syllabus[0];
     $encId = Helper::encodeId($resultArr['id']);
-    $form_action = route('save_results',$encId);
+    $form_action = route('save_syllabus',$encId);
 
     $rn_no_id = $resultArr['rn_no_id'];
     $job_id = $resultArr['job_id'];
-    $result_title = $resultArr['result_title'];
+    $syllabus_title = $resultArr['syllabus_title'];
     $showing_till_date = $resultArr['showing_till_date'];
     $alternate_text = $resultArr['alternate_text'];
     $upload_file = $resultArr['upload_file'];
-    $announcement = $resultArr['announcement'];
-    $email = $resultArr['email'];
+    
 }
 
 ?>
@@ -91,8 +88,8 @@ if(isset($results) && !empty($results)){
                 <div class="col-xs-12 col-sm-12 col-md-4">
                     <div class="form-group">
                         <label class="form-label">Title</label>
-                        <input type="text" name="result_title" class="form-control" value="<?php echo $result_title; ?>">
-                        @error('result_title')
+                        <input type="text" name="syllabus_title" class="form-control" value="<?php echo $syllabus_title; ?>">
+                        @error('syllabus_title')
                         <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -120,24 +117,6 @@ if(isset($results) && !empty($results)){
                         <label class="form-label">Upload File</label>
                         <input type="file" name="upload_file" class="form-control" value="<?php echo $upload_file; ?>">
                         @error('upload_file')
-                        <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Announcement</label>
-                        <input type="text" name="announcement" class="form-control" value="<?php echo $announcement; ?>">
-                        @error('announcement')
-                        <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="form-group">
-                        <label class="form-label">Emails send to</label>
-                        <input type="text" name="email" class="form-control" value="<?php echo $email; ?>">
-                        @error('email')
                         <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                         @enderror
                     </div>
