@@ -1,6 +1,6 @@
   <div class="container">
       <div class="text-center h6">
-        For any technical issue or support kindly contact at <a href="mailto:support@thsti.res.in">support@thsti.res.in</a>
+        For any technical issue or support kindly contact at <a href="mailto:kambojanuj@thsti.res.in">kambojanuj@thsti.res.in</a>
       </div>
   </div>
   <!--Footer-->

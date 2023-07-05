@@ -556,4 +556,39 @@ class MasterController extends Controller
     
     /********************** Syllabus functions end *********************/
 
+    public function test_send_mail(){
+
+        ////////////////// send email start
+        $rn_no_id = 1122;
+        $to_email = "1992kambojanuj@gmail.com";//"satyamkumar@thsti.res.in,support@thsti.res.in";//"santosh.sharma@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in";
+        $cc_email = "kambojanuj1992@gmail.com";//"kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in";//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in";
+            
+        $to_name = "Testing";
+        $rn_no = "Test-RN-No-11";
+        $result_title = "Testing Email";
+        $subject = "Upload Result for $result_title of RN No $rn_no - to be published on Website";
+        $title = "THSTI";
+        $mailTemplate = "emails.result_upload_email_template";
+        
+        $destinationParentFolderPath = config('app.result_doc_path');
+        $file_url = $destinationParentFolderPath;
+        if(!empty($file_url)){
+            $file_url = url($file_url);
+        }
+        $user = auth()->user(); 
+        $user_name = $user->name;
+        $dataArr = [
+            'rn_no' => $rn_no,
+            'result_title' => $result_title,
+            'file_url' => $file_url,
+            'user_name' => $user_name
+        ];
+        //print_r($dataArr);exit;
+        config(['mail.mailers.smtp.username' => "vikash.kumar@thsti.res.in"]);
+        config(['mail.mailers.smtp.password' => config('app.admin_mail_password')]);
+        $sender_email_address = config('app.admin_sender_mail');
+        $emailStatus = Helper::send_mail($to_email, $to_name, $subject, $title, $mailTemplate,$dataArr, $sender_email_address, $cc_email);
+        ////////////////// send email end
+    }
+
 }

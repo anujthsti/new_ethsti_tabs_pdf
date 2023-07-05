@@ -23,6 +23,14 @@
                     </x-nav-link>
                 </div>
                 -->
+                <?php
+                $user = auth()->user(); 
+                $user_email = $user->email;
+                $showMasters = 1;
+                if($user_email == "vikash.kumar@thsti.res.in"){
+                    $showMasters = 0;
+                }
+                ?>
                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
                     <a class="navbar-brand" href="{{ route('dashboard') }}">
                         <img class="logo" src="{{asset('thsti_logo.jpg')}}" alt="THSTI">
@@ -41,6 +49,7 @@
                             <li class="nav-item <?php if(request()->routeIs('manage_rnno')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_rnno') }}">RN No.</a>
                             </li>
+                            @if($showMasters == 1)
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Masters
@@ -70,6 +79,7 @@
                                     <a class="dropdown-item" href="{{ route('manage_form_configuration') }}">Manage Form Configuration</a>
                                 </div>
                             </li>
+                            @endif
                             <li class="nav-item <?php if(request()->routeIs('candidate_list')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('candidate_list') }}">HR Shortlist</a>
                             </li>
@@ -85,6 +95,7 @@
                             <li class="nav-item <?php if(request()->routeIs('manage_syllabus')){ ?>active<?php } ?>">
                                 <a class="nav-link" href="{{ route('manage_syllabus') }}">Syllabus</a>
                             </li>
+                            
                             <?php /* ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -103,6 +103,8 @@ Route::group(['prefix'=>'admin','middleware' => ['auth', 'verified']], function(
         Route::delete('delete_syllabus/{id}', 'delete_syllabus')->name('delete_syllabus');
         // route for syllabus end
         
+        Route::get('test_send_mail', 'test_send_mail')->name('test_send_mail');
+
     });
     // Code Jobs route start
     Route::controller(JobsController::class)->group(function () {

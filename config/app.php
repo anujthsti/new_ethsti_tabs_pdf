@@ -248,7 +248,7 @@ return [
         'encryption_iv' => '23922810',
         'encryption_key' => "THSTIDEVTEAM"
     ],
-
+ 
     /********* BilDesk details *********/
     'bildesk' => [
         'merchant_id' => 'THSTI',
@@ -266,7 +266,7 @@ return [
         'UserID' => 'thsti',
         'EntityID' => '1701159297694119298',
         'smsAPIUrl' => 'http://nimbusit.biz/api/SmsApi/SendBulkApi'
-    ],
+    ], 
 
     'candidates_docs_path' => 'public/upload/candidates_documents',
     'candidates_details_pdf_doc_path' => 'public/upload/pdf_docs',
@@ -281,5 +281,6 @@ return [
     'to_emails_on_results' => "satyamkumar@thsti.res.in,support@thsti.res.in",//"sysadmin@thsti.res.in,santosh.sharma@thsti.res.in,pawanpal@thsti.res.in,satyamkumar@thsti.res.in,support@thsti.res.in"
     'cc_emails_on_results' => "kambojanuj@thsti.res.in,pravin.langote@thsti.res.in,sapna@thsti.res.in",//"santo@thsti.res.in,raj.kumar@thsti.res.in,rajni@thsti.res.in"
 
-
+    'admin_sender_mail' => 'vikash.kumar@thsti.res.in',
+    'admin_mail_password' => 'csouxkrnvfnlclng'// mail app password for vikash.kumar@thsti.res.in
 ];
