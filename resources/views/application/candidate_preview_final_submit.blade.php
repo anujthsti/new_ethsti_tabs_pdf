@@ -196,13 +196,13 @@ $page_title = "Candidate Details";
         $isPDFGenerating = 1;
         $candidateApplyDetails = $candidateJobApplyDetail;
         ?>
-        <form method="post" name="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
+        <form method="post" name="candidate_print" id="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
             @csrf
             <input type="text" name="final_submit" value="1" style="display:none;">
-            <table border="0" align="center" cellpadding="0" cellspacing="0" id="print_form_id" class="table-responsive-sm table11-sm11">
+            <table border="0" align="center" cellpadding="0" cellspacing="0" id="print_form_id" class="table-sm">
                 <!-- header -->
                 @include('hr_shortlisting.candidate_submitted_detail_header')
-                 
+                
                 @include('hr_shortlisting.candidate_submitted_personal_details')
                 
                 <!-- Academic details start -->
@@ -279,12 +279,12 @@ $page_title = "Candidate Details";
 
             </table>
             
-            &nbsp;<br>
-            &nbsp;<br>     
-            
         </form>
         <!-- form html end -->
 
+        &nbsp;<br>
+            &nbsp;<br>     
+            
 
     </div>
 </div>
@@ -292,8 +292,24 @@ $page_title = "Candidate Details";
         $(document).ready(function(){
 	
             $('#print_app').click(function(){
-                window.print();		
+                //window.print();		
+                //printDiv();
+                w=window.open();
+                let html = "<html><body>"+$('#candidate_print').html()+"</body></html>";
+                w.document.write(html);
+                w.print();
+                w.close();
             });
+            function printDiv() {
+                var printContents = document.getElementById("candidate_print").innerHTML;
+                var originalContents = document.body.innerHTML;
+
+                document.body.innerHTML = printContents;
+
+                window.print();
+
+                //document.body.innerHTML = originalContents;
+            }
             $('#back_id').click(function(){
                     
             });
@@ -383,4 +399,4 @@ $page_title = "Candidate Details";
     </script>
 
 
-@include('application.footer')
+@include('application.footer')    

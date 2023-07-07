@@ -134,7 +134,7 @@
         $formAction = route("save_candidate_shortlisting", $job_apply_id_enc);
         ?>
         <!-- form html start -->
-        <form method="post" name="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
+        <form method="post" name="candidate_print" id="candidate_print" action="<?php echo $formAction; ?>" class="border border-dark" >
             @csrf
             <?php
                 $full_name = "";
@@ -498,8 +498,16 @@
     <script>
         $(document).ready(function(){
 	
-            $('#print_app').click(function(){
+            /*$('#print_app').click(function(){
                 window.print();		
+            });*/
+            $('#print_app').click(function(){
+                
+                w=window.open();
+                let html = "<html><body>"+$('#candidate_print').html()+"</body></html>";
+                w.document.write(html);
+                w.print();
+                w.close();
             });
             $('#back_id').click(function(){
                     

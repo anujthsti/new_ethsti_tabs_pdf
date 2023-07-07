@@ -29,7 +29,7 @@ $page_title = "THSTI Recruitment";
                             </div>
                             <div class="form-group">
                                 <label for="mobile" class="text-light">Mobile:</label>
-                                <input type="text" class="form-control" name="mobile" id="c_mobile" placeholder="Mobile No" required maxlength="10" />
+                                <input type="text" class="form-control" name="mobile" id="c_mobile" placeholder="Mobile No" required />
                                 @error('mobile')
                                 <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                                 @enderror
